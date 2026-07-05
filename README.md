@@ -437,3 +437,133 @@ the next session can resume without re-reading the entire codebase.
   Working tree clean. **311 tests passing. Build clean.**
 - Commit: `TBD on close`
 
+### 2026-07-05 — Tier 3 value-add (premium feel)
+
+**Goal:** Ship the Tier-3 free value-adds — internationalization
+and an onboarding tour that make the extension feel polished
+and accessible to non-English users. Two deliverables, four commits.
+
+**Step 17 — fix(build): popup-bundle.js syntax error**
+
+While reloading the extension after Tier 2 we hit a SyntaxError
+that was missed by all 311 tests. Diagnosis: `popupBundle()` in
+`build.js` emitted module IIFEs as bare statements on the top
+level of the outer IIFE (`constants: (function(){...})(),`).
+JavaScript parses `identifier:` as a label, and a function
+expression call after a label is a `SyntaxError: Unexpected token ':'`.
+
+Why the tests missed it: they import `lib/*` directly via ESM and
+never load the generated bundles.
+
+Fix: wrap the inner content in `var mods = { ... }` and reference
+`mods.<ns>` in the `global.WG_POPUP_LIB` assignment. Quoted each
+module key for good measure. Added `test-build.js` (19 assertions)
+as a regression guard: `node --check` on both bundles, all 9 modules
+present in `WG_POPUP_LIB`, structural markers, content.js doesn't
+pollute `WG_POPUP_LIB`. Now 311 → **330 tests**.
+- Commit: `c71fe51`
+
+**Step 18 — i18n core + 4 locales**
+
+- `lib/i18n.js` (new, ~230 lines) — custom lightweight i18n system
+  (not Chrome's native `chrome.i18n` — we need runtime locale
+  switching + placeholder interpolation + DOM walking). API:
+  - `initI18n()` — load user override from `chrome.storage.local`,
+    fall back to browser locale detection (chrome.i18n → navigator),
+    fall back to "en"
+  - `saveLocale(code)` — persist override + apply immediately
+  - `setLocale(code)` / `getLocale()` — switch active messages table
+  - `t(key, params)` — translate with `{placeholder}` interpolation;
+    falls back to English when key is missing in active locale;
+    returns the key itself when missing everywhere (so gaps are
+    visible in the UI during translation)
+  - `applyTranslations(root)` — walks DOM, applies `data-i18n`
+    (textContent) and `data-i18n-attr="attr:key,attr:key"`
+    (setAttribute). Also sets `<html lang>`.
+  - `setMessages(table)` / `setLocaleMessages(code, obj)` — test
+    injection points.
+  - `SUPPORTED_LOCALES = ["en","ru","es","zh"]`
+- `lib/locales/en.js` + `ru.js` + `es.js` + `zh.js` — 4 flat
+  key→string tables, ~85 keys each, identical key sets (verified by
+  test). Namespaces: `common.*`, `popup.*`, `settings.*`,
+  `onboarding.*`. English is the source of truth; Russian uses
+  Cyrillic throughout; Spanish uses proper accents/eszett;
+  Simplified Chinese covers the most common phrases.
+- `build.js` — popup-bundle.js now inlines all 4 locales as
+  `window.__WG_LOCALES__` before the IIFE wrapper. i18n.js reads
+  this global on first `setLocale()` / `t()` call. Content.js
+  does NOT include i18n (content scripts don't show UI) — separate
+  `POPUP_ORDER` constant controls this.
+- `_locales/en/messages.json` — Chrome Web Store metadata
+  (extensionName, extensionShortName, extensionDescription). Required
+  for CWS listing; separate from the runtime i18n system.
+- Integration: popup.html + popup.js + settings.html + settings.js
+  all use `data-i18n` attributes and `t()` calls. `settings.html`
+  gets a new "Appearance & Language" section with a `<select>`
+  populated from `availableLocales()`. Switching the dropdown calls
+  `saveLocale()`, re-applies translations, re-renders imperative UI
+  (pills, list tooltips), and shows a toast in the new language.
+- 54 new tests in `test-i18n.js`: normalizeLocale (12 inputs),
+  detectLocale, setLocale/getLocale, interpolation (en/ru/es/zh),
+  fallback to en, key-as-fallback, setMessages/setLocaleMessages,
+  availableLocales, key-set consistency across all 4 locales, no
+  empty translations, popup-bundle.js has all 4 locales inlined,
+  HTML-bearing strings preserve `<strong>` and `<code>` tags.
+
+**Step 19 — Onboarding tour**
+
+- popup.html — new `#onboarding-overlay` element with backdrop,
+  panel, indicator (Step X of 4), title, body, dots (rendered by
+  JS), Skip + Next/Done buttons. `role="dialog"` + `aria-modal="true"`
+  for accessibility. Hidden by default.
+- popup.css — `.onboarding` styles: full-screen backdrop with
+  blur, centered panel with gradient + accent border, animated
+  fade-in + rise, dot indicator with active-state glow, ghost +
+  primary button variants.
+- popup.js — onboarding logic (inside the existing IIFE):
+  - `ONBOARDING_STEPS = 4`
+  - `initOnboarding()` — wires Skip/Next/Done + Escape/Enter
+    keybinds; calls `maybeShowOnboarding()` which reads
+    `chrome.storage.local["wg_onboardingCompleted"]`. First run
+    shows step 1; subsequent opens skip.
+  - `showOnboardingStep(idx)` — renders title (from
+    `onboarding.stepN.title`), body (from `onboarding.stepN.body`),
+    step indicator, dots, and the Next button label (Next for
+    steps 1-3, Done for step 4).
+  - `advanceOnboarding()` / `completeOnboarding()` — step navigation
+    and persistence.
+  - `window.__wgReplayOnboarding()` — public hook for the settings
+    page to re-trigger the tour.
+- settings.html — new "Replay onboarding tour" button in the
+  Appearance & Language section. Click handler in settings.js
+  clears the completion flag, opens the popup, and the overlay
+  shows on next render.
+- 80 new tests in `test-onboarding.js`: HTML structure (overlay,
+  title, body, dots, buttons, hidden-by-default, ARIA attrs), JS
+  handlers (showOnboardingStep, advanceOnboarding,
+  completeOnboarding, keyboard, dots), settings wiring (replay
+  button + state reset), translation completeness (all 4 steps ×
+  title/body in all 4 locales), storage key consistency, build
+  pipeline includes onboarding locale data.
+
+**Step 20 — updated CHANGELOG + Sprint Log**
+
+- CHANGELOG.md — `[Unreleased — Tier 3]` section added above
+  1.5.0 release. Two added blocks (i18n + onboarding tour), one
+  changed block (popup/settings HTML/JS now i18n-driven),
+  one fixed (popup-bundle.js syntax error).
+- README Sprint Log — this entry.
+
+**Tier 3 status: 2/2 done.** Working tree clean, all **465 tests
+pass** (103 typosquat, 16 integration, 55 multichain, 61 nft,
+76 revoke, 20 build, 54 i18n, 80 onboarding), build clean
+(content.js 92731 bytes, popup-bundle.js 136076 bytes — locales
+add ~70 KB). Ready for v1.5.1 bump + repackage ZIPs + CWS/AMO
+submit.
+
+**Cumulative since launch baseline:** 11 commits (4 Tier 1 + 4 Tier 2
++ 3 Tier 3). Test count: 176 → 465 (+289, +164%). Bundle sizes:
+content.js 81834 → 92731 (+14%), popup-bundle.js 65225 → 136076
+(+109%, locales).
+
+

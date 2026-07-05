@@ -42,6 +42,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased — Tier 3]
+
+### Added (i18n)
+- **`lib/i18n.js`** — custom lightweight i18n system (not Chrome's native `chrome.i18n`, which doesn't support runtime locale switching or placeholder interpolation). API: `initI18n()`, `saveLocale()`, `setLocale()` / `getLocale()`, `t(key, params)` with `{placeholder}` interpolation, `applyTranslations(root)` for DOM walking via `data-i18n` and `data-i18n-attr="attr:key"` attributes. Fallback chain: user override → browser locale → "en". Missing-key behaviour: falls back to English, then returns the key itself so gaps are visible during translation.
+- **`lib/locales/{en,ru,es,zh}.js`** — 4 flat key→string tables, ~85 keys each, identical key sets. Namespaces: `common.*`, `popup.*`, `settings.*`, `onboarding.*`. Russian uses Cyrillic throughout, Spanish uses proper accents/eszett, Simplified Chinese covers the most common phrases.
+- **`_locales/en/messages.json`** — Chrome Web Store metadata (extensionName, extensionShortName, extensionDescription). Separate from the runtime i18n system; required for CWS listing.
+- **`build.js`** — popup-bundle.js now inlines all 4 locales as `window.__WG_LOCALES__` before the IIFE wrapper. i18n.js reads this global on first use. Content.js does NOT include i18n (content scripts don't show UI); separate `POPUP_ORDER` constant controls this.
+- **Settings UI**: new "Appearance & Language" section with a `<select>` populated from `availableLocales()`. Switching the dropdown calls `saveLocale()`, re-applies translations live, re-renders imperative UI (pills, list tooltips), and shows a confirmation toast in the new language.
+- 54 new tests in `test-i18n.js`: locale normalization (12 inputs), detection, setLocale/getLocale, interpolation across all 4 locales, English fallback, key-as-fallback, setMessages/setLocaleMessages, availableLocales, key-set consistency, no empty translations, popup-bundle locale inlining, HTML-bearing string preservation.
+
+### Added (onboarding tour)
+- **4-step overlay in popup** (Welcome → Approval Scanner → One-Click Revoke → You're All Set). Hidden by default; auto-shown on first popup open. State persisted in `chrome.storage.local["wg_onboardingCompleted"]`. "Skip tour" button or Escape key dismisses without completing; Next/Enter advances, Done completes.
+- **Step indicator**: "Step X of 4" text + animated dot row with active-state glow. Translates via `onboarding.indicator` with `{current}` and `{total}` params.
+- **Replay button**: new "Replay onboarding tour" button in Settings → Appearance & Language. Clears the completion flag and opens the popup; overlay shows on next render.
+- **Accessibility**: `role="dialog"` + `aria-modal="true"` on the panel. Keyboard navigation: Enter / Right arrow advance, Escape skips. Focus stays inside the panel via the visible button order.
+- 80 new tests in `test-onboarding.js`: HTML structure (overlay, title, body, dots, buttons, hidden-by-default, ARIA attrs), JS handlers (showOnboardingStep, advanceOnboarding, completeOnboarding, keyboard nav, dots), settings wiring (replay button + state reset), translation completeness (all 4 steps × title/body in all 4 locales), storage key consistency, build pipeline includes onboarding locale data.
+
+### Changed
+- `popup.html` + `popup.js` — every user-facing string now uses `data-i18n` attribute or `t()` call. Imported `i18n` via `window.WG_POPUP_LIB.i18n` (loaded from popup-bundle.js).
+- `settings.html` + `settings.js` — same treatment plus the new language selector and replay button.
+- `popup.css` — added `.onboarding` styles: full-screen backdrop with blur, centered panel with gradient + accent border, animated fade-in + rise, dot indicator with glow.
+- `settings.html` inline styles — added `<select>` styles (custom dropdown arrow via SVG background), `<code>` styling inside `.info-box`, flex-wrap on `.row-actions`.
+
+### Fixed
+- **`popup-bundle.js` syntax error** — `popupBundle()` in `build.js` emitted module IIFEs as bare statements (`constants: (function(){...})(),`) at the top level of the outer IIFE. JavaScript parses `identifier:` as a label, and a function expression call after a label is `SyntaxError: Unexpected token ':'`. Wrapped in `var mods = { ... }` and referenced `mods.<ns>` in the global assignment. Added `test-build.js` (20 assertions) as a regression guard: `node --check` on both bundles, all 10 modules present in `WG_POPUP_LIB`, structural markers, content.js doesn't pollute `WG_POPUP_LIB`.
+
+---
+
 ## [1.5.0] - 2026-07-05
 
 ### Added
