@@ -339,3 +339,82 @@ isn't a bare-bones "another wallet security extension" page.
 
 **Tier 1 status: 3/3 done.** Working tree clean, all 184 tests pass, build clean (81834 bytes). Ready for CWS submit + Tier 2 (auto-revoke + self-audit + typosquat list expansion) or any other direction.
 
+### 2026-07-05 — Tier 2 value-add (post-launch depth)
+
+**Goal:** Ship the Tier-2 free value-adds — features that make
+WalletGuard Pro a *layer* rather than just a warning UI. Three
+deliverables, three commits.
+
+**Step 14 — Auto-revoke calldata generator**
+
+- `lib/revoke-generator.js` (new, ~210 lines) — pure functions,
+  no DOM / chrome.* dependencies. Exports:
+  - Constants: `ERC20_APPROVE_SELECTOR = 0x095ea7b3`,
+    `NFT_SET_APPROVAL_FOR_ALL_SELECTOR = 0xa22cb465`,
+    `ZERO_WORD = "0x" + "0".repeat(64)`
+  - `padAddress(addr)` — 32-byte ABI word with input validation
+  - `buildERC20RevokeCalldata(spender)` → 138-char calldata
+  - `buildNFT721RevokeCalldata(operator)` → 138-char calldata
+  - `buildERC20RevokeTx(approval)` — full plan shape
+  - `buildNFT721RevokeTx(nftApproval)` — full plan shape
+  - `buildRevokeTx(approval)` — auto-detect by tokenType/collection
+  - `buildRevokeBatch(approvals[])` → `{plans, errors}`
+  - `groupPlansByChain(plans[])` — per-chain grouping for UI
+- `build.js` — second bundle target: `popup-bundle.js`. Same lib
+  modules wrapped as `window.WG_POPUP_LIB.<moduleName>` (camelCased:
+  `revoke-generator.js` → `WG_POPUP_LIB.revokeGenerator`). Lets the
+  popup page share logic with content.js without duplicating code.
+- `test-revoke.js` (new, 76 tests) — selectors, calldata byte-exact
+  match for real USDC/Uniswap-V3 and BAYC/OpenSea addresses, plan
+  shape validation, batch + grouping logic, edge cases.
+- `popup.html` — `<script src="popup-bundle.js">` before popup.js;
+  new `#revoke-modal` element (backdrop, panel, tx-data details,
+  Close + Copy buttons, hidden by default)
+- `popup.js` — Revoke button on every approval card with risk level
+  critical/high/medium; event delegation on approval + NFT lists;
+  modal show/hide; copy JSON envelope `{chainId, to, data, value}`
+  to clipboard with textarea fallback; Escape key closes
+- `popup.css` — revoke button (red-tinted) + modal styles (panel,
+  details/summary tx data, accent footer)
+- `package.json` — `test` script now runs test-revoke.js as 5th suite
+- Commit: `a163a40`
+
+**Step 15 — SELF_AUDIT.md**
+
+- New `SELF_AUDIT.md` (~310 lines) — the v1.5.x internal security review
+- Sections: TL;DR table / Scope / Methodology / Findings (by severity)
+  / Verification matrix / Residual risks / Recommendations for v1.6.0
+- Findings: 2 Critical fixed, 3 High fixed + 1 open, 4 Medium fixed +
+  2 open, 5 Low fixed + 3 open, 4 Info scheduled
+- Each finding: severity, what, how caught, fix, regression test
+  reference
+- Cross-linked from README "Security" section and SECURITY.md
+  "Internal review" footer
+- Commit: `59433a3`
+
+**Step 16 — +30 trusted domains**
+
+- `lib/constants.js` — `TRUSTED_DOMAINS` expanded from 17 to 47
+  entries, re-organised into 8 category blocks with header comments
+  and "How to add a domain" guide
+- New entries: DeFi (Lido, Rocket Pool, MakerDAO, Spark, Morpho,
+  Convex, Yearn, Beefy, Frax, Pendle), NFTs (Blur, Magic Eden,
+  Foundation, Zora, Sudoswap), bridges (Stargate, Across, Hop,
+  LayerZero, Wormhole), wallets (Frame, Rainbow), explorers
+  (Polygonscan, Arbiscan), perpetuals (GMX, dYdX, Hyperliquid),
+  identity/social (ENS, Mirror, Lens)
+- `test-typosquat.js` — 51 new tests (52 → 103): trusted detection
+  for every new entry, subdomain propagation, case-insensitivity,
+  distance-1 typosquats of short new domains, distance-1/2
+  typosquats of longer ones, substring/subdomain attacks on new
+  targets
+- Docs: README, THREAT_MODEL, SELF_AUDIT, CHANGELOG all bumped
+  from "17" to "47 trusted protocols"
+- Commit: `9c02586`
+
+**Tier 2 status: 3/3 done.** Working tree clean, all **311 tests pass**
+(52→103 typosquat, +16 unchanged, 47→55 multichain, 61 nft unchanged,
+76 revoke), build clean (content.js 92721 bytes, popup-bundle.js
+65225 bytes). Ready for CWS submit + Tier 3 (onboarding tour + i18n)
+or final packaging.
+
