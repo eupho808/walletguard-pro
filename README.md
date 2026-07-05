@@ -252,10 +252,30 @@ PRs welcome. Please open an issue first for non-trivial changes. The test suite 
 - Files: `.gitignore`, `package.json`, `README.md`
 - Status: **DONE**
 
+**Step 9 — CWS submission assets (screenshots + promo tile)**
+- 5 core CWS screenshots captured (per `STORE_LISTING.md` recipe):
+  - `01-phishing-block.png` — full-screen red "PHISHING BLOCKED" overlay (`fake-metamask-claim.io`)
+  - `02-calldata-decoded.png` — SAFE 100/100 verified Uniswap V3 approve with risk factors
+  - `03-risk-factors-explained.png` — HIGH RISK 35/100 with Unlimited + Unknown + Compound rule
+  - `04-approval-scanner.png` — dashboard mock with realistic data (vitalik.eth, 18 approvals, 3 risky)
+  - `05-nft-access.png` — HIGH RISK 30/100 setApprovalForAll with "NFT Root Access to Unverified Operator" compound
+- 4 bonus screenshots (domain defense in transaction context):
+  - `bonus-subdomain-impersonation.png` — red banner above CRITICAL tx (`uniswap.org.evil.com`)
+  - `bonus-typosquat-d1.png` — typosquat banner (d=1, `uniswopp.org`)
+  - `bonus-typosquat-d2.png` — typosquat banner (d=2, `unisvvap.org`)
+  - `bonus-trusted-site.png` — trusted site banner (`uniswap.org`) with SAFE 100
+- `promo-tile.png` (440×280) — user-designed shield logo + "WalletGuard Pro · Web3 security layer"
+- `popup-mock.html` — source for the popup dashboard screenshot (two-column layout: native popup + marketing pitch). Re-render via Chrome DevTools → "Capture screenshot" if the data needs updating.
+- `screenshots/reference/` — 14 extra test.html captures (UR variants, native ETH, multicall, blind signs, JS errors) kept as reference material; not part of CWS submission.
+- All 5 screenshots resized to 1280×800 via System.Drawing GDI+ (originals were 1920×945 from Win+Shift+S). `promo-tile.png` resized to 440×280.
+- Files: `screenshots/*.png`, `screenshots/popup-mock.html`, `screenshots/reference/*.png`
+- Status: **DONE**
+
 **Next session — pick up here:**
-- [ ] Capture 5 screenshots per STORE_LISTING.md recipe (manual, ~30 min)
-- [ ] Create promo tile 440×280 (Canva, ~15 min)
-- [ ] Verify site loads correctly on GitHub Pages after deploy
 - [ ] Submit to Chrome Web Store developer dashboard
-- [ ] Optional: `.gitignore` already added in initial commit (node_modules/, .DS_Store, Thumbs.db, *.log)
+  - Pay $5 developer fee
+  - New Item → upload ZIP of project (everything except `screenshots/reference/`, `.git/`)
+  - Copy text from `STORE_LISTING.md` (name, short desc, detailed desc, privacy tab answers)
+  - Upload 5 screenshots + promo tile
+- [ ] After approval: update README Chrome badge, site CTA links, CWS URL in store-listing
 

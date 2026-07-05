@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1280, initial-scale=1.0">
+    <title>WalletGuard Pro — Dashboard Preview</title>
+    <link rel="stylesheet" href="../popup.css">
+    <style>
+        /* Two-column showcase: popup on the left at native size,
+           marketing tagline on the right. Both fit comfortably in 1280x800. */
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #0b0d13;
+            width: 1280px;
+            height: 800px;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #ffffff;
+            box-sizing: border-box;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 25% 30%, rgba(0, 255, 204, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 75% 70%, rgba(120, 80, 220, 0.05) 0%, transparent 45%),
+                #0b0d13;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 80px;
+            padding: 60px;
+        }
+
+        /* LEFT: popup wrapper, just a visual frame around the existing popup.
+           Render at native 360px width so the layout is honest. */
+        .popup-wrap {
+            width: 360px;
+            flex-shrink: 0;
+            background: #0b0d13;
+            border-radius: 18px;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.04),
+                0 30px 60px rgba(0, 0, 0, 0.5);
+            /* Clip the popup body so anything overflowing the 800px viewport
+               doesn't leak outside the frame. */
+            max-height: 680px;
+            overflow: hidden;
+        }
+
+        /* RIGHT: marketing column */
+        .pitch {
+            flex: 1;
+            max-width: 540px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .pitch-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: #00ffcc;
+            margin-bottom: 18px;
+        }
+        .pitch-eyebrow::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff66;
+            box-shadow: 0 0 10px #00ff66;
+        }
+
+        .pitch-title {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin: 0 0 8px 0;
+            letter-spacing: -1.5px;
+        }
+        .pitch-title span {
+            color: #00ffcc;
+        }
+
+        .pitch-sub {
+            font-size: 18px;
+            color: #8a92a3;
+            line-height: 1.5;
+            margin: 0 0 32px 0;
+            max-width: 480px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 32px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .feature-list li svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .pitch-meta {
+            display: flex;
+            gap: 28px;
+            padding-top: 22px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .pitch-meta .num {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        .pitch-meta .num span { color: #00ffcc; }
+        .pitch-meta .lbl {
+            font-size: 11px;
+            color: #646b7c;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            font-weight: 700;
+        }
+
+        /* Inside the popup: hide sections we trim for the marketing shot.
+           NFT section is its own screenshot. */
+        .nft-section,
+        .logs-section,
+        .divider,
+        .actions-row {
+            display: none !important;
+        }
+
+        /* Trim the long approval list to top 4 (most risky).
+           The 5th card and beyond we hide. */
+        .approval-list .approval-card:nth-child(n+5) {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LEFT: the actual popup rendered at native 360px -->
+    <div class="popup-wrap">
+        <div class="container">
+
+            <!-- HEADER -->
+            <div class="header">
+                <div class="logo-area">
+                    <div class="status-dot"></div>
+                    <h1 class="logo-text">WalletGuard Pro</h1>
+                </div>
+                <div class="radar-badge">ACTIVE</div>
+            </div>
+
+            <!-- SCORE CARD -->
+            <div class="score-card">
+                <div class="section-title">Wallet Safety Score</div>
+                <div class="score-display">
+                    <span class="score-main warn">62</span>
+                    <span class="score-total">/100</span>
+                </div>
+            </div>
+
+            <!-- STATS GRID -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-title">Sites Scanned</div>
+                    <div class="stat-value">47</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-title">Intercepted</div>
+                    <div class="stat-value">89</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-title">Blocked by You</div>
+                    <div class="stat-value warn-color">12</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-title">Permits Caught</div>
+                    <div class="stat-value danger-color">3</div>
+                </div>
+            </div>
+
+            <!-- PROTECTED BANNER -->
+            <div class="protected-banner">
+                <div>
+                    <div class="banner-title">PHISHING BLOCKED</div>
+                    <div class="banner-subtitle">Malicious sites stopped</div>
+                </div>
+                <div class="banner-value">7</div>
+            </div>
+
+            <!-- APPROVAL SCANNER (trimmed to top 4 cards via CSS) -->
+            <div class="approval-section">
+                <div class="section-title-row">
+                    <span class="section-title">Active Token Approvals</span>
+                    <button class="rescan-btn">Rescan</button>
+                </div>
+
+                <div class="approval-summary">
+                    <div class="summary-tile">
+                        <div class="summary-num">18</div>
+                        <div class="summary-label">Total</div>
+                    </div>
+                    <div class="summary-tile risky hot">
+                        <div class="summary-num">3</div>
+                        <div class="summary-label">Risky</div>
+                    </div>
+                    <div class="summary-tile">
+                        <div class="summary-num">7</div>
+                        <div class="summary-label">Unlimited</div>
+                    </div>
+                </div>
+
+                <div class="approval-meta">
+                    <span id="approval-wallet">vitalik.eth &middot; 0xd8dA&hellip;6045</span>
+                    <span id="approval-time">ETH &middot; Mainnet</span>
+                </div>
+
+                <div class="approval-list">
+
+                    <div class="approval-card r-critical">
+                        <div class="approval-top">
+                            <span class="approval-token">PEPE</span>
+                            <span class="approval-allowance unlimited">UNLIMITED</span>
+                        </div>
+                        <div class="approval-bottom">
+                            <span class="approval-spender">&rarr; 0xBad0&hellip;dead</span>
+                            <span class="approval-chain">ETH</span>
+                        </div>
+                        <div class="approval-reason">Unlimited allowance to UNKNOWN spender. Top NFT/ERC-20 drain signature.</div>
+                    </div>
+
+                    <div class="approval-card r-high">
+                        <div class="approval-top">
+                            <span class="approval-token">SHIB</span>
+                            <span class="approval-allowance unlimited">UNLIMITED</span>
+                        </div>
+                        <div class="approval-bottom">
+                            <span class="approval-spender">&rarr; 0x1111&hellip;hack</span>
+                            <span class="approval-chain">ETH</span>
+                        </div>
+                        <div class="approval-reason">Unlimited to unverified contract. Not in any reputation registry.</div>
+                    </div>
+
+                    <div class="approval-card r-medium">
+                        <div class="approval-top">
+                            <span class="approval-token">USDC.e</span>
+                            <span class="approval-allowance">50,000</span>
+                        </div>
+                        <div class="approval-bottom">
+                            <span class="approval-spender">&rarr; 0xScam&hellip;2222</span>
+                            <span class="approval-chain">ARB</span>
+                        </div>
+                        <div class="approval-reason">Large allowance to contract not in verified registry.</div>
+                    </div>
+
+                    <div class="approval-card r-low">
+                        <div class="approval-top">
+                            <span class="approval-token">USDT</span>
+                            <span class="approval-allowance unlimited">UNLIMITED</span>
+                        </div>
+                        <div class="approval-bottom">
+                            <span class="approval-spender">&rarr; 0x7a25&hellip;488D</span>
+                            <span class="approval-chain">ETH</span>
+                        </div>
+                    </div>
+
+                    <div class="approval-card r-info">
+                        <div class="approval-top">
+                            <span class="approval-token">WETH</span>
+                            <span class="approval-allowance limited">5.0</span>
+                        </div>
+                        <div class="approval-bottom">
+                            <span class="approval-spender">&rarr; 0xE592&hellip;1564</span>
+                            <span class="approval-chain">ETH</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT: marketing pitch -->
+    <div class="pitch">
+        <div class="pitch-eyebrow">Extension Dashboard</div>
+        <h1 class="pitch-title">See every approval<br>your wallet ever <span>granted</span>.</h1>
+        <p class="pitch-sub">
+            WalletGuard Pro scans ERC-20 and NFT approvals across six chains in parallel,
+            flags the ones with no spend cap to unknown contracts, and shows you the exact
+            risk before your wallet does.
+        </p>
+
+        <ul class="feature-list">
+            <li>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="9" fill="rgba(0,255,102,0.15)"/>
+                    <path d="M5 9l3 3 5-6" stroke="#00ff66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                6 chains scanned in parallel &mdash; Ethereum, Optimism, Polygon, Base, Arbitrum, Sepolia
+            </li>
+            <li>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="9" fill="rgba(0,255,102,0.15)"/>
+                    <path d="M5 9l3 3 5-6" stroke="#00ff66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Catches ERC-20 unlimited AND setApprovalForAll NFT root-access
+            </li>
+            <li>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="9" fill="rgba(0,255,102,0.15)"/>
+                    <path d="M5 9l3 3 5-6" stroke="#00ff66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Zero API keys &mdash; uses your wallet&rsquo;s own RPC node
+            </li>
+            <li>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="9" fill="rgba(0,255,102,0.15)"/>
+                    <path d="M5 9l3 3 5-6" stroke="#00ff66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Phishing + typosquatting overlay before any signature request
+            </li>
+        </ul>
+
+        <div class="pitch-meta">
+            <div>
+                <div class="num"><span>176</span></div>
+                <div class="lbl">Tests</div>
+            </div>
+            <div>
+                <div class="num"><span>6</span></div>
+                <div class="lbl">Chains</div>
+            </div>
+            <div>
+                <div class="num">MIT</div>
+                <div class="lbl">Licensed</div>
+            </div>
+            <div>
+                <div class="num">0</div>
+                <div class="lbl">API keys</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
