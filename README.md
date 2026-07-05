@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.5.0-00ffcc?style=flat-square)](./manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-176_passing-00ff66?style=flat-square)](#testing)
+[![Tests](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml)
 [![Chrome](https://img.shields.io/badge/Chrome-Available-4285F4?style=flat-square&logo=google-chrome)](https://chromewebstore.google.com/detail/walletguard-pro)
 [![Firefox](https://img.shields.io/badge/Coming_soon-FF7139?style=flat-square&logo=firefox)]()
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-00ffcc?style=flat-square)](./manifest.json)
@@ -240,13 +240,22 @@ PRs welcome. Please open an issue first for non-trivial changes. The test suite 
   - **No `npm install`** — project has zero runtime deps; tests are plain Node ESM that import directly from `lib/`
 - Files: `.github/workflows/test.yml`
 - Status: **DONE**
-- Post-repo-init TODO: swap the static `tests-176_passing` badge (line 7) for a real `actions/workflow/status` URL once the GitHub repo exists.
+
+**Step 8 — GitHub repo + Pages deploy + live CI badge**
+- `git init`, `master` → `main`, push to `github.com/eupho808/walletguard-pro`
+- Added `.gitignore` (node_modules/, .DS_Store, Thumbs.db, *.log, .vscode/, .idea/)
+- Added `package.json` with `name`, `version`, `type: module`, scripts (`test`, `build`, `build:firefox`), `engines.node: ">=20"`, `license: MIT`
+- GitHub Pages configured: branch `main`, folder `/site` → site live at `eupho808.github.io/walletguard-pro/`
+- First CI run green (13s, zero deps, all 176 tests pass)
+- First Pages deployment green (38s)
+- Swapped static `tests-176_passing` badge for live `actions/workflow/status` URL (line 7)
+- Files: `.gitignore`, `package.json`, `README.md`
+- Status: **DONE**
 
 **Next session — pick up here:**
 - [ ] Capture 5 screenshots per STORE_LISTING.md recipe (manual, ~30 min)
 - [ ] Create promo tile 440×280 (Canva, ~15 min)
-- [ ] GitHub repo init + push (needs user to provide remote URL)
-- [ ] Swap README badge to live CI status URL after first green run
 - [ ] Verify site loads correctly on GitHub Pages after deploy
-- [ ] Optional: `.gitignore` (node_modules/, .DS_Store, Thumbs.db, *.log)
+- [ ] Submit to Chrome Web Store developer dashboard
+- [ ] Optional: `.gitignore` already added in initial commit (node_modules/, .DS_Store, Thumbs.db, *.log)
 
