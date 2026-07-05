@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="WalletGuard Pro — independent Web3 wallet security. See what your wallet is signing before it signs. 176 tests, 6 chains, 0 API keys. Open source." />
+  <meta name="description" content="WalletGuard Pro — independent Web3 wallet security. See what your wallet is signing before it signs. 184 tests, 9 chains, 0 API keys. Open source." />
   <meta name="theme-color" content="#080808" />
   <meta name="color-scheme" content="dark" />
   <title>WalletGuard Pro — Real-time security for your Web3 assets</title>
@@ -44,6 +44,7 @@
       <nav class="nav__menu" aria-label="Primary">
         <a href="#demo" class="nav__link">Demo</a>
         <a href="#features" class="nav__link">Features</a>
+        <a href="#compare" class="nav__link">Compare</a>
         <a href="https://github.com/yourname/walletguard-pro" target="_blank" rel="noopener noreferrer" class="nav__link">
           GitHub
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -51,6 +52,7 @@
           </svg>
         </a>
         <a href="#features" class="nav__link">Features</a>
+        <a href="#compare" class="nav__link">Compare</a>
       </nav>
 
       <a href="#install" class="nav__cta">
@@ -72,7 +74,7 @@
       <div class="hero__container">
         <div class="hero__badge" data-reveal>
           <span class="hero__badge-dot" aria-hidden="true"></span>
-          <span>v1.5.0 · 176 tests passing · Open source</span>
+          <span>v1.5.0 · 184 tests passing · Open source</span>
         </div>
 
         <h1 class="hero__title" data-reveal>
@@ -168,7 +170,7 @@
           </div>
           <div class="hero__chip hero__chip--3" data-depth="1.4">
             <span class="hero__chip-dot hero__chip-dot--amber"></span>
-            6 chains
+            9 chains
           </div>
         </div>
 
@@ -189,12 +191,12 @@
 
         <div class="hero__stats" data-reveal>
           <div class="hero__stat">
-            <div class="hero__stat-value" data-count="176" data-format="number">176</div>
+            <div class="hero__stat-value" data-count="184" data-format="number">184</div>
             <div class="hero__stat-label">Tests passing</div>
           </div>
           <div class="hero__stat-divider" aria-hidden="true"></div>
           <div class="hero__stat">
-            <div class="hero__stat-value">6</div>
+            <div class="hero__stat-value">9</div>
             <div class="hero__stat-label">Chains supported</div>
           </div>
           <div class="hero__stat-divider" aria-hidden="true"></div>
@@ -683,6 +685,130 @@
         </div>
       </div>
     </section>
+
+    <!-- ============ COMPARE ============ -->
+    <section class="compare" id="compare">
+      <div class="section__container">
+        <header class="section__header" data-reveal>
+          <div class="section__label">
+            <span class="section__label-dot" aria-hidden="true"></span>
+            <span>How we compare</span>
+          </div>
+          <h2 class="section__title">
+            WalletGuard Pro vs the alternatives<br />
+            <em>the security stack you actually want</em>
+          </h2>
+          <p class="section__subtitle">
+            Local-first inspection beats API-based simulation &mdash; for speed,
+            privacy, and uptime when the third-party servers go down.
+          </p>
+        </header>
+
+        <div class="compare__table-wrap" data-reveal>
+          <table class="compare__table">
+            <thead>
+              <tr>
+                <th class="compare__th compare__th--feature" scope="col">Capability</th>
+                <th class="compare__th compare__th--wg" scope="col">
+                  <span class="compare__brand">WalletGuard Pro</span>
+                  <span class="compare__brand-sub">v1.5.0 · open source</span>
+                </th>
+                <th class="compare__th" scope="col">Pocket Universe<sup>*</sup></th>
+                <th class="compare__th" scope="col">Stelo<sup>**</sup></th>
+                <th class="compare__th" scope="col">Fire<sup>**</sup></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th class="compare__row-label" scope="row">Intercepts every transaction before signing</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">Zero API keys &mdash; uses your wallet's own RPC</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">Calldata decoded (Universal Router, Multicall, Permit)</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--partial" aria-label="partial"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">Recursive Multicall V1/V2/V3 decoding</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span><span class="compare__hint">4 levels</span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">Phishing overlay on known-drainer domains</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">Typosquatting detection (Levenshtein + IDN homoglyph)</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">NFT approval scanner (setApprovalForAll)</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">Multi-chain approval scanner</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span><span class="compare__hint">9 chains</span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--partial" aria-label="partial"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">Open source (MIT, auditable, forkable)</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+              </tr>
+              <tr>
+                <th class="compare__row-label" scope="row">No backend &mdash; purely client-side</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+              </tr>
+              <tr class="compare__row--meta">
+                <th class="compare__row-label" scope="row">Actively maintained</th>
+                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span><span class="compare__hint">via MetaMask (MySim)</span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span><span class="compare__hint">shut down</span></td>
+                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span><span class="compare__hint">discontinued</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="compare__note" data-reveal>
+          <sup>*</sup> Pocket Universe was acquired by MetaMask in 2023 and rebranded to
+          <em>MySim</em>. Comparison reflects the Pocket Universe product line as it
+          stood before integration.<br />
+          <sup>**</sup> Stelo shut down in October 2024; Fire (De.Fi anti-hack) is no
+          longer maintained. Listed for context only.
+        </p>
+      </div>
+    </section>
   </main>
 
   <!-- ============ FOOTER ============ -->
@@ -729,6 +855,8 @@
           <a href="https://github.com/yourname/walletguard-pro" target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href="https://chromewebstore.google.com/" target="_blank" rel="noopener noreferrer">Chrome Web Store</a>
           <a href="./PRIVACY.md">Privacy</a>
+          <a href="./THREAT_MODEL.md">Threat Model</a>
+          <a href="./SECURITY.md">Security</a>
           <a href="./LICENSE">MIT License</a>
           <a href="mailto:hello@example.com">Contact</a>
         </nav>
