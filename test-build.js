@@ -135,5 +135,63 @@ for (const [label, file, marker] of [
   }
 }
 
+// ---- 5. Manifest validation ----
+// Chrome MV3 + Firefox MV3 both require `default_locale` when a
+// `_locales/` directory is present (otherwise Chrome refuses to
+// load the extension with "Localization is used but default_locale
+// is not specified"). This catches that error before upload.
+const LOCALES_DIR = path.join(ROOT, "_locales");
+const localesExist = fs.existsSync(LOCALES_DIR);
+if (localesExist) {
+  ok("_locales/ directory exists");
+} else {
+  console.log("  skip _locales/ check (directory not present)");
+}
+
+for (const manifestFile of ["manifest.json", "manifest.firefox.json"]) {
+  const manifestPath = path.join(ROOT, manifestFile);
+  if (!fs.existsSync(manifestPath)) {
+    fail(`${manifestFile} exists`, "file not found");
+    continue;
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+    ok(`${manifestFile} is valid JSON`);
+  } catch (e) {
+    fail(`${manifestFile} is valid JSON`, e.message);
+    continue;
+  }
+  if (manifest.manifest_version === 3) {
+    ok(`${manifestFile} manifest_version === 3`);
+  } else {
+    fail(`${manifestFile} manifest_version`, `expected 3, got ${manifest.manifest_version}`);
+  }
+  if (manifest.name && typeof manifest.name === "string") {
+    ok(`${manifestFile} has name "${manifest.name}"`);
+  } else {
+    fail(`${manifestFile} name`, "missing or not a string");
+  }
+  if (manifest.version && /^\d+\.\d+\.\d+$/.test(manifest.version)) {
+    ok(`${manifestFile} version "${manifest.version}" is semver`);
+  } else {
+    fail(`${manifestFile} version`, `expected semver, got "${manifest.version}"`);
+  }
+  if (localesExist) {
+    if (typeof manifest.default_locale === "string" && manifest.default_locale.length > 0) {
+      ok(`${manifestFile} has default_locale "${manifest.default_locale}"`);
+    } else {
+      fail(`${manifestFile} default_locale`,
+        "required when _locales/ directory exists (Chrome MV3 spec)");
+    }
+    const enDir = path.join(LOCALES_DIR, manifest.default_locale || "en");
+    if (fs.existsSync(enDir)) {
+      ok(`_locales/${manifest.default_locale || "en"}/ directory exists`);
+    } else {
+      fail(`_locales/${manifest.default_locale || "en"}/`, "directory not found");
+    }
+  }
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);
