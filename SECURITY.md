@@ -60,6 +60,8 @@ We do not yet publish a PGP key. If you need to encrypt your report, ask in your
 
 WalletGuard Pro is a **defense-in-depth layer**, not a primary security boundary. The user is still the final signer. Our job is to surface the obvious and subtle risks before they reach MetaMask.
 
+For the full breakdown of what we protect against, what we don't, and our trust assumptions, see [`THREAT_MODEL.md`](./THREAT_MODEL.md).
+
 We assume:
 - The user's machine is not compromised (an attacker with code execution can disable the extension trivially via `chrome://extensions`)
 - The wallet provider behaves correctly (we wrap, we don't replace)

@@ -4,6 +4,8 @@
 Chrome-расширение (MV3) — независимый security layer поверх Web3 кошельков.
 Перехватывает `window.ethereum.request`, анализирует calldata, показывает UI перед MetaMask.
 
+Подробный threat model (что защищаем / что нет / trust assumptions) — см. `THREAT_MODEL.md`.
+
 ## Текущий статус
 v1.2.0 — Approval Scanner через RPC-мост к MetaMask (`eth_getLogs` + `eth_call`),
 zero API keys, weighted risk engine, recursive decoder.
@@ -71,7 +73,7 @@ node build.js   # регенерирует content.js из lib/*
 - Settings: OpenRouter API key, whitelist, blacklist, toggle
 - **Approval Scanner v1.2.0** (zero API keys):
   - ERC-20 approvals через `eth_getLogs` (Approval events) → `eth_call` (allowance)
-  - Текущая сеть кошелька (Ethereum, Optimism, Polygon, Base, Arbitrum, Sepolia)
+  - Текущая сеть кошелька (Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia)
   - Risk classification: critical / high / medium / low / info
   - Фильтр revoked approvals (allowance = 0)
   - Rescan button, auto-refresh каждые 6ч
