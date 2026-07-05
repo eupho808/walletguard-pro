@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "WalletGuard Pro",
   "version": "1.5.0",
-  "description": "Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, analyzes Permit signatures, scans active ERC-20 + NFT approvals across 6 chains via public RPCs (no API key required), detects typosquatted domains, and blocks phishing sites before they reach MetaMask.",
+  "description": "Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, analyzes Permit signatures, scans active ERC-20 + NFT approvals across 9 chains via public RPCs (no API key required), detects typosquatted domains, and blocks phishing sites before they reach MetaMask.",
 
   "browser_specific_settings": {
     "gecko": {
@@ -20,9 +20,12 @@
     "https://openrouter.ai/*",
     "https://eth.llamarpc.com/*",
     "https://optimism.llamarpc.com/*",
+    "https://bsc-dataseed.bnbchain.org/*",
     "https://polygon-rpc.com/*",
+    "https://fantom.publicnode.com/*",
     "https://mainnet.base.org/*",
     "https://arb1.arbitrum.io/*",
+    "https://api.avax.network/*",
     "https://ethereum-sepolia-rpc.publicnode.com/*"
   ],
 

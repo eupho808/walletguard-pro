@@ -36,9 +36,12 @@
   const CHAIN_NAMES = {
     "0x1":     { name: "Ethereum",  id: 1 },
     "0xa":     { name: "Optimism",  id: 10 },
+    "0x38":    { name: "BNB Chain", id: 56 },
     "0x89":    { name: "Polygon",   id: 137 },
+    "0xfa":    { name: "Fantom",    id: 250 },
     "0x2105":  { name: "Base",      id: 8453 },
     "0xa4b1":  { name: "Arbitrum",  id: 42161 },
+    "0xa86a":  { name: "Avalanche", id: 43114 },
     "0xaa36a7":{ name: "Sepolia",   id: 11155111 }
   };
 
@@ -60,30 +63,40 @@
   // of the scan continues. Users can keep adding more chains here without
   // any other code changes.
   //
-  // Endpoints are kept conservative: LlamaRPC, publicnode, and the
-  // first-party RPCs from Base/Arbitrum/Polygon. They support `eth_getLogs`
-  // for the last ~1M blocks which is enough for typical wallet history.
+  // Endpoints are kept conservative: LlamaRPC, publicnode, official
+  // first-party RPCs (Base, Arbitrum, Polygon, Avalanche, BNB Chain), and
+  // the Sepolia publicnode endpoint. They support `eth_getLogs` for the
+  // last few million blocks which is enough for typical wallet history.
   const MULTICHAIN_RPCS = {
     1:        "https://eth.llamarpc.com",
     10:       "https://optimism.llamarpc.com",
+    56:       "https://bsc-dataseed.bnbchain.org",
     137:      "https://polygon-rpc.com",
+    250:      "https://fantom.publicnode.com",
     8453:     "https://mainnet.base.org",
     42161:    "https://arb1.arbitrum.io/rpc",
+    43114:    "https://api.avax.network/ext/bc/C/rpc",
     11155111: "https://ethereum-sepolia-rpc.publicnode.com"
   };
 
   // Per-chain lookback cap (in blocks). Different chains have very
   // different block times, so a fixed cap doesn't fit all. Values are
-  // tuned to roughly correspond to "last few months" of activity:
-  //   - Ethereum/Optimism/Base/Sepolia: 12s blocks -> 1M blocks ~= 4 months
-  //   - Polygon: 2s blocks             -> 5M blocks ~= 4 months
-  //   - Arbitrum: ~0.26s blocks        -> 5M blocks ~= 2 weeks (max needed)
+  // tuned to roughly correspond to "last few months to a year" of activity:
+  //   - Ethereum/Optimism/Base/Sepolia:        12s blocks -> 1M blocks ~= 4 months
+  //   - Avalanche:                            ~2s blocks -> 5M blocks ~= 4 months
+  //   - Polygon:                              ~2s blocks -> 5M blocks ~= 4 months
+  //   - Fantom:                              ~1.5s blocks -> 5M blocks ~= 3 months
+  //   - BNB Chain:                            ~3s blocks -> 3M blocks ~= 1 year
+  //   - Arbitrum:                           ~0.26s blocks -> 5M blocks ~= 2 weeks (max needed)
   const CHAIN_LOOKBACK = {
     1:        1000000n,
     10:       1000000n,
+    56:       3000000n,
     137:      5000000n,
+    250:      5000000n,
     8453:     1000000n,
     42161:    5000000n,
+    43114:    5000000n,
     11155111: 1000000n
   };
 
@@ -851,7 +864,7 @@
   /**
    * Multi-chain scan via public RPC endpoints (opt-in).
    *
-   * Scans `chainIds` (default: all 6 supported chains) in parallel using
+   * Scans `chainIds` (default: all 9 supported chains) in parallel using
    * direct `fetch()` calls to the public RPC endpoints in MULTICHAIN_RPCS.
    * Per-chain failures are captured in the per-chain `error` field and
    * do not abort the rest of the scan.

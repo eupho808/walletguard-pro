@@ -403,7 +403,7 @@ async function runApprovalScan(address, forceLog) {
 
   let result;
   if (multiChain) {
-    // Opt-in multi-chain: scan all 6 chains via public RPCs in parallel.
+    // Opt-in multi-chain: scan all 9 chains via public RPCs in parallel.
     result = await self.WGApprovalScanner.scanApprovalsMultiChain(address, wl);
     result.address = address;
     await setStorage(STORAGE_KEYS.APPROVAL_SCAN, result);

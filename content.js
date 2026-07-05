@@ -1494,6 +1494,8 @@ const diffTransaction = simulator_js_exports.diffTransaction;
 
 
 
+
+
 // content.js - WalletGuard Pro Orchestrator (ISOLATED world)
 //
 // Runs in every page at document_start. Responsibilities:
@@ -2058,6 +2060,8 @@ const diffTransaction = simulator_js_exports.diffTransaction;
   }
 
 })();
+
+
 
 
 

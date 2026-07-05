@@ -124,7 +124,7 @@ function attachListeners() {
     if (res && !res.error) {
       applyMultiChainUI(res.multiChain);
       showToast(res.multiChain
-        ? "Multi-chain scan enabled (all 6 chains)"
+        ? "Multi-chain scan enabled (all 9 chains)"
         : "Multi-chain scan disabled (current chain only)", "success");
     }
   });

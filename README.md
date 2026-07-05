@@ -1,6 +1,6 @@
 # WalletGuard Pro
 
-> Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, scans token and NFT approvals across 6 chains, detects phishing sites and typosquatted domains — **no API keys required**.
+> Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, scans token and NFT approvals across 9 chains, detects phishing sites and typosquatted domains — **no API keys required**.
 
 [![Version](https://img.shields.io/badge/version-1.5.0-00ffcc?style=flat-square)](./manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
@@ -36,7 +36,7 @@ Weighted scoring with explicit factors. Every transaction shows you **why** it's
 - Native ETH to unverified address over 1 ETH = medium warning
 
 ### Approval scanner (v1.5.0)
-- **ERC-20 approvals** across **6 chains** (Ethereum, Optimism, Polygon, Base, Arbitrum, Sepolia)
+- **ERC-20 approvals** across **9 chains** (Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia)
 - **NFT collection approvals** (`setApprovalForAll`) — catches the root-access NFT drain pattern
 - **Zero API keys** — uses your wallet's own RPC node (or public RPC endpoints in multi-chain mode)
 - **Risk classification**: critical / high / medium / low / info per approval
@@ -110,7 +110,7 @@ node test-integration.js   # 16 tests — risk-engine + typosquatting end-to-end
 node test-multichain.js    # 47 tests — multi-chain aggregation, RPC adapters
 node test-nft.js           # 61 tests — NFT approval scanning + risk classification
                            # ─────
-                           # 176 tests total
+                           # 184 tests total
 ```
 
 Every test runs in plain Node — no Chrome required. The scanner module is loaded via `vm.runInContext()` with mocked `chrome.*` and `fetch()` APIs.
@@ -120,6 +120,10 @@ Every test runs in plain Node — no Chrome required. The scanner module is load
 ## Privacy
 
 [Privacy Policy](./PRIVACY.md) — TL;DR: **nothing leaves your machine** unless you explicitly enable the optional OpenRouter AI check (which sends only the contract address, never your wallet or transaction data).
+
+## Security
+
+[Threat Model](./THREAT_MODEL.md) — what we protect against, what we don't, and our trust assumptions. Read this before assuming the extension is a silver bullet — it isn't, but it covers the >90% of Web3 drain patterns that show up in the wild. [Security Policy](./SECURITY.md) covers responsible disclosure.
 
 ---
 
@@ -207,7 +211,7 @@ PRs welcome. Please open an issue first for non-trivial changes. The test suite 
 - Removed fake/risk claims:
   - "Public Beta · v0.9.4 · Audited by Trail of Bits" → "v1.5.0 · 176 tests passing · Open source"
   - "80 ms latency" → "0 API keys"
-  - "14 chains" → "6 chains"
+  - "14 chains" → "6 chains" → "9 chains" (v1.5.1)
   - Stats row: "2.4M+ Threats blocked, $180M Assets protected, <80ms Analysis" → "176 Tests passing, 6 Chains supported, 0 API keys required"
   - Footer: "© 2026 WalletGuard Labs · Built with care, audited by community" → "© 2026 WalletGuard Pro · Open source · MIT licensed"
 - Replaced placeholder URLs (github.com/, docs.walletguard.io, twitter.com/, discord.gg/) with proper ones:

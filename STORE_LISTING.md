@@ -58,9 +58,10 @@ WHAT IT CATCHES
 APPROVAL SCANNER (NEW IN v1.5)
 ────────────────────────────────────────────────────────────
 
-Finds every active approval — ERC-20 AND NFT — across 6 chains in
-parallel:
-  • Ethereum, Optimism, Polygon, Base, Arbitrum, Sepolia
+Finds every active approval — ERC-20 AND NFT — across 9 chains in
+  parallel:
+  • Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum,
+    Avalanche, Sepolia
 
 Risk-classified per approval: critical / high / medium / low / info.
 Top-5 riskiest shown in the popup with the exact reason flagged
@@ -88,11 +89,11 @@ KEY FEATURES
 
 • Calldata decoded — every tx into human-readable form
 • Weighted risk engine — every factor shown explicitly (no black box)
-• 6-chain approval scanner (ERC-20 + NFT, zero API keys)
+• 9-chain approval scanner (ERC-20 + NFT, zero API keys)
 • Typosquatting detection via Levenshtein + homoglyph checks
 • Phishing overlay on known-drainer domains
 • Multicall V1/V2/V3 + Universal Router command decoding
-• 176 automated tests, MIT licensed, open source
+• 184 automated tests, MIT licensed, open source
 
 ────────────────────────────────────────────────────────────
 PRIVACY
@@ -109,7 +110,7 @@ Full privacy policy: [GitHub link]
 OPEN SOURCE
 ────────────────────────────────────────────────────────────
 
-MIT licensed. 176 tests passing. Contributions welcome.
+MIT licensed. 184 tests passing. Contributions welcome.
 [GitHub link]
 ```
 
@@ -221,7 +222,7 @@ wallet provider processes the transaction.
 | `storage` | Save user settings (whitelist, blacklist, scan cache, optional OpenRouter API key) in `chrome.storage.local`. |
 | `alarms` | Schedule the approval scan to auto-refresh every 6 hours. Without this the scan only runs on manual trigger. |
 | `https://openrouter.ai/*` | Optional AI check on contract addresses — only used when the user explicitly adds an OpenRouter API key and triggers a check. Off by default. |
-| `https://*.llamarpc.com/*`, `https://polygon-rpc.com/*`, `https://mainnet.base.org/*`, `https://arb1.arbitrum.io/*`, `https://ethereum-sepolia-rpc.publicnode.com/*` | Multi-chain approval scanner (opt-in toggle). Read-only JSON-RPC calls (`eth_blockNumber`, `eth_getLogs`, `eth_call`). No other endpoints are contacted. |
+| `https://*.llamarpc.com/*`, `https://bsc-dataseed.bnbchain.org/*`, `https://polygon-rpc.com/*`, `https://fantom.publicnode.com/*`, `https://mainnet.base.org/*`, `https://arb1.arbitrum.io/*`, `https://api.avax.network/*`, `https://ethereum-sepolia-rpc.publicnode.com/*` | Multi-chain approval scanner (opt-in toggle). Read-only JSON-RPC calls (`eth_blockNumber`, `eth_getLogs`, `eth_call`). No other endpoints are contacted. |
 
 ### Host permission for remote code
 ```
@@ -236,7 +237,8 @@ All processing is local. The only network requests made are:
   1. To the user's own wallet provider (read-only RPC), via the
      standard Web3 provider interface.
   2. To public RPC endpoints (LlamaRPC, publicnode, official chain
-     RPCs) when the user has opted into multi-chain scanning.
+     RPCs from Base/Arbitrum/Polygon, Binance's BSC RPC, Avalanche's
+     official RPC) when the user has opted into multi-chain scanning.
   3. To openrouter.ai (contract address only) when the user has
      explicitly configured an OpenRouter API key and triggered a
      check.
@@ -267,7 +269,7 @@ free to maximize adoption.)
 
 ## 5. Pre-submission checklist
 
-- [ ] All 176 tests pass: `node test-typosquat.js && node test-integration.js && node test-multichain.js && node test-nft.js`
+- [ ] All 184 tests pass: `node test-typosquat.js && node test-integration.js && node test-multichain.js && node test-nft.js`
 - [ ] `node build.js` produces a clean bundle
 - [ ] Icons exist at `icons/icon16.png`, `icons/icon48.png`, `icons/icon128.png`
 - [ ] `PRIVACY.md` is hosted on a publicly accessible URL (GitHub Pages, raw GitHub, or your site)
