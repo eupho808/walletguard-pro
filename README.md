@@ -295,8 +295,10 @@ PRs welcome. Please open an issue first for non-trivial changes. The test suite 
 - Status: **DONE**
 
 **Next session — pick up here (only paid items left):**
-- [ ] **CWS submit** (needs $5 developer fee) — dashboard → New Item → upload `walletguard-pro-v1.5.0.zip` → copy text from `STORE_LISTING.md` → upload 5 screenshots + promo tile → Submit for review
-- [ ] **Firefox AMO submit** (free) — https://addons.mozilla.org/developers/addon/submit/ → upload `walletguard-pro-firefox-v1.5.0.zip`
+- [ ] **Read `CHECKPOINT.md` first** — full state snapshot, decisions, smoke-test commands
+- [ ] **Decide direction**: Tier 3 (onboarding tour + i18n ru/es/zh) OR launch (bump v1.5.1 + push + repackage ZIPs + CWS submit + AMO submit)
+- [ ] **CWS submit** (needs $5 developer fee) — dashboard → New Item → upload `walletguard-pro-v1.5.1.zip` → copy text from `STORE_LISTING.md` → upload 5 screenshots + promo tile → Submit for review
+- [ ] **Firefox AMO submit** (free) — https://addons.mozilla.org/developers/addon/submit/ → upload `walletguard-pro-firefox-v1.5.1.zip`
 - [ ] After CWS approval: update README Chrome badge to real CWS URL, update `site/index.html` CTA link, update `STORE_LISTING.md` Privacy URL field
 - [ ] Optional, paid: custom domain `walletguard.pro` (~$12/yr) → point DNS to GitHub Pages
 - [ ] Optional, paid: marketing on Twitter/Reddit/HN/Product Hunt (free posting, paid if boosting)
@@ -417,4 +419,21 @@ deliverables, three commits.
 76 revoke), build clean (content.js 92721 bytes, popup-bundle.js
 65225 bytes). Ready for CWS submit + Tier 3 (onboarding tour + i18n)
 or final packaging.
+
+### 2026-07-05 — Session checkpoint (pre-close)
+
+**Goal:** Persist session state before closing the conversation so
+the next session can resume without re-reading the entire codebase.
+
+- New `CHECKPOINT.md` (~210 lines) at repo root:
+  - Full commit log (8 commits over baseline)
+  - File-by-file summary of what Tier 1 + Tier 2 added / changed
+  - Counters (chains, trusted domains, test counts, bundle sizes)
+  - Decisions to remember (build pipeline, manifest layout, RPC bridge)
+  - Quick smoke-test commands for the next session
+  - Recommendations: `git push` → CI + Pages → pick Tier 3 OR launch
+- README "Next session — pick up here" list updated with CHECKPOINT.md pointer
+- 8 commits total since launch baseline (4 Tier 1 + 4 Tier 2).
+  Working tree clean. **311 tests passing. Build clean.**
+- Commit: `TBD on close`
 
