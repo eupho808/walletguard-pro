@@ -4,11 +4,11 @@
 // Camel-case: revoke-generator.js → WG_POPUP_LIB.revokeGenerator.
 (function (global) {
   "use strict";
-
-  // ============================================================
-  // constants.js
-  // ============================================================
-  constants: (function() {
+  var mods = {
+    // ============================================================
+    // constants.js
+    // ============================================================
+    "constants": (function() {
 // lib/constants.js - Shared constants used across modules.
 
 // Known trusted domains (lowercased, no leading www.).
@@ -103,11 +103,11 @@ const UR_COMMANDS = {
 const MAX_DECODE_DEPTH = 4;
 
 return { TRUSTED_DOMAINS, SEED_BLACKLIST, KNOWN_SAFE_CONTRACTS, UR_COMMANDS, MAX_DECODE_DEPTH };
-  })(),
-  // ============================================================
-  // decoder.js
-  // ============================================================
-  decoder: (function() {
+    })(),
+    // ============================================================
+    // decoder.js
+    // ============================================================
+    "decoder": (function() {
 // lib/decoder.js - Method signature dictionary + calldata parsers.
 
 // Known method signatures: selector -> { category, name, risk, desc }
@@ -285,11 +285,11 @@ function decodeCalldata(methodId, data) {
 }
 
 return { strip0x, sliceAddress, sliceUint256, sliceBool, shortAddr, formatTokenAmount, weiToEth, getMethodId, decodeCalldata, METHOD_DECODER };
-  })(),
-  // ============================================================
-  // typosquatting.js
-  // ============================================================
-  typosquatting: (function() {
+    })(),
+    // ============================================================
+    // typosquatting.js
+    // ============================================================
+    "typosquatting": (function() {
 // lib/typosquatting.js - Domain spoofing / typosquatting detection.
 //
 // Catches three classes of attack against WalletGuard's trusted site list:
@@ -466,11 +466,11 @@ function findTyposquatting(hostname) {
 }
 
 return { levenshtein, getRegistrableDomain, findTyposquatting };
-  })(),
-  // ============================================================
-  // multicall-decoder.js
-  // ============================================================
-  multicallDecoder: (function() {
+    })(),
+    // ============================================================
+    // multicall-decoder.js
+    // ============================================================
+    "multicallDecoder": (function() {
 // lib/multicall-decoder.js - Recursive decoder for Multicall variants.
 //
 // Supported method signatures:
@@ -630,11 +630,11 @@ function extractInnerCalls(methodId, fullData) {
 }
 
 return { isMulticall, extractInnerCalls };
-  })(),
-  // ============================================================
-  // universal-router.js
-  // ============================================================
-  universalRouter: (function() {
+    })(),
+    // ============================================================
+    // universal-router.js
+    // ============================================================
+    "universalRouter": (function() {
 // lib/universal-router.js - Uniswap Universal Router command parser.
 //
 // Supported signatures:
@@ -746,11 +746,11 @@ function decodeUniversalRouter(fullData) {
 }
 
 return { isUniversalRouter, decodeUniversalRouter };
-  })(),
-  // ============================================================
-  // risk-engine.js
-  // ============================================================
-  riskEngine: (function() {
+    })(),
+    // ============================================================
+    // risk-engine.js
+    // ============================================================
+    "riskEngine": (function() {
 // lib/risk-engine.js - Weighted risk scoring with factor explanations.
 //
 // The engine is data-driven: each rule adds a "factor" with a weight.
@@ -1099,11 +1099,11 @@ function computeRisk(ctx) {
 }
 
 return { computeRisk };
-  })(),
-  // ============================================================
-  // capabilities.js
-  // ============================================================
-  capabilities: (function() {
+    })(),
+    // ============================================================
+    // capabilities.js
+    // ============================================================
+    "capabilities": (function() {
 // lib/capabilities.js - Rich explanations of what a transaction/signature enables.
 //
 // Each capability is a short sentence that the UI shows under
@@ -1269,11 +1269,11 @@ function describeCapabilities(ctx) {
 }
 
 return { describeCapabilities };
-  })(),
-  // ============================================================
-  // simulator.js
-  // ============================================================
-  simulator: (function() {
+    })(),
+    // ============================================================
+    // simulator.js
+    // ============================================================
+    "simulator": (function() {
 // lib/simulator.js - Asset Diff Engine.
 //
 // Produces a list of asset changes ("OUT: 0.5 ETH", "IN: 100 USDC") for display.
@@ -1469,11 +1469,11 @@ function diffTransaction(ctx) {
 }
 
 return { diffTransaction };
-  })(),
-  // ============================================================
-  // revoke-generator.js
-  // ============================================================
-  revokeGenerator: (function() {
+    })(),
+    // ============================================================
+    // revoke-generator.js
+    // ============================================================
+    "revokeGenerator": (function() {
 // lib/revoke-generator.js — Generates calldata for revoking active approvals.
 //
 // The Approval Scanner tells you what's exposed. This module tells you
@@ -1695,6 +1695,7 @@ function describeRevoke(a, kind) {
 }
 
 return { padAddress, buildERC20RevokeCalldata, buildNFT721RevokeCalldata, buildERC20RevokeTx, buildNFT721RevokeTx, buildRevokeTx, buildRevokeBatch, groupPlansByChain, ERC20_APPROVE_SELECTOR, NFT_SET_APPROVAL_FOR_ALL_SELECTOR, ZERO_WORD };
-  })(),
-  global.WG_POPUP_LIB = { "constants": constants, "decoder": decoder, "typosquatting": typosquatting, "multicallDecoder": multicallDecoder, "universalRouter": universalRouter, "riskEngine": riskEngine, "capabilities": capabilities, "simulator": simulator, "revokeGenerator": revokeGenerator };
+    })(),
+  };
+  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "revokeGenerator": mods.revokeGenerator };
 })(typeof window !== "undefined" ? window : globalThis);
