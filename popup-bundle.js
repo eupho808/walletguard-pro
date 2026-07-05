@@ -4,6 +4,617 @@
 // Camel-case: revoke-generator.js → WG_POPUP_LIB.revokeGenerator.
 (function (global) {
   "use strict";
+
+  // ============================================================
+  // Locales (injected into window.__WG_LOCALES__ for i18n module)
+  // ============================================================
+  global.__WG_LOCALES__ = { "en": {
+  // ---- Common ----
+  "common.close": "Close",
+  "common.cancel": "Cancel",
+  "common.next": "Next",
+  "common.back": "Back",
+  "common.skip": "Skip",
+  "common.done": "Done",
+  "common.loading": "Loading...",
+  "common.language": "Language",
+
+  // ---- Popup: page title + header ----
+  "popup.title": "WalletGuard Pro Dashboard",
+  "popup.header.active": "ACTIVE",
+  "popup.header.paused": "PAUSED",
+
+  // ---- Popup: safety score ----
+  "popup.score.label": "Wallet Safety Score",
+
+  // ---- Popup: stats grid ----
+  "popup.stats.sitesScanned": "Sites Scanned",
+  "popup.stats.intercepted": "Intercepted",
+  "popup.stats.blocked": "Blocked by You",
+  "popup.stats.permits": "Permits Caught",
+
+  // ---- Popup: phishing banner ----
+  "popup.banner.title": "PHISHING BLOCKED",
+  "popup.banner.subtitle": "Malicious sites stopped",
+
+  // ---- Popup: approval scanner ----
+  "popup.approvals.title": "Active Token Approvals",
+  "popup.approvals.rescan": "Rescan",
+  "popup.approvals.total": "Total",
+  "popup.approvals.risky": "Risky",
+  "popup.approvals.unlimited": "Unlimited",
+  "popup.approvals.wallet.none": "no wallet yet",
+  "popup.approvals.scanned": "scanned {time}",
+  "popup.approvals.scannedNever": "never scanned",
+  "popup.approvals.time.justNow": "just now",
+  "popup.approvals.time.minutesAgo": "{n}m ago",
+  "popup.approvals.time.hoursAgo": "{n}h ago",
+  "popup.approvals.time.daysAgo": "{n}d ago",
+  "popup.approvals.time.unknown": "unknown",
+  "popup.approvals.chains": "({scanned}/{total} chains)",
+  "popup.approvals.chain": "({name})",
+  "popup.approvals.empty.noWallet": "No wallet detected yet. Make any transaction through WalletGuard and your active approvals will be scanned on the current chain.",
+  "popup.approvals.empty.clean": "No active approvals found. Wallet looks clean!",
+  "popup.approvals.empty.multiFailed": "No active approvals found, but {failed} chain(s) failed to respond. Try again later.",
+  "popup.approvals.scanning": "Scanning",
+  "popup.approvals.scanFailed": "Scan failed: {error}",
+  "popup.approvals.revokeTitle": "Generate revoke calldata",
+
+  // ---- Popup: NFT scanner ----
+  "popup.nft.title": "NFT Collection Access",
+  "popup.nft.total": "NFT Approvals",
+  "popup.nft.risky": "Risky",
+  "popup.nft.empty.scanned": "No active NFT collection approvals. Your NFTs are safe from custody-takeover.",
+  "popup.nft.empty.never": "NFT approvals will appear here after your first scan.",
+
+  // ---- Popup: logs ----
+  "popup.logs.title": "Recent Activity",
+  "popup.logs.empty": "No activity yet. Browse a dApp to see logs.",
+
+  // ---- Popup: actions ----
+  "popup.actions.reset": "Reset stats",
+  "popup.actions.settings": "Settings",
+  "popup.confirm.reset": "Reset all WalletGuard statistics?",
+
+  // ---- Popup: revoke modal ----
+  "popup.revoke.title": "Revoke approval",
+  "popup.revoke.leadFallback": "Revoke approval",
+  "popup.revoke.transactionData": "Transaction data",
+  "popup.revoke.chainLabel": "Chain",
+  "popup.revoke.toLabel": "To (token / collection)",
+  "popup.revoke.valueLabel": "Value",
+  "popup.revoke.dataLabel": "Data",
+  "popup.revoke.copy": "Copy calldata",
+  "popup.revoke.copied": "Copied!",
+  "popup.revoke.copyFailed": "Copy failed",
+  "popup.revoke.error.noLib": "Revoke generator not loaded. Reload the popup or update WalletGuard Pro.",
+  "popup.revoke.error.generate": "Could not generate revoke calldata: {error}",
+  "popup.revoke.error.unknownKind": "Unknown approval kind \u2014 cannot generate a revoke plan.",
+  "popup.revoke.note": "WalletGuard Pro does <strong>not</strong> sign transactions. Copy the calldata and broadcast it through your wallet or a tool like <a href=\"#\" id=\"revoke-modal-revoke-cash\" target=\"_blank\" rel=\"noopener noreferrer\">revoke.cash</a>.",
+  "popup.revoke.allowanceUnlimited": "Unlimited",
+
+  // ---- Settings: page title + sections ----
+  "settings.title": "WalletGuard Pro \u2014 Settings",
+  "settings.section.protection": "Protection Status",
+  "settings.section.protection.desc": "Master switch for all WalletGuard security layers.",
+  "settings.section.multichain": "Multi-Chain Approval Scanner",
+  "settings.section.multichain.desc": "When enabled, the approval scanner checks all 9 supported networks in parallel using public RPC endpoints (Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia). No API key required.",
+  "settings.section.ai": "AI Security Core",
+  "settings.section.ai.desc": "WalletGuard uses OpenRouter to perform heuristic checks on unknown addresses. Get a free API key at openrouter.ai.",
+  "settings.section.approvals": "Approval Scanner",
+  "settings.section.approvals.desc": "Reads active token approvals on your wallet's currently-connected chain. No API key required - WalletGuard queries the same RPC node your wallet already uses (MetaMask, Rabby, etc.).",
+  "settings.section.approvals.how": "<strong>How it works:</strong> When you click <em>Rescan</em> in the popup, WalletGuard reads historical <code>Approval</code> events from your address via <code>eth_getLogs</code>, then queries the current allowance for each (token, spender) pair via <code>eth_call</code>. Zero-allowance entries are filtered out (revoked approvals). The scan covers whichever chain your wallet is currently on.",
+  "settings.section.whitelist": "Trusted Contracts (Whitelist)",
+  "settings.section.whitelist.desc": "Addresses that you fully trust. WalletGuard will give them a higher trust score automatically.",
+  "settings.section.blacklist": "Custom Blacklist",
+  "settings.section.blacklist.desc": "Addresses or domains that you know are malicious. These will be blocked instantly without an AI check.",
+  "settings.section.data": "Local Data",
+  "settings.section.data.desc": "Statistics, logs, and the AI cache live in your browser. You can wipe them at any time.",
+  "settings.footer": "WalletGuard Pro is an independent security layer. It never replaces your wallet, never holds your funds, and never has custody of your keys.",
+
+  // ---- Settings: toggles ----
+  "settings.toggle.protection": "Active Protection",
+  "settings.toggle.protection.desc": "When off, transactions are not intercepted or analyzed.",
+  "settings.toggle.multichain": "Scan All Chains",
+  "settings.toggle.multichain.desc": "When off, only the wallet's currently-connected chain is scanned.",
+  "settings.toggle.on": "ON",
+  "settings.toggle.off": "OFF",
+
+  // ---- Settings: API key ----
+  "settings.api.keyLabel": "OpenRouter API Key",
+  "settings.api.keyPlaceholder": "sk-or-v1-...",
+  "settings.api.show": "Show",
+  "settings.api.hide": "Hide",
+  "settings.api.save": "Save Key",
+  "settings.api.clear": "Clear",
+  "settings.api.privacy": "<strong>Privacy:</strong> The API key is stored locally in your browser via <code>chrome.storage.local</code>. It is only sent to OpenRouter when checking addresses. Without a key, only the local blacklist is used.",
+
+  // ---- Settings: whitelist/blacklist ----
+  "settings.list.whitelistInput.label": "Add Address (0x... or domain.tld)",
+  "settings.list.whitelistInput.placeholder": "0x...",
+  "settings.list.blacklistInput.label": "Add Address or Domain",
+  "settings.list.blacklistInput.placeholder": "0x... or malicious-site.com",
+  "settings.list.add": "Add",
+  "settings.list.whitelistEmpty": "No trusted addresses yet.",
+  "settings.list.blacklistEmpty": "No custom blacklist entries.",
+  "settings.list.remove": "Remove",
+
+  // ---- Settings: data ----
+  "settings.data.resetStats": "Reset Statistics",
+  "settings.data.clearCache": "Clear AI Cache",
+
+  // ---- Settings: locale + onboarding ----
+  "settings.section.appearance": "Appearance & Language",
+  "settings.section.appearance.desc": "Choose your language. WalletGuard Pro will use it for the popup, settings, and onboarding tour.",
+  "settings.onboarding.replay": "Replay onboarding tour",
+
+  // ---- Settings: toasts ----
+  "settings.toast.loadFailed": "Failed to load settings",
+  "settings.toast.protectionOn": "Protection enabled",
+  "settings.toast.protectionOff": "Protection paused",
+  "settings.toast.multichainOn": "Multi-chain scan enabled (all 9 chains)",
+  "settings.toast.multichainOff": "Multi-chain scan disabled (current chain only)",
+  "settings.toast.apiSaved": "API key saved",
+  "settings.toast.apiSaveFailed": "Failed to save API key",
+  "settings.toast.apiCleared": "API key cleared",
+  "settings.toast.invalidInput": "Invalid format. Use 0x... address or domain.tld",
+  "settings.toast.alreadyWhitelisted": "Already in whitelist",
+  "settings.toast.addedWhitelist": "Added to whitelist",
+  "settings.toast.alreadyBlacklisted": "Already in blacklist",
+  "settings.toast.addedBlacklist": "Added to blacklist",
+  "settings.toast.statsReset": "Statistics reset",
+  "settings.toast.cacheCleared": "AI cache cleared",
+  "settings.toast.removed": "Removed {addr}",
+  "settings.toast.localeSaved": "Language updated to {name}",
+
+  // ---- Settings: confirm dialogs ----
+  "settings.confirm.clearApi": "Clear the OpenRouter API key? AI checks will be disabled.",
+  "settings.confirm.resetStats": "Reset all WalletGuard statistics? This cannot be undone.",
+  "settings.confirm.clearCache": "Clear the AI address check cache? Future checks will re-query OpenRouter.",
+
+  // ---- Onboarding tour ----
+  "onboarding.indicator": "Step {current} of {total}",
+  "onboarding.skip": "Skip tour",
+  "onboarding.step1.title": "Welcome to WalletGuard Pro",
+  "onboarding.step1.body": "Your independent security layer against phishing, drainers, and risky token approvals. Everything runs locally \u2014 no accounts, no tracking.",
+  "onboarding.step2.title": "Approval Scanner",
+  "onboarding.step2.body": "See all your active ERC-20 and NFT approvals across 9 chains. Risks are auto-classified by severity \u2014 critical, high, medium, low.",
+  "onboarding.step3.title": "One-Click Revoke",
+  "onboarding.step3.body": "Generate revoke calldata for risky approvals with one click. You sign the transaction in your own wallet \u2014 WalletGuard never touches your keys.",
+  "onboarding.step4.title": "You're All Set",
+  "onboarding.step4.body": "Open Settings to customize chains, trusted domains, the AI security core, or replay this tour anytime."
+},
+    "es": {
+  "common.close": "Cerrar",
+  "common.cancel": "Cancelar",
+  "common.next": "Siguiente",
+  "common.back": "Atr\u00e1s",
+  "common.skip": "Omitir",
+  "common.done": "Listo",
+  "common.loading": "Cargando...",
+  "common.language": "Idioma",
+
+  "popup.title": "Panel de WalletGuard Pro",
+  "popup.header.active": "ACTIVO",
+  "popup.header.paused": "PAUSADO",
+  "popup.score.label": "Puntuaci\u00f3n de seguridad",
+  "popup.stats.sitesScanned": "Sitios analizados",
+  "popup.stats.intercepted": "Interceptadas",
+  "popup.stats.blocked": "Bloqueadas por ti",
+  "popup.stats.permits": "Permits detectados",
+  "popup.banner.title": "PHISHING BLOQUEADO",
+  "popup.banner.subtitle": "Sitios maliciosos detenidos",
+  "popup.approvals.title": "Aprobaciones de tokens activas",
+  "popup.approvals.rescan": "Reanalizar",
+  "popup.approvals.total": "Total",
+  "popup.approvals.risky": "Riesgosas",
+  "popup.approvals.unlimited": "Sin l\u00edmite",
+  "popup.approvals.wallet.none": "sin billetera",
+  "popup.approvals.scanned": "analizado {time}",
+  "popup.approvals.scannedNever": "nunca analizado",
+  "popup.approvals.time.justNow": "ahora mismo",
+  "popup.approvals.time.minutesAgo": "hace {n}m",
+  "popup.approvals.time.hoursAgo": "hace {n}h",
+  "popup.approvals.time.daysAgo": "hace {n}d",
+  "popup.approvals.time.unknown": "desconocido",
+  "popup.approvals.chains": "({scanned}/{total} redes)",
+  "popup.approvals.chain": "({name})",
+  "popup.approvals.empty.noWallet": "No se detect\u00f3 billetera. Realiza cualquier transacci\u00f3n a trav\u00e9s de WalletGuard y tus aprobaciones activas se analizar\u00e1n en la red actual.",
+  "popup.approvals.empty.clean": "No se encontraron aprobaciones activas. La billetera parece limpia.",
+  "popup.approvals.empty.multiFailed": "No se encontraron aprobaciones activas, pero {failed} red(es) no respondieron. Int\u00e9ntalo m\u00e1s tarde.",
+  "popup.approvals.scanning": "Analizando",
+  "popup.approvals.scanFailed": "Error de an\u00e1lisis: {error}",
+  "popup.approvals.revokeTitle": "Generar calldata de revocaci\u00f3n",
+  "popup.nft.title": "Acceso a colecciones NFT",
+  "popup.nft.total": "Aprobaciones NFT",
+  "popup.nft.risky": "Riesgosas",
+  "popup.nft.empty.scanned": "Sin aprobaciones NFT activas. Tus NFTs est\u00e1n a salvo de toma de control.",
+  "popup.nft.empty.never": "Las aprobaciones NFT aparecer\u00e1n aqu\u00ed despu\u00e9s de tu primer an\u00e1lisis.",
+  "popup.logs.title": "Actividad reciente",
+  "popup.logs.empty": "Sin actividad a\u00fan. Navega a una dApp para ver registros.",
+  "popup.actions.reset": "Restablecer estad\u00edsticas",
+  "popup.actions.settings": "Ajustes",
+  "popup.confirm.reset": "\u00bfRestablecer todas las estad\u00edsticas de WalletGuard?",
+  "popup.revoke.title": "Revocar aprobaci\u00f3n",
+  "popup.revoke.leadFallback": "Revocar aprobaci\u00f3n",
+  "popup.revoke.transactionData": "Datos de transacci\u00f3n",
+  "popup.revoke.chainLabel": "Red",
+  "popup.revoke.toLabel": "Para (token / colecci\u00f3n)",
+  "popup.revoke.valueLabel": "Valor",
+  "popup.revoke.dataLabel": "Datos",
+  "popup.revoke.copy": "Copiar calldata",
+  "popup.revoke.copied": "\u00a1Copiado!",
+  "popup.revoke.copyFailed": "Error al copiar",
+  "popup.revoke.error.noLib": "Generador de revocaci\u00f3n no cargado. Recarga el panel o actualiza WalletGuard Pro.",
+  "popup.revoke.error.generate": "No se pudo generar el calldata: {error}",
+  "popup.revoke.error.unknownKind": "Tipo de aprobaci\u00f3n desconocido \u2014 no se puede generar un plan de revocaci\u00f3n.",
+  "popup.revoke.note": "WalletGuard Pro <strong>no</strong> firma transacciones. Copia el calldata y transm\u00edtelo a trav\u00e9s de tu billetera o una herramienta como <a href=\"#\" id=\"revoke-modal-revoke-cash\" target=\"_blank\" rel=\"noopener noreferrer\">revoke.cash</a>.",
+  "popup.revoke.allowanceUnlimited": "Sin l\u00edmite",
+
+  "settings.title": "WalletGuard Pro \u2014 Ajustes",
+  "settings.section.protection": "Estado de protecci\u00f3n",
+  "settings.section.protection.desc": "Interruptor maestro de todas las capas de seguridad de WalletGuard.",
+  "settings.section.multichain": "Esc\u00e1ner multi-cadena",
+  "settings.section.multichain.desc": "Cuando est\u00e1 habilitado, el esc\u00e1ner revisa las 9 redes soportadas en paralelo usando endpoints RPC p\u00fablicos (Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia). No requiere clave API.",
+  "settings.section.ai": "N\u00facleo de seguridad IA",
+  "settings.section.ai.desc": "WalletGuard usa OpenRouter para realizar verificaciones heur\u00edsticas de direcciones desconocidas. Obt\u00e9n una clave API gratuita en openrouter.ai.",
+  "settings.section.approvals": "Esc\u00e1ner de aprobaciones",
+  "settings.section.approvals.desc": "Lee aprobaciones de tokens activas en la red actualmente conectada a tu billetera. No requiere clave API \u2014 WalletGuard consulta el mismo nodo RPC que ya usa tu billetera (MetaMask, Rabby, etc.).",
+  "settings.section.approvals.how": "<strong>C\u00f3mo funciona:</strong> Cuando haces clic en <em>Reanalizar</em> en el panel, WalletGuard lee eventos hist\u00f3ricos de <code>Approval</code> de tu direcci\u00f3n mediante <code>eth_getLogs</code>, luego consulta el allowance actual para cada par (token, spender) mediante <code>eth_call</code>. Las entradas con allowance cero se filtran (aprobaciones revocadas). El escaneo cubre la red a la que tu billetera est\u00e1 conectada actualmente.",
+  "settings.section.whitelist": "Contratos de confianza (Whitelist)",
+  "settings.section.whitelist.desc": "Direcciones que conf\u00edas plenamente. WalletGuard les dar\u00e1 autom\u00e1ticamente una puntuaci\u00f3n de confianza m\u00e1s alta.",
+  "settings.section.blacklist": "Lista negra personalizada",
+  "settings.section.blacklist.desc": "Direcciones o dominios que sabes que son maliciosos. Se bloquear\u00e1n al instante sin verificaci\u00f3n IA.",
+  "settings.section.data": "Datos locales",
+  "settings.section.data.desc": "Las estad\u00edsticas, registros y cach\u00e9 IA viven en tu navegador. Puedes borrarlos en cualquier momento.",
+  "settings.footer": "WalletGuard Pro es una capa de seguridad independiente. Nunca reemplaza tu billetera, nunca custodia tus fondos ni tiene acceso a tus claves.",
+  "settings.toggle.protection": "Protecci\u00f3n activa",
+  "settings.toggle.protection.desc": "Cuando est\u00e1 desactivada, las transacciones no se interceptan ni analizan.",
+  "settings.toggle.multichain": "Analizar todas las redes",
+  "settings.toggle.multichain.desc": "Cuando est\u00e1 desactivado, solo se analiza la red actualmente conectada a tu billetera.",
+  "settings.toggle.on": "ON",
+  "settings.toggle.off": "OFF",
+  "settings.api.keyLabel": "Clave API de OpenRouter",
+  "settings.api.keyPlaceholder": "sk-or-v1-...",
+  "settings.api.show": "Mostrar",
+  "settings.api.hide": "Ocultar",
+  "settings.api.save": "Guardar clave",
+  "settings.api.clear": "Borrar",
+  "settings.api.privacy": "<strong>Privacidad:</strong> La clave API se almacena localmente en tu navegador mediante <code>chrome.storage.local</code>. Solo se env\u00eda a OpenRouter al verificar direcciones. Sin clave, solo se usa la lista negra local.",
+  "settings.list.whitelistInput.label": "A\u00f1adir direcci\u00f3n (0x... o dominio.tld)",
+  "settings.list.whitelistInput.placeholder": "0x...",
+  "settings.list.blacklistInput.label": "A\u00f1adir direcci\u00f3n o dominio",
+  "settings.list.blacklistInput.placeholder": "0x... o sitio-malicioso.com",
+  "settings.list.add": "A\u00f1adir",
+  "settings.list.whitelistEmpty": "Sin direcciones de confianza a\u00fan.",
+  "settings.list.blacklistEmpty": "Sin entradas en la lista negra.",
+  "settings.list.remove": "Eliminar",
+  "settings.data.resetStats": "Restablecer estad\u00edsticas",
+  "settings.data.clearCache": "Borrar cach\u00e9 IA",
+  "settings.section.appearance": "Apariencia e idioma",
+  "settings.section.appearance.desc": "Elige tu idioma. WalletGuard Pro lo usar\u00e1 en el panel, ajustes y el recorrido de bienvenida.",
+  "settings.onboarding.replay": "Repetir recorrido de bienvenida",
+  "settings.toast.loadFailed": "Error al cargar ajustes",
+  "settings.toast.protectionOn": "Protecci\u00f3n habilitada",
+  "settings.toast.protectionOff": "Protecci\u00f3n pausada",
+  "settings.toast.multichainOn": "Escaneo multi-cadena habilitado (las 9 redes)",
+  "settings.toast.multichainOff": "Escaneo multi-cadena deshabilitado (solo red actual)",
+  "settings.toast.apiSaved": "Clave API guardada",
+  "settings.toast.apiSaveFailed": "Error al guardar clave API",
+  "settings.toast.apiCleared": "Clave API borrada",
+  "settings.toast.invalidInput": "Formato inv\u00e1lido. Usa direcci\u00f3n 0x... o dominio.tld",
+  "settings.toast.alreadyWhitelisted": "Ya est\u00e1 en la whitelist",
+  "settings.toast.addedWhitelist": "A\u00f1adido a la whitelist",
+  "settings.toast.alreadyBlacklisted": "Ya est\u00e1 en la lista negra",
+  "settings.toast.addedBlacklist": "A\u00f1adido a la lista negra",
+  "settings.toast.statsReset": "Estad\u00edsticas restablecidas",
+  "settings.toast.cacheCleared": "Cach\u00e9 IA borrada",
+  "settings.toast.removed": "Eliminado {addr}",
+  "settings.toast.localeSaved": "Idioma cambiado a {name}",
+  "settings.confirm.clearApi": "\u00bfBorrar la clave API de OpenRouter? Las verificaciones IA se deshabilitar\u00e1n.",
+  "settings.confirm.resetStats": "\u00bfRestablecer todas las estad\u00edsticas de WalletGuard? Esta acci\u00f3n no se puede deshacer.",
+  "settings.confirm.clearCache": "\u00bfBorrar la cach\u00e9 de verificaciones IA? Las futuras volver\u00e1n a consultar OpenRouter.",
+
+  "onboarding.indicator": "Paso {current} de {total}",
+  "onboarding.skip": "Omitir recorrido",
+  "onboarding.step1.title": "Bienvenido a WalletGuard Pro",
+  "onboarding.step1.body": "Tu capa de seguridad independiente contra phishing, drainers y aprobaciones de tokens riesgosas. Todo funciona localmente \u2014 sin cuentas, sin rastreo.",
+  "onboarding.step2.title": "Esc\u00e1ner de aprobaciones",
+  "onboarding.step2.body": "Ve todas tus aprobaciones ERC-20 y NFT activas en 9 redes. Los riesgos se clasifican autom\u00e1ticamente por severidad: cr\u00edtico, alto, medio, bajo.",
+  "onboarding.step3.title": "Revocaci\u00f3n en un clic",
+  "onboarding.step3.body": "Genera calldata de revocaci\u00f3n para aprobaciones riesgosas con un clic. La firma ocurre en tu propia billetera \u2014 WalletGuard nunca toca tus claves.",
+  "onboarding.step4.title": "Todo listo",
+  "onboarding.step4.body": "Abre Ajustes para personalizar redes, dominios de confianza, el n\u00facleo de seguridad IA, o repetir este recorrido en cualquier momento."
+},
+    "ru": {
+  // ---- Common ----
+  "common.close": "\u0417\u0430\u043a\u0440\u044b\u0442\u044c",
+  "common.cancel": "\u041e\u0442\u043c\u0435\u043d\u0430",
+  "common.next": "\u0414\u0430\u043b\u0435\u0435",
+  "common.back": "\u041d\u0430\u0437\u0430\u0434",
+  "common.skip": "\u041f\u0440\u043e\u043f\u0443\u0441\u0442\u0438\u0442\u044c",
+  "common.done": "\u0413\u043e\u0442\u043e\u0432\u043e",
+  "common.loading": "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...",
+  "common.language": "\u042f\u0437\u044b\u043a",
+
+  // ---- Popup ----
+  "popup.title": "WalletGuard Pro \u2014 \u041f\u0430\u043d\u0435\u043b\u044c",
+  "popup.header.active": "\u0410\u041a\u0422\u0418\u0412\u041d\u041e",
+  "popup.header.paused": "\u041f\u0420\u0418\u041e\u0421\u0422\u0410\u041d\u041e\u0412\u041b\u0415\u041d\u041e",
+  "popup.score.label": "\u0420\u0435\u0439\u0442\u0438\u043d\u0433 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438",
+  "popup.stats.sitesScanned": "\u0421\u0430\u0439\u0442\u043e\u0432 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e",
+  "popup.stats.intercepted": "\u041f\u0435\u0440\u0435\u0445\u0432\u0430\u0447\u0435\u043d\u043e",
+  "popup.stats.blocked": "\u0417\u0430\u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432\u0430\u043c\u0438",
+  "popup.stats.permits": "Permit-\u043e\u0432 \u043d\u0430\u0439\u0434\u0435\u043d\u043e",
+  "popup.banner.title": "\u0424\u0418\u0428\u0418\u041d\u0413 \u0417\u0410\u0411\u041b\u041e\u041a\u0418\u0420\u041e\u0412\u0410\u041d",
+  "popup.banner.subtitle": "\u0412\u0440\u0435\u0434\u043e\u043d\u043e\u0441\u043d\u044b\u0445 \u0441\u0430\u0439\u0442\u043e\u0432 \u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043e",
+  "popup.approvals.title": "\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u0442\u043e\u043a\u0435\u043d\u043e\u0432",
+  "popup.approvals.rescan": "\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c",
+  "popup.approvals.total": "\u0412\u0441\u0435\u0433\u043e",
+  "popup.approvals.risky": "\u0420\u0438\u0441\u043a\u043e\u0432\u044b\u0445",
+  "popup.approvals.unlimited": "\u0411\u0435\u0437 \u043b\u0438\u043c\u0438\u0442\u0430",
+  "popup.approvals.wallet.none": "\u043a\u043e\u0448\u0435\u043b\u0451\u043a \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d",
+  "popup.approvals.scanned": "\u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u043e {time}",
+  "popup.approvals.scannedNever": "\u043d\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u043b\u043e\u0441\u044c",
+  "popup.approvals.time.justNow": "\u0442\u043e\u043b\u044c\u043a\u043e \u0447\u0442\u043e",
+  "popup.approvals.time.minutesAgo": "{n} \u043c\u0438\u043d \u043d\u0430\u0437\u0430\u0434",
+  "popup.approvals.time.hoursAgo": "{n} \u0447 \u043d\u0430\u0437\u0430\u0434",
+  "popup.approvals.time.daysAgo": "{n} \u0434\u043d \u043d\u0430\u0437\u0430\u0434",
+  "popup.approvals.time.unknown": "\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e",
+  "popup.approvals.chains": "({scanned}/{total} \u0441\u0435\u0442\u0435\u0439)",
+  "popup.approvals.chain": "({name})",
+  "popup.approvals.empty.noWallet": "\u041a\u043e\u0448\u0435\u043b\u0451\u043a \u043d\u0435 \u043e\u0431\u043d\u0430\u0440\u0443\u0436\u0435\u043d. \u0421\u043e\u0432\u0435\u0440\u0448\u0438\u0442\u0435 \u043b\u044e\u0431\u0443\u044e \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u044e \u0447\u0435\u0440\u0435\u0437 WalletGuard \u2014 \u0430\u043a\u0442\u0438\u0432\u043d\u044b\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u0431\u0443\u0434\u0443\u0442 \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u044b \u0432 \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u0441\u0435\u0442\u0438.",
+  "popup.approvals.empty.clean": "\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e. \u041a\u043e\u0448\u0435\u043b\u0451\u043a \u0432\u044b\u0433\u043b\u044f\u0434\u0438\u0442 \u0447\u0438\u0441\u0442\u044b\u043c!",
+  "popup.approvals.empty.multiFailed": "\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e, \u043d\u043e {failed} \u0441\u0435\u0442\u044c(\u0438) \u043d\u0435 \u043e\u0442\u0432\u0435\u0442\u0438\u043b\u0438. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u043f\u043e\u0437\u0436\u0435.",
+  "popup.approvals.scanning": "\u0421\u043a\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435",
+  "popup.approvals.scanFailed": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u043a\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f: {error}",
+  "popup.approvals.revokeTitle": "\u0421\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u0442\u044c calldata \u0434\u043b\u044f \u043e\u0442\u0437\u044b\u0432\u0430",
+  "popup.nft.title": "\u0414\u043e\u0441\u0442\u0443\u043f \u043a NFT-\u043a\u043e\u043b\u043b\u0435\u043a\u0446\u0438\u044f\u043c",
+  "popup.nft.total": "NFT-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439",
+  "popup.nft.risky": "\u0420\u0438\u0441\u043a\u043e\u0432\u044b\u0445",
+  "popup.nft.empty.scanned": "\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445 NFT-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439 \u043d\u0435 \u0442. \u0412\u0430\u0448\u0438 NFT \u0432 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438 \u043e\u0442 \u043f\u0435\u0440\u0435\u0445\u0432\u0430\u0442\u0430 \u043a\u043e\u043d\u0442\u0440\u043e\u043b\u044f.",
+  "popup.nft.empty.never": "NFT-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u043f\u043e\u044f\u0432\u044f\u0442\u0441\u044f \u0437\u0434\u0435\u0441\u044c \u043f\u043e\u0441\u043b\u0435 \u043f\u0435\u0440\u0432\u043e\u0433\u043e \u0441\u043a\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f.",
+  "popup.logs.title": "\u041d\u0435\u0434\u0430\u0432\u043d\u044f\u044f \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u044c",
+  "popup.logs.empty": "\u0410\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u0438 \u043f\u043e\u043a\u0430 \u043d\u0435\u0442. \u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 dApp, \u0447\u0442\u043e\u0431\u044b \u0443\u0432\u0438\u0434\u0435\u0442\u044c \u0436\u0443\u0440\u043d\u0430\u043b.",
+  "popup.actions.reset": "\u0421\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0443",
+  "popup.actions.settings": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438",
+  "popup.confirm.reset": "\u0421\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u0432\u0441\u044e \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0443 WalletGuard?",
+  "popup.revoke.title": "\u041e\u0442\u0437\u044b\u0432 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f",
+  "popup.revoke.leadFallback": "\u041e\u0442\u0437\u044b\u0432 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f",
+  "popup.revoke.transactionData": "\u0414\u0430\u043d\u043d\u044b\u0435 \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u0438",
+  "popup.revoke.chainLabel": "\u0421\u0435\u0442\u044c",
+  "popup.revoke.toLabel": "\u041a\u0443\u0434\u0430 (\u0442\u043e\u043a\u0435\u043d / \u043a\u043e\u043b\u043b\u0435\u043a\u0446\u0438\u044f)",
+  "popup.revoke.valueLabel": "\u0421\u0443\u043c\u043c\u0430",
+  "popup.revoke.dataLabel": "\u0414\u0430\u043d\u043d\u044b\u0435",
+  "popup.revoke.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c calldata",
+  "popup.revoke.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e!",
+  "popup.revoke.copyFailed": "\u041e\u0448\u0438\u0431\u043a\u0430 \u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f",
+  "popup.revoke.error.noLib": "\u0413\u0435\u043d\u0435\u0440\u0430\u0442\u043e\u0440 \u043e\u0442\u0437\u044b\u0432\u0430 \u043d\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043d. \u041f\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 \u043f\u0430\u043d\u0435\u043b\u044c \u0438\u043b\u0438 \u043e\u0431\u043d\u043e\u0432\u0438\u0442\u0435 WalletGuard Pro.",
+  "popup.revoke.error.generate": "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u0442\u044c calldata: {error}",
+  "popup.revoke.error.unknownKind": "\u041d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u044b\u0439 \u0442\u0438\u043f \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u2014 \u043d\u0435\u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e \u0441\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u043f\u043b\u0430\u043d \u043e\u0442\u0437\u044b\u0432\u0430.",
+  "popup.revoke.note": "WalletGuard Pro <strong>\u043d\u0435</strong> \u043f\u043e\u0434\u043f\u0438\u0441\u044b\u0432\u0430\u0435\u0442 \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u0438. \u0421\u043a\u043e\u043f\u0438\u0440\u0443\u0439\u0442\u0435 calldata \u0438 \u043e\u0442\u043f\u0440\u0430\u0432\u044c\u0442\u0435 \u0435\u0451 \u0447\u0435\u0440\u0435\u0437 \u0441\u0432\u043e\u0439 \u043a\u043e\u0448\u0435\u043b\u0451\u043a \u0438\u043b\u0438 \u0447\u0435\u0440\u0435\u0437 <a href=\"#\" id=\"revoke-modal-revoke-cash\" target=\"_blank\" rel=\"noopener noreferrer\">revoke.cash</a>.",
+  "popup.revoke.allowanceUnlimited": "\u0411\u0435\u0437 \u043b\u0438\u043c\u0438\u0442\u0430",
+
+  // ---- Settings ----
+  "settings.title": "WalletGuard Pro \u2014 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438",
+  "settings.section.protection": "\u0421\u0442\u0430\u0442\u0443\u0441 \u0437\u0430\u0449\u0438\u0442\u044b",
+  "settings.section.protection.desc": "\u0413\u043b\u0430\u0432\u043d\u044b\u0439 \u043f\u0435\u0440\u0435\u043a\u043b\u044e\u0447\u0430\u0442\u0435\u043b\u044c \u0432\u0441\u0435\u0445 \u0443\u0440\u043e\u0432\u043d\u0435\u0439 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438 WalletGuard.",
+  "settings.section.multichain": "\u041c\u0443\u043b\u044c\u0442\u0438-\u0441\u0435\u0442\u0435\u0432\u043e\u0439 \u0441\u043a\u0430\u043d\u0435\u0440 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439",
+  "settings.section.multichain.desc": "\u041f\u0440\u0438 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0438 \u0441\u043a\u0430\u043d\u0435\u0440 \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u0442 \u0432\u0441\u0435 9 \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u043c\u044b\u0445 \u0441\u0435\u0442\u0435\u0439 \u043f\u0430\u0440\u0430\u043b\u043b\u0435\u043b\u044c\u043d\u043e \u0447\u0435\u0440\u0435\u0437 \u043f\u0443\u0431\u043b\u0438\u0447\u043d\u044b\u0435 RPC (Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia). API-\u043a\u043b\u044e\u0447 \u043d\u0435 \u043d\u0443\u0436\u0435\u043d.",
+  "settings.section.ai": "\u0418\u0418-\u044f\u0434\u0440\u043e \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438",
+  "settings.section.ai.desc": "WalletGuard \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0435\u0442 OpenRouter \u0434\u043b\u044f \u044d\u0432\u0440\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0439 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438 \u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u044b\u0445 \u0430\u0434\u0440\u0435\u0441\u043e\u0432. \u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u044b\u0439 API-\u043a\u043b\u044e\u0447 \u043d\u0430 openrouter.ai.",
+  "settings.section.approvals": "\u0421\u043a\u0430\u043d\u0435\u0440 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439",
+  "settings.section.approvals.desc": "\u0427\u0438\u0442\u0430\u0435\u0442 \u0430\u043a\u0442\u0438\u0432\u043d\u044b\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u0442\u043e\u043a\u0435\u043d\u043e\u0432 \u0432 \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u0441\u0435\u0442\u0438 \u0432\u0430\u0448\u0435\u0433\u043e \u043a\u043e\u0448\u0435\u043b\u044c\u043a\u0430. API-\u043a\u043b\u044e\u0447 \u043d\u0435 \u043d\u0443\u0436\u0435\u043d \u2014 WalletGuard \u0437\u0430\u043f\u0440\u0430\u0448\u0438\u0432\u0430\u0435\u0442 \u0442\u043e\u0442 \u0436\u0435 RPC-\u0443\u0437\u0435\u043b, \u0447\u0442\u043e \u0432\u0430\u0448 \u043a\u043e\u0448\u0435\u043b\u0451\u043a (MetaMask, Rabby \u0438 \u0442.\u043f.).",
+  "settings.section.approvals.how": "<strong>\u041a\u0430\u043a \u044d\u0442\u043e \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442:</strong> \u041a\u043e\u0433\u0434\u0430 \u0432\u044b \u043d\u0430\u0436\u0438\u043c\u0430\u0435\u0442\u0435 <em>\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c</em> \u0432 \u043f\u0430\u043d\u0435\u043b\u0438, WalletGuard \u0447\u0438\u0442\u0430\u0435\u0442 \u0438\u0441\u0442\u043e\u0440\u0438\u044e \u0441\u043e\u0431\u044b\u0442\u0438\u0439 <code>Approval</code> \u0434\u043b\u044f \u0432\u0430\u0448\u0435\u0433\u043e \u0430\u0434\u0440\u0435\u0441\u0430 \u0447\u0435\u0440\u0435\u0437 <code>eth_getLogs</code>, \u0437\u0430\u0442\u0435\u043c \u0437\u0430\u043f\u0440\u0430\u0448\u0438\u0432\u0430\u0435\u0442 \u0442\u0435\u043a\u0443\u0449\u0438\u0439 allowance \u0434\u043b\u044f \u043a\u0430\u0436\u0434\u043e\u0439 \u043f\u0430\u0440\u044b (token, spender) \u0447\u0435\u0440\u0435\u0437 <code>eth_call</code>. \u0417\u0430\u043f\u0438\u0441\u0438 \u0441 \u043d\u0443\u043b\u0435\u0432\u044b\u043c allowance \u0444\u0438\u043b\u044c\u0442\u0440\u0443\u044e\u0442\u0441\u044f (\u043e\u0442\u043e\u0437\u0432\u0430\u043d\u043d\u044b\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f). \u0421\u043a\u0430\u043d\u0438\u0440\u0443\u0435\u0442\u0441\u044f \u0442\u0430 \u0441\u0435\u0442\u044c, \u043a \u043a\u043e\u0442\u043e\u0440\u043e\u0439 \u0432 \u0434\u0430\u043d\u043d\u044b\u0439 \u043c\u043e\u043c\u0435\u043d\u0442 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0451\u043d \u0432\u0430\u0448 \u043a\u043e\u0448\u0435\u043b\u0451\u043a.",
+  "settings.section.whitelist": "\u0414\u043e\u0432\u0435\u0440\u0435\u043d\u043d\u044b\u0435 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442\u044b (\u0431\u0435\u043b\u044b\u0439 \u0441\u043f\u0438\u0441\u043e\u043a)",
+  "settings.section.whitelist.desc": "\u0410\u0434\u0440\u0435\u0441\u0430, \u043a\u043e\u0442\u043e\u0440\u044b\u043c \u0432\u044b \u043f\u043e\u043b\u043d\u043e\u0441\u0442\u044c\u044e \u0434\u043e\u0432\u0435\u0440\u044f\u0435\u0442\u0435. WalletGuard \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438 \u043f\u043e\u0432\u044b\u0448\u0430\u0435\u0442 \u0438\u043c \u0440\u0435\u0439\u0442\u0438\u043d\u0433 \u0434\u043e\u0432\u0435\u0440\u0438\u044f.",
+  "settings.section.blacklist": "\u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0441\u043a\u0438\u0439 \u0447\u0451\u0440\u043d\u044b\u0439 \u0441\u043f\u0438\u0441\u043e\u043a",
+  "settings.section.blacklist.desc": "\u0410\u0434\u0440\u0435\u0441\u0430 \u0438\u043b\u0438 \u0434\u043e\u043c\u0435\u043d\u044b, \u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u0432\u044b \u0437\u043d\u0430\u0435\u0442\u0435 \u043a\u0430\u043a \u0432\u0440\u0435\u0434\u043e\u043d\u043e\u0441\u043d\u044b\u0435. \u041e\u043d\u0438 \u0431\u0443\u0434\u0443\u0442 \u0437\u0430\u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u0430\u043d\u044b \u043c\u0433\u043d\u043e\u0432\u0435\u043d\u043d\u043e \u0431\u0435\u0437 \u0438\u0418-\u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438.",
+  "settings.section.data": "\u041b\u043e\u043a\u0430\u043b\u044c\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435",
+  "settings.section.data.desc": "\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0430, \u0436\u0443\u0440\u043d\u0430\u043b\u044b \u0438 \u043a\u044d\u0448 \u0418\u0418 \u0445\u0440\u0430\u043d\u044f\u0442\u0441\u044f \u0432 \u0432\u0430\u0448\u0435\u043c \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435. \u0412\u044b \u043c\u043e\u0436\u0435\u0442\u0435 \u043e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u0438\u0445 \u0432 \u043b\u044e\u0431\u043e\u0439 \u043c\u043e\u043c\u0435\u043d\u0442.",
+  "settings.footer": "WalletGuard Pro \u2014 \u044d\u0442\u043e \u043d\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043c\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438. \u041e\u043d \u043d\u0438\u043a\u043e\u0433\u0434\u0430 \u043d\u0435 \u0437\u0430\u043c\u0435\u043d\u044f\u0435\u0442 \u0432\u0430\u0448 \u043a\u043e\u0448\u0435\u043b\u0451\u043a, \u043d\u0438\u043a\u043e\u0433\u0434\u0430 \u043d\u0435 \u0434\u0435\u0440\u0436\u0438\u0442 \u0432\u0430\u0448\u0438 \u0441\u0440\u0435\u0434\u0441\u0442\u0432\u0430 \u0438 \u043d\u0438\u043a\u043e\u0433\u0434\u0430 \u043d\u0435 \u0438\u043c\u0435\u0435\u0442 \u0434\u043e\u0441\u0442\u0443\u043f\u0430 \u043a \u0432\u0430\u0448\u0438\u043c \u043a\u043b\u044e\u0447\u0430\u043c.",
+  "settings.toggle.protection": "\u0410\u043a\u0442\u0438\u0432\u043d\u0430\u044f \u0437\u0430\u0449\u0438\u0442\u0430",
+  "settings.toggle.protection.desc": "\u0412 \u0432\u044b\u043a\u043b\u044e\u0447\u0435\u043d\u043d\u043e\u043c \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0438 \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u0438 \u043d\u0435 \u043f\u0435\u0440\u0435\u0445\u0432\u0430\u0442\u044b\u0432\u0430\u044e\u0442\u0441\u044f \u0438 \u043d\u0435 \u0430\u043d\u0430\u043b\u0438\u0437\u0438\u0440\u0443\u044e\u0442\u0441\u044f.",
+  "settings.toggle.multichain": "\u0421\u043a\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432\u0441\u0435 \u0441\u0435\u0442\u0438",
+  "settings.toggle.multichain.desc": "\u0412 \u0432\u044b\u043a\u043b\u044e\u0447\u0435\u043d\u043d\u043e\u043c \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0438 \u0441\u043a\u0430\u043d\u0438\u0440\u0443\u0435\u0442\u0441\u044f \u0442\u043e\u043b\u044c\u043a\u043e \u0442\u0435\u043a\u0443\u0449\u0430\u044f \u0441\u0435\u0442\u044c \u0432\u0430\u0448\u0435\u0433\u043e \u043a\u043e\u0448\u0435\u043b\u044c\u043a\u0430.",
+  "settings.toggle.on": "\u0412\u041a\u041b",
+  "settings.toggle.off": "\u0412\u042b\u041a\u041b",
+  "settings.api.keyLabel": "OpenRouter API-\u043a\u043b\u044e\u0447",
+  "settings.api.keyPlaceholder": "sk-or-v1-...",
+  "settings.api.show": "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c",
+  "settings.api.hide": "\u0421\u043a\u0440\u044b\u0442\u044c",
+  "settings.api.save": "\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c",
+  "settings.api.clear": "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c",
+  "settings.api.privacy": "<strong>\u041a\u043e\u043d\u0444\u0438\u0434\u0435\u043d\u0446\u0438\u0430\u043b\u044c\u043d\u043e\u0441\u0442\u044c:</strong> API-\u043a\u043b\u044e\u0447 \u0445\u0440\u0430\u043d\u0438\u0442\u0441\u044f \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u043e \u0432 \u0432\u0430\u0448\u0435\u043c \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435 \u0447\u0435\u0440\u0435\u0437 <code>chrome.storage.local</code>. \u041e\u043d \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u043d\u0430 OpenRouter \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0440\u0438 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0430\u0434\u0440\u0435\u0441\u043e\u0432. \u0411\u0435\u0437 \u043a\u043b\u044e\u0447\u0430 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0435\u0442\u0441\u044f \u0442\u043e\u043b\u044c\u043a\u043e \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u044b\u0439 \u0447\u0451\u0440\u043d\u044b\u0439 \u0441\u043f\u0438\u0441\u043e\u043a.",
+  "settings.list.whitelistInput.label": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0430\u0434\u0440\u0435\u0441 (0x... \u0438\u043b\u0438 domain.tld)",
+  "settings.list.whitelistInput.placeholder": "0x...",
+  "settings.list.blacklistInput.label": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0430\u0434\u0440\u0435\u0441 \u0438\u043b\u0438 \u0434\u043e\u043c\u0435\u043d",
+  "settings.list.blacklistInput.placeholder": "0x... \u0438\u043b\u0438 malicious-site.com",
+  "settings.list.add": "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c",
+  "settings.list.whitelistEmpty": "\u0414\u043e\u0432\u0435\u0440\u0435\u043d\u043d\u044b\u0445 \u0430\u0434\u0440\u0435\u0441\u043e\u0432 \u043f\u043e\u043a\u0430 \u043d\u0435\u0442.",
+  "settings.list.blacklistEmpty": "\u0417\u0430\u043f\u0438\u0441\u0435\u0439 \u0432 \u0447\u0451\u0440\u043d\u043e\u043c \u0441\u043f\u0438\u0441\u043a\u0435 \u043f\u043e\u043a\u0430 \u043d\u0435\u0442.",
+  "settings.list.remove": "\u0423\u0434\u0430\u043b\u0438\u0442\u044c",
+  "settings.data.resetStats": "\u0421\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0443",
+  "settings.data.clearCache": "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u043a\u044d\u0448 \u0418\u0418",
+  "settings.section.appearance": "\u0412\u043d\u0435\u0448\u043d\u0438\u0439 \u0432\u0438\u0434 \u0438 \u044f\u0437\u044b\u043a",
+  "settings.section.appearance.desc": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u044f\u0437\u044b\u043a. WalletGuard Pro \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0435\u0442 \u0435\u0433\u043e \u0432 \u043f\u0430\u043d\u0435\u043b\u0438, \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430\u0445 \u0438 \u043e\u0431\u0437\u043e\u0440\u0435 \u0434\u043b\u044f \u043d\u043e\u0432\u044b\u0445 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0435\u0439.",
+  "settings.onboarding.replay": "\u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u044c \u043e\u0431\u0437\u043e\u0440",
+  "settings.toast.loadFailed": "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438",
+  "settings.toast.protectionOn": "\u0417\u0430\u0449\u0438\u0442\u0430 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u0430",
+  "settings.toast.protectionOff": "\u0417\u0430\u0449\u0438\u0442\u0430 \u043f\u0440\u0438\u043e\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u0430",
+  "settings.toast.multichainOn": "\u041c\u0443\u043b\u044c\u0442\u0438-\u0441\u0435\u0442\u0435\u0432\u043e\u0439 \u0441\u043a\u0430\u043d \u0432\u043a\u043b\u044e\u0447\u0451\u043d (\u0432\u0441\u0435 9 \u0441\u0435\u0442\u0435\u0439)",
+  "settings.toast.multichainOff": "\u041c\u0443\u043b\u044c\u0442\u0438-\u0441\u0435\u0442\u0435\u0432\u043e\u0439 \u0441\u043a\u0430\u043d \u0432\u044b\u043a\u043b\u044e\u0447\u0451\u043d (\u0442\u043e\u043b\u044c\u043a\u043e \u0442\u0435\u043a\u0443\u0449\u0430\u044f \u0441\u0435\u0442\u044c)",
+  "settings.toast.apiSaved": "API-\u043a\u043b\u044e\u0447 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d",
+  "settings.toast.apiSaveFailed": "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c API-\u043a\u043b\u044e\u0447",
+  "settings.toast.apiCleared": "API-\u043a\u043b\u044e\u0447 \u043e\u0447\u0438\u0449\u0435\u043d",
+  "settings.toast.invalidInput": "\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u0444\u043e\u0440\u043c\u0430\u0442. \u0418\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 0x... \u0430\u0434\u0440\u0435\u0441 \u0438\u043b\u0438 domain.tld",
+  "settings.toast.alreadyWhitelisted": "\u0423\u0436\u0435 \u0432 \u0431\u0435\u043b\u043e\u043c \u0441\u043f\u0438\u0441\u043a\u0435",
+  "settings.toast.addedWhitelist": "\u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u043e \u0432 \u0431\u0435\u043b\u044b\u0439 \u0441\u043f\u0438\u0441\u043e\u043a",
+  "settings.toast.alreadyBlacklisted": "\u0423\u0436\u0435 \u0432 \u0447\u0451\u0440\u043d\u043e\u043c \u0441\u043f\u0438\u0441\u043a\u0435",
+  "settings.toast.addedBlacklist": "\u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u043e \u0432 \u0447\u0451\u0440\u043d\u044b\u0439 \u0441\u043f\u0438\u0441\u043e\u043a",
+  "settings.toast.statsReset": "\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0430 \u0441\u0431\u0440\u043e\u0448\u0435\u043d\u0430",
+  "settings.toast.cacheCleared": "\u041a\u044d\u0448 \u0418\u0418 \u043e\u0447\u0438\u0449\u0435\u043d",
+  "settings.toast.removed": "\u0423\u0434\u0430\u043b\u0451\u043d\u043e: {addr}",
+  "settings.toast.localeSaved": "\u042f\u0437\u044b\u043a \u0438\u0437\u043c\u0435\u043d\u0451\u043d \u043d\u0430 {name}",
+  "settings.confirm.clearApi": "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c OpenRouter API-\u043a\u043b\u044e\u0447? \u0418\u0418-\u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438 \u0431\u0443\u0434\u0443\u0442 \u043e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u044b.",
+  "settings.confirm.resetStats": "\u0421\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u0432\u0441\u044e \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0443 WalletGuard? \u042d\u0442\u043e \u043d\u0435\u043b\u044c\u0437\u044f \u043e\u0442\u043c\u0435\u043d\u0438\u0442\u044c.",
+  "settings.confirm.clearCache": "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u043a\u044d\u0448 \u043f\u0440\u043e\u0432\u0435\u0440\u043e\u043a \u0418\u0418? \u0411\u0443\u0434\u0443\u0449\u0438\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438 \u043f\u043e\u0432\u0442\u043e\u0440\u043d\u043e \u043e\u0431\u0440\u0430\u0442\u044f\u0442\u0441\u044f \u043a OpenRouter.",
+
+  // ---- Onboarding ----
+  "onboarding.indicator": "\u0428\u0430\u0433 {current} \u0438\u0437 {total}",
+  "onboarding.skip": "\u041f\u0440\u043e\u043f\u0443\u0441\u0442\u0438\u0442\u044c \u043e\u0431\u0437\u043e\u0440",
+  "onboarding.step1.title": "\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c \u0432 WalletGuard Pro",
+  "onboarding.step1.body": "\u0412\u0430\u0448 \u043d\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043c\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0437\u0430\u0449\u0438\u0442\u044b \u043e\u0442 \u0444\u0438\u0448\u0438\u043d\u0433\u0430, \u0434\u0440\u0435\u0439\u043d\u0435\u0440\u043e\u0432 \u0438 \u0440\u0438\u0441\u043a\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439. \u0412\u0441\u0451 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u043e \u2014 \u0431\u0435\u0437 \u0430\u043a\u043a\u0430\u0443\u043d\u0442\u043e\u0432, \u0431\u0435\u0437 \u0442\u0440\u0435\u043a\u0438\u043d\u0433\u0430.",
+  "onboarding.step2.title": "\u0421\u043a\u0430\u043d\u0435\u0440 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439",
+  "onboarding.step2.body": "\u0412\u0438\u0434\u044c\u0442\u0435 \u0432\u0441\u0435 \u0430\u043a\u0442\u0438\u0432\u043d\u044b\u0435 ERC-20 \u0438 NFT-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u0432 9 \u0441\u0435\u0442\u044f\u0445. \u0420\u0438\u0441\u043a\u0438 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438 \u043a\u043b\u0430\u0441\u0441\u0438\u0444\u0438\u0446\u0438\u0440\u0443\u044e\u0442\u0441\u044f \u043f\u043e \u0441\u0435\u0440\u044c\u0451\u0437\u043d\u043e\u0441\u0442\u0438 \u2014 \u043a\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0435, \u0432\u044b\u0441\u043e\u043a\u0438\u0435, \u0441\u0440\u0435\u0434\u043d\u0438\u0435, \u043d\u0438\u0437\u043a\u0438\u0435.",
+  "onboarding.step3.title": "\u041e\u0442\u0437\u044b\u0432 \u0432 \u043e\u0434\u0438\u043d \u043a\u043b\u0438\u043a",
+  "onboarding.step3.body": "\u0421\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u0443\u0439\u0442\u0435 calldata \u0434\u043b\u044f \u043e\u0442\u0437\u044b\u0432\u0430 \u0440\u0438\u0441\u043a\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439 \u043e\u0434\u043d\u0438\u043c \u043a\u043b\u0438\u043a\u043e\u043c. \u041f\u043e\u0434\u043f\u0438\u0441\u044c \u0432\u044b\u043f\u043e\u043b\u043d\u044f\u0435\u0442\u0441\u044f \u0432 \u0432\u0430\u0448\u0435\u043c \u043a\u043e\u0448\u0435\u043b\u044c\u043a\u0435 \u2014 WalletGuard \u043d\u0438\u043a\u043e\u0433\u0434\u0430 \u043d\u0435 \u043f\u0440\u0438\u043a\u0430\u0441\u0430\u0435\u0442\u0441\u044f \u043a \u0432\u0430\u0448\u0438\u043c \u043a\u043b\u044e\u0447\u0430\u043c.",
+  "onboarding.step4.title": "\u0412\u0441\u0451 \u0433\u043e\u0442\u043e\u0432\u043e",
+  "onboarding.step4.body": "\u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438, \u0447\u0442\u043e\u0431\u044b \u043d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c \u0441\u0435\u0442\u0438, \u0434\u043e\u0432\u0435\u0440\u0435\u043d\u043d\u044b\u0435 \u0434\u043e\u043c\u0435\u043d\u044b, \u0418\u0418-\u044f\u0434\u0440\u043e \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438 \u0438\u043b\u0438 \u043f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u044c \u044d\u0442\u043e\u0442 \u043e\u0431\u0437\u043e\u0440 \u0432 \u043b\u044e\u0431\u043e\u0439 \u043c\u043e\u043c\u0435\u043d\u0442."
+},
+    "zh": {
+  "common.close": "\u5173\u95ed",
+  "common.cancel": "\u53d6\u6d88",
+  "common.next": "\u4e0b\u4e00\u6b65",
+  "common.back": "\u8fd4\u56de",
+  "common.skip": "\u8df3\u8fc7",
+  "common.done": "\u5b8c\u6210",
+  "common.loading": "\u52a0\u8f7d\u4e2d...",
+  "common.language": "\u8bed\u8a00",
+
+  "popup.title": "WalletGuard Pro \u4eea\u8868\u76d8",
+  "popup.header.active": "\u5df2\u542f\u7528",
+  "popup.header.paused": "\u5df2\u6682\u505c",
+  "popup.score.label": "\u94b1\u5305\u5b89\u5168\u8bc4\u5206",
+  "popup.stats.sitesScanned": "\u5df2\u626b\u63cf\u7f51\u7ad9",
+  "popup.stats.intercepted": "\u5df2\u62e6\u622a",
+  "popup.stats.blocked": "\u60a8\u5df2\u62e6\u622a",
+  "popup.stats.permits": "\u68c0\u51fa Permit",
+  "popup.banner.title": "\u5df2\u963b\u6b62\u949c\u9c7c",
+  "popup.banner.subtitle": "\u6076\u610f\u7f51\u7ad9\u5df2\u88ab\u62e6\u622a",
+  "popup.approvals.title": "\u6d3b\u8dc3\u4ee3\u5e01\u6388\u6743",
+  "popup.approvals.rescan": "\u91cd\u65b0\u626b\u63cf",
+  "popup.approvals.total": "\u603b\u8ba1",
+  "popup.approvals.risky": "\u9ad8\u98ce\u9669",
+  "popup.approvals.unlimited": "\u65e0\u9650\u989d",
+  "popup.approvals.wallet.none": "\u672a\u68c0\u6d4b\u5230\u94b1\u5305",
+  "popup.approvals.scanned": "\u626b\u63cf\u4e8e {time}",
+  "popup.approvals.scannedNever": "\u4ece\u672a\u626b\u63cf",
+  "popup.approvals.time.justNow": "\u521a\u521a",
+  "popup.approvals.time.minutesAgo": "{n} \u5206\u949f\u524d",
+  "popup.approvals.time.hoursAgo": "{n} \u5c0f\u65f6\u524d",
+  "popup.approvals.time.daysAgo": "{n} \u5929\u524d",
+  "popup.approvals.time.unknown": "\u672a\u77e5",
+  "popup.approvals.chains": "({scanned}/{total} \u4e2a\u7f51\u7edc)",
+  "popup.approvals.chain": "({name})",
+  "popup.approvals.empty.noWallet": "\u5c1a\u672a\u68c0\u6d4b\u5230\u94b1\u5305\u3002\u901a\u8fc7 WalletGuard \u6267\u884c\u4efb\u4f55\u4ea4\u6613\u540e,\u5f53\u524d\u7f51\u7edc\u4e0a\u7684\u6d3b\u8dc3\u6388\u6743\u5c06\u88ab\u626b\u63cf\u3002",
+  "popup.approvals.empty.clean": "\u672a\u53d1\u73b0\u6d3b\u8dc3\u6388\u6743\u3002\u94b1\u5305\u770b\u8d77\u6765\u5f88\u5e72\u51c0\uff01",
+  "popup.approvals.empty.multiFailed": "\u672a\u53d1\u73b0\u6d3b\u8dc3\u6388\u6743,\u4f46 {failed} \u4e2a\u7f51\u7edc\u54cd\u5e94\u5931\u8d25\u3002\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002",
+  "popup.approvals.scanning": "\u626b\u63cf\u4e2d",
+  "popup.approvals.scanFailed": "\u626b\u63cf\u5931\u8d25\uff1a{error}",
+  "popup.approvals.revokeTitle": "\u751f\u6210\u64a4\u9500 calldata",
+  "popup.nft.title": "NFT \u96c6\u5408\u6388\u6743",
+  "popup.nft.total": "NFT \u6388\u6743",
+  "popup.nft.risky": "\u9ad8\u98ce\u9669",
+  "popup.nft.empty.scanned": "\u65e0\u6d3b\u8dc3 NFT \u96c6\u5408\u6388\u6743\u3002\u60a8\u7684 NFT \u4e0d\u4f1a\u88ab\u63a5\u7ba1\u3002",
+  "popup.nft.empty.never": "\u9996\u6b21\u626b\u63cf\u540e NFT \u6388\u6743\u5c06\u51fa\u73b0\u5728\u6b64\u5904\u3002",
+  "popup.logs.title": "\u8fd1\u671f\u6d3b\u52a8",
+  "popup.logs.empty": "\u6682\u65e0\u6d3b\u52a8\u3002\u8bbf\u95ee dApp \u4ee5\u67e5\u770b\u65e5\u5fd7\u3002",
+  "popup.actions.reset": "\u91cd\u7f6e\u7edf\u8ba1",
+  "popup.actions.settings": "\u8bbe\u7f6e",
+  "popup.confirm.reset": "\u91cd\u7f6e\u6240\u6709 WalletGuard \u7edf\u8ba1\uff1f",
+  "popup.revoke.title": "\u64a4\u9500\u6388\u6743",
+  "popup.revoke.leadFallback": "\u64a4\u9500\u6388\u6743",
+  "popup.revoke.transactionData": "\u4ea4\u6613\u6570\u636e",
+  "popup.revoke.chainLabel": "\u7f51\u7edc",
+  "popup.revoke.toLabel": "\u6536\u4eba\uff08\u4ee3\u5e01 / \u96c6\u5408\uff09",
+  "popup.revoke.valueLabel": "\u91d1\u989d",
+  "popup.revoke.dataLabel": "\u6570\u636e",
+  "popup.revoke.copy": "\u590d\u5236 calldata",
+  "popup.revoke.copied": "\u5df2\u590d\u5236\uff01",
+  "popup.revoke.copyFailed": "\u590d\u5236\u5931\u8d25",
+  "popup.revoke.error.noLib": "\u64a4\u9500\u751f\u6210\u5668\u672a\u52a0\u8f7d\u3002\u8bf7\u91cd\u65b0\u52a0\u8f7d\u4eea\u8868\u76d8\u6216\u66f4\u65b0 WalletGuard Pro\u3002",
+  "popup.revoke.error.generate": "\u65e0\u6cd5\u751f\u6210 calldata\uff1a{error}",
+  "popup.revoke.error.unknownKind": "\u672a\u77e5\u7684\u6388\u6743\u7c7b\u578b \u2014 \u65e0\u6cd5\u751f\u6210\u64a4\u9500\u8ba1\u5212\u3002",
+  "popup.revoke.note": "WalletGuard Pro <strong>\u4e0d</strong> \u7b7e\u540d\u4ea4\u6613\u3002\u8bf7\u590d\u5236 calldata \u540e\u901a\u8fc7\u60a8\u7684\u94b1\u5305\u6216 <a href=\"#\" id=\"revoke-modal-revoke-cash\" target=\"_blank\" rel=\"noopener noreferrer\">revoke.cash</a> \u7b49\u5de5\u5177\u53d1\u9001\u3002",
+  "popup.revoke.allowanceUnlimited": "\u65e0\u9650\u989d",
+
+  "settings.title": "WalletGuard Pro \u2014 \u8bbe\u7f6e",
+  "settings.section.protection": "\u4fdd\u62a4\u72b6\u6001",
+  "settings.section.protection.desc": "\u6240\u6709 WalletGuard \u5b89\u5168\u5c42\u7684\u603b\u5f00\u5173\u3002",
+  "settings.section.multichain": "\u591a\u94fe\u8def\u6388\u6743\u626b\u63cf\u5668",
+  "settings.section.multichain.desc": "\u542f\u7528\u540e,\u626b\u63cf\u5668\u4f1a\u5e76\u884c\u68c0\u67e5\u6240\u6709 9 \u4e2a\u652f\u6301\u7684\u7f51\u7edc\uff08Ethereum\u3001Optimism\u3001BNB Chain\u3001Polygon\u3001Fantom\u3001Base\u3001Arbitrum\u3001Avalanche\u3001Sepolia\uff09\u3002\u65e0\u9700 API \u5bc6\u94a5\u3002",
+  "settings.section.ai": "AI \u5b89\u5168\u6838\u5fc3",
+  "settings.section.ai.desc": "WalletGuard \u4f7f\u7528 OpenRouter \u5bf9\u672a\u77e5\u5730\u5740\u8fdb\u884c\u4f20\u7edf\u68c0\u67e5\u3002\u8bf7\u5728 openrouter.ai \u514d\u8d39\u83b7\u53d6 API \u5bc6\u94a5\u3002",
+  "settings.section.approvals": "\u6388\u6743\u626b\u63cf\u5668",
+  "settings.section.approvals.desc": "\u8bfb\u53d6\u60a8\u94b1\u5305\u5f53\u524d\u8fde\u63a5\u7f51\u7edc\u4e0a\u7684\u6d3b\u8dc3\u4ee3\u5e01\u6388\u6743\u3002\u65e0\u9700 API \u5bc6\u94a5 \u2014 WalletGuard \u67e5\u8be2\u60a8\u94b1\u5305\u5df2\u4f7f\u7528\u7684\u540c\u4e00\u4e2a RPC \u8282\u70b9\uff08MetaMask\u3001Rabby \u7b49\uff09\u3002",
+  "settings.section.approvals.how": "<strong>\u539f\u7406\uff1a</strong>\u5728\u4eea\u8868\u76d8\u70b9\u51fb <em>\u91cd\u65b0\u626b\u63cf</em> \u540e,WalletGuard \u4f1a\u901a\u8fc7 <code>eth_getLogs</code> \u8bfb\u53d6\u60a8\u5730\u5740\u7684\u5386\u53f2 <code>Approval</code> \u4e8b\u4ef6,\u7136\u540e\u901a\u8fc7 <code>eth_call</code> \u67e5\u8be2\u6bcf\u4e2a\uff08token, spender\uff09\u5bf9\u7684\u5f53\u524d allowance\u3002\u4e3a\u96f6\u7684\u6761\u76ee\u4f1a\u88ab\u8fc7\u6ee4\uff08\u5df2\u64a4\u9500\u7684\u6388\u6743\uff09\u3002\u626b\u63cf\u8986\u76d6\u60a8\u94b1\u5305\u5f53\u524d\u8fde\u63a5\u7684\u7f51\u7edc\u3002",
+  "settings.section.whitelist": "\u53ef\u4fe1\u5408\u7ea6\uff08\u767d\u540d\u5355\uff09",
+  "settings.section.whitelist.desc": "\u60a8\u5b8c\u5168\u4fe1\u4efb\u7684\u5730\u5740\u3002WalletGuard \u4f1a\u81ea\u52a8\u7ed9\u5b83\u4eec\u66f4\u9ad8\u7684\u4fe1\u4efb\u8bc4\u5206\u3002",
+  "settings.section.blacklist": "\u81ea\u5b9a\u4e49\u9ed1\u540d\u5355",
+  "settings.section.blacklist.desc": "\u60a8\u77e5\u9053\u4e3a\u6076\u610f\u7684\u5730\u5740\u6216\u57df\u540d\u3002\u5b83\u4eec\u4f1a\u88ab\u7acb\u5373\u62e6\u622a,\u4e0d\u9700 AI \u68c0\u67e5\u3002",
+  "settings.section.data": "\u672c\u5730\u6570\u636e",
+  "settings.section.data.desc": "\u7edf\u8ba1\u3001\u65e5\u5fd7\u548c AI \u7f13\u5b58\u90fd\u4fdd\u5b58\u5728\u60a8\u7684\u6d4f\u89c8\u5668\u3002\u60a8\u53ef\u4ee5\u968f\u65f6\u6e05\u9664\u3002",
+  "settings.footer": "WalletGuard Pro \u662f\u4e00\u4e2a\u72ec\u7acb\u7684\u5b89\u5168\u5c42\u3002\u5b83\u4ece\u4e0d\u66ff\u4ee3\u60a8\u7684\u94b1\u5305,\u4ece\u4e0d\u6253\u7b97\u4fdd\u7ba1\u60a8\u7684\u8d44\u4ea7,\u4ece\u4e0d\u63a5\u89e6\u60a8\u7684\u5bc6\u94a5\u3002",
+  "settings.toggle.protection": "\u5df2\u542f\u7528\u4fdd\u62a4",
+  "settings.toggle.protection.desc": "\u5173\u95ed\u540e,\u4ea4\u6613\u4e0d\u4f1a\u88ab\u62e6\u622a\u6216\u5206\u6790\u3002",
+  "settings.toggle.multichain": "\u626b\u63cf\u6240\u6709\u7f51\u7edc",
+  "settings.toggle.multichain.desc": "\u5173\u95ed\u540e,\u4ec5\u626b\u63cf\u94b1\u5305\u5f53\u524d\u8fde\u63a5\u7684\u7f51\u7edc\u3002",
+  "settings.toggle.on": "\u5f00",
+  "settings.toggle.off": "\u5173",
+  "settings.api.keyLabel": "OpenRouter API \u5bc6\u94a5",
+  "settings.api.keyPlaceholder": "sk-or-v1-...",
+  "settings.api.show": "\u663e\u793a",
+  "settings.api.hide": "\u9690\u85cf",
+  "settings.api.save": "\u4fdd\u5b58\u5bc6\u94a5",
+  "settings.api.clear": "\u6e05\u9664",
+  "settings.api.privacy": "<strong>\u9690\u79c1\uff1a</strong>API \u5bc6\u94a5\u901a\u8fc7 <code>chrome.storage.local</code> \u672c\u5730\u5b58\u50a8\u3002\u4ec5\u5728\u68c0\u67e5\u5730\u5740\u65f6\u53d1\u9001\u7ed9 OpenRouter\u3002\u65e0\u5bc6\u94a5\u65f6\u4ec5\u4f7f\u7528\u672c\u5730\u9ed1\u540d\u5355\u3002",
+  "settings.list.whitelistInput.label": "\u6dfb\u52a0\u5730\u5740\uff080x... \u6216\u57df\u540d.tld\uff09",
+  "settings.list.whitelistInput.placeholder": "0x...",
+  "settings.list.blacklistInput.label": "\u6dfb\u52a0\u5730\u5740\u6216\u57df\u540d",
+  "settings.list.blacklistInput.placeholder": "0x... \u6216 malicious-site.com",
+  "settings.list.add": "\u6dfb\u52a0",
+  "settings.list.whitelistEmpty": "\u5c1a\u65e0\u53ef\u4fe1\u5730\u5740\u3002",
+  "settings.list.blacklistEmpty": "\u5c1a\u65e0\u81ea\u5b9a\u4e49\u9ed1\u540d\u5355\u6761\u76ee\u3002",
+  "settings.list.remove": "\u5220\u9664",
+  "settings.data.resetStats": "\u91cd\u7f6e\u7edf\u8ba1",
+  "settings.data.clearCache": "\u6e05\u9664 AI \u7f13\u5b58",
+  "settings.section.appearance": "\u5916\u89c2\u4e0e\u8bed\u8a00",
+  "settings.section.appearance.desc": "\u9009\u62e9\u60a8\u7684\u8bed\u8a00\u3002WalletGuard Pro \u5c06\u5728\u4eea\u8868\u76d8\u3001\u8bbe\u7f6e\u548c\u5bfc\u822a\u4e2d\u4f7f\u7528\u5b83\u3002",
+  "settings.onboarding.replay": "\u91cd\u653e\u5bfc\u822a",
+  "settings.toast.loadFailed": "\u52a0\u8f7d\u8bbe\u7f6e\u5931\u8d25",
+  "settings.toast.protectionOn": "\u4fdd\u62a4\u5df2\u542f\u7528",
+  "settings.toast.protectionOff": "\u4fdd\u62a4\u5df2\u6682\u505c",
+  "settings.toast.multichainOn": "\u591a\u94fe\u8def\u626b\u63cf\u5df2\u542f\u7528\uff089 \u4e2a\u7f51\u7edc\uff09",
+  "settings.toast.multichainOff": "\u591a\u94fe\u8def\u626b\u63cf\u5df2\u5173\u95ed\uff08\u4ec5\u5f53\u524d\u7f51\u7edc\uff09",
+  "settings.toast.apiSaved": "API \u5bc6\u94a5\u5df2\u4fdd\u5b58",
+  "settings.toast.apiSaveFailed": "\u4fdd\u5b58 API \u5bc6\u94a5\u5931\u8d25",
+  "settings.toast.apiCleared": "API \u5bc6\u94a5\u5df2\u6e05\u9664",
+  "settings.toast.invalidInput": "\u683c\u5f0f\u65e0\u6548\u3002\u8bf7\u4f7f\u7528 0x... \u5730\u5740\u6216\u57df\u540d.tld",
+  "settings.toast.alreadyWhitelisted": "\u5df2\u5728\u767d\u540d\u5355\u4e2d",
+  "settings.toast.addedWhitelist": "\u5df2\u52a0\u5165\u767d\u540d\u5355",
+  "settings.toast.alreadyBlacklisted": "\u5df2\u5728\u9ed1\u540d\u5355\u4e2d",
+  "settings.toast.addedBlacklist": "\u5df2\u52a0\u5165\u9ed1\u540d\u5355",
+  "settings.toast.statsReset": "\u7edf\u8ba1\u5df2\u91cd\u7f6e",
+  "settings.toast.cacheCleared": "AI \u7f13\u5b58\u5df2\u6e05\u9664",
+  "settings.toast.removed": "\u5df2\u5220\u9664\uff1a{addr}",
+  "settings.toast.localeSaved": "\u8bed\u8a00\u5df2\u5207\u6362\u4e3a {name}",
+  "settings.confirm.clearApi": "\u6e05\u9664 OpenRouter API \u5bc6\u94a5\uff1fAI \u68c0\u67e5\u5c06\u88ab\u7981\u7528\u3002",
+  "settings.confirm.resetStats": "\u91cd\u7f6e\u6240\u6709 WalletGuard \u7edf\u8ba1\uff1f\u6b64\u64cd\u4f5c\u4e0d\u53ef\u64a4\u9500\u3002",
+  "settings.confirm.clearCache": "\u6e05\u9664 AI \u5730\u5740\u68c0\u67e5\u7f13\u5b58\uff1f\u540e\u7eed\u68c0\u67e5\u4f1a\u91cd\u65b0\u67e5\u8be2 OpenRouter\u3002",
+
+  "onboarding.indicator": "\u7b2c {current} \u6b65\uff0c\u5171 {total} \u6b65",
+  "onboarding.skip": "\u8df3\u8fc7\u5bfc\u822a",
+  "onboarding.step1.title": "\u6b22\u8fce\u4f7f\u7528 WalletGuard Pro",
+  "onboarding.step1.body": "\u4e0e\u949c\u9c7c\u3001\u5438\u8840\u4ee3\u5e01\u548c\u9ad8\u98ce\u9669\u4ee3\u5e01\u6388\u6743\u9694\u79bb\u7684\u72ec\u7acb\u5b89\u5168\u5c42\u3002\u5168\u90e8\u672c\u5730\u8fd0\u884c \u2014 \u65e0\u8d26\u53f7\u3001\u65e0\u8ddf\u8e2a\u3002",
+  "onboarding.step2.title": "\u6388\u6743\u626b\u63cf\u5668",
+  "onboarding.step2.body": "\u67e5\u770b\u60a8\u5728 9 \u4e2a\u7f51\u7edc\u4e0a\u7684\u6240\u6709\u6d3b\u8dc3 ERC-20 \u548c NFT \u6388\u6743\u3002\u98ce\u9669\u6309\u4e25\u91cd\u7a0b\u5ea6\u81ea\u52a8\u5206\u7ea7 \u2014 \u5371\u9669\u3001\u9ad8\u3001\u4e2d\u3001\u4f4e\u3002",
+  "onboarding.step3.title": "\u4e00\u952e\u64a4\u9500",
+  "onboarding.step3.body": "\u4e00\u952e\u751f\u6210\u9ad8\u98ce\u9669\u6388\u6743\u7684\u64a4\u9500 calldata\u3002\u7b7e\u540d\u5728\u60a8\u81ea\u5df1\u7684\u94b1\u5305\u4e2d\u5b8c\u6210 \u2014 WalletGuard \u4ece\u4e0d\u89e6\u53ca\u60a8\u7684\u5bc6\u94a5\u3002",
+  "onboarding.step4.title": "\u5168\u90e8\u5c31\u7eea",
+  "onboarding.step4.body": "\u6253\u5f00\u8bbe\u7f6e\u4ee5\u81ea\u5b9a\u4e49\u7f51\u7edc\u3001\u53ef\u4fe1\u57df\u540d\u3001AI \u5b89\u5168\u6838\u5fc3,\u6216\u968f\u65f6\u91cd\u653e\u672c\u5bfc\u822a\u3002"
+} };
+
   var mods = {
     // ============================================================
     // constants.js
@@ -1696,6 +2307,241 @@ function describeRevoke(a, kind) {
 
 return { padAddress, buildERC20RevokeCalldata, buildNFT721RevokeCalldata, buildERC20RevokeTx, buildNFT721RevokeTx, buildRevokeTx, buildRevokeBatch, groupPlansByChain, ERC20_APPROVE_SELECTOR, NFT_SET_APPROVAL_FOR_ALL_SELECTOR, ZERO_WORD };
     })(),
+    // ============================================================
+    // i18n.js
+    // ============================================================
+    "i18n": (function() {
+// lib/i18n.js - Internationalization core for WalletGuard Pro.
+//
+// Lightweight custom i18n system (not Chrome's native chrome.i18n) so we
+// can:
+//   1. Switch locale at runtime (user preference in settings).
+//   2. Use {placeholder} interpolation in translations.
+//   3. Apply translations declaratively via data-i18n / data-i18n-attr.
+//
+// Chrome MV3 also requires `_locales/<lang>/messages.json` for store
+// metadata (name, description) — that's separate from this runtime
+// system and lives in `_locales/en/messages.json`.
+//
+// Locales are loaded from `window.__WG_LOCALES__` (injected by build.js
+// at bundle time) or via the dynamic `setMessages()` API for tests.
+// The bundled locale table MUST contain at least "en" — otherwise we
+// fall back to an empty messages object (key strings pass through as
+// t() returns, which is the design fallback).
+//
+// Fallback chain:
+//   user override (chrome.storage.local "wg_locale")
+//     → browser locale (chrome.i18n.getUILanguage() / navigator.language)
+//       → "en"
+//
+// Usage:
+//   const { t, applyTranslations, initI18n, setLocale } = window.WG_POPUP_LIB.i18n;
+//   await initI18n();
+//   alert(t("popup.alert.scanFailed", { error: msg }));
+
+const SUPPORTED_LOCALES = ["en", "ru", "es", "zh"];
+const DEFAULT_LOCALE = "en";
+
+const LOCALE_DISPLAY = {
+  en: "English",
+  ru: "\u0420\u0443\u0441\u0441\u043a\u0438\u0439",
+  es: "Espa\u00f1ol",
+  zh: "\u4e2d\u6587"
+};
+
+// In-memory locale tables. Populated by:
+//   1. The bundle (popup-bundle.js injects window.__WG_LOCALES__ before
+//      this module loads).
+//   2. setMessages(locale, obj) for tests / dynamic loading.
+let LOCALES = {};
+
+/**
+ * Replace the entire locale table. Used by the build pipeline and by
+ * tests that want to inject custom messages.
+ */
+function setMessages(table) {
+  LOCALES = table || {};
+  // Invalidate cached current locale so the next t() rebuilds.
+  messages = null;
+}
+
+/**
+ * Set messages for a single locale (merge with existing).
+ */
+function setLocaleMessages(locale, messages) {
+  if (!LOCALES[locale]) LOCALES[locale] = {};
+  Object.assign(LOCALES[locale], messages || {});
+}
+
+/**
+ * Normalize a raw locale string ("ru-RU", "en_US", "zh-Hans") to a
+ * supported short code ("ru", "en", "zh"). Falls back to DEFAULT_LOCALE.
+ */
+function normalizeLocale(raw) {
+  if (!raw || typeof raw !== "string") return DEFAULT_LOCALE;
+  const lower = raw.toLowerCase().split(/[-_]/)[0];
+  return SUPPORTED_LOCALES.includes(lower) ? lower : DEFAULT_LOCALE;
+}
+
+/**
+ * Detect browser locale. In extension context prefers
+ * chrome.i18n.getUILanguage(); elsewhere falls back to navigator.language.
+ */
+function detectLocale() {
+  try {
+    if (typeof chrome !== "undefined" && chrome.i18n && typeof chrome.i18n.getUILanguage === "function") {
+      return normalizeLocale(chrome.i18n.getUILanguage());
+    }
+  } catch { /* sandbox may block chrome access */ }
+  if (typeof navigator !== "undefined" && navigator.language) {
+    return normalizeLocale(navigator.language);
+  }
+  return DEFAULT_LOCALE;
+}
+
+/**
+ * Populate LOCALES from window.__WG_LOCALES__ if it hasn't been loaded yet.
+ * Called lazily from setLocale/t/initI18n so direct setLocale() calls work
+ * without needing initI18n() first.
+ */
+function ensureLocalesLoaded() {
+  if (Object.keys(LOCALES).length > 0) return;
+  try {
+    const src = (typeof window !== "undefined" && window.__WG_LOCALES__)
+      || (typeof globalThis !== "undefined" && globalThis.__WG_LOCALES__);
+    if (src && typeof src === "object") LOCALES = src;
+  } catch { /* ignore */ }
+}
+
+/**
+ * Switch the active locale and rebuild the messages table.
+ */
+function setLocale(locale) {
+  ensureLocalesLoaded();
+  const resolved = normalizeLocale(locale);
+  currentLocale = resolved;
+  messages = LOCALES[resolved] || LOCALES[DEFAULT_LOCALE] || {};
+  return resolved;
+}
+
+/**
+ * Return the currently active locale code.
+ */
+function getLocale() {
+  return currentLocale || DEFAULT_LOCALE;
+}
+
+let currentLocale = null;
+let messages = null;
+const STORAGE_KEY = "wg_locale";
+
+/**
+ * Load the user-chosen override from chrome.storage.local (if available)
+ * and apply it. Safe to call multiple times; idempotent after first call.
+ *
+ * Also reads `window.__WG_LOCALES__` if LOCALES is empty (popup page
+ * case where the bundle injected locales before this module ran).
+ *
+ * Returns a promise that resolves to the active locale code.
+ */
+async function initI18n() {
+  ensureLocalesLoaded();
+
+  let override = null;
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      override = await new Promise((resolve) => {
+        chrome.storage.local.get([STORAGE_KEY], (result) => {
+          resolve(result && result[STORAGE_KEY] ? result[STORAGE_KEY] : null);
+        });
+      });
+    }
+  } catch { /* ignore */ }
+  if (override) {
+    setLocale(override);
+  } else {
+    setLocale(detectLocale());
+  }
+  return getLocale();
+}
+
+/**
+ * Persist a locale override. Returns the resolved locale code.
+ */
+async function saveLocale(locale) {
+  const resolved = setLocale(locale);
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      await new Promise((resolve) => {
+        chrome.storage.local.set({ [STORAGE_KEY]: resolved }, resolve);
+      });
+    }
+  } catch { /* non-extension context — override is in-memory only */ }
+  return resolved;
+}
+
+/**
+ * Translate a key. Falls back to English if the key is missing in the
+ * active locale; falls back to the key itself if missing everywhere.
+ * Supports {placeholder} interpolation.
+ */
+function t(key, params) {
+  if (!messages) {
+    ensureLocalesLoaded();
+    setLocale(detectLocale());
+  }
+  let str = messages[key];
+  if (str === undefined && LOCALES[DEFAULT_LOCALE]) {
+    str = LOCALES[DEFAULT_LOCALE][key];
+  }
+  if (str === undefined) return key;
+  if (params && typeof str === "string") {
+    for (const k of Object.keys(params)) {
+      str = str.replace(new RegExp("\\{" + k + "\\}", "g"), String(params[k]));
+    }
+  }
+  return str;
+}
+
+/**
+ * Walk a DOM subtree and apply translations declaratively via
+ * data-i18n (textContent) and data-i18n-attr (setAttribute, format:
+ * "attr:key, attr:key").
+ */
+function applyTranslations(root) {
+  const el = root || (typeof document !== "undefined" ? document : null);
+  if (!el || typeof el.querySelectorAll !== "function") return;
+
+  el.querySelectorAll("[data-i18n]").forEach((node) => {
+    const key = node.getAttribute("data-i18n");
+    if (key) node.textContent = t(key);
+  });
+
+  el.querySelectorAll("[data-i18n-attr]").forEach((node) => {
+    const mappings = (node.getAttribute("data-i18n-attr") || "").split(",");
+    for (const mapping of mappings) {
+      const parts = mapping.split(":");
+      if (parts.length !== 2) continue;
+      const attr = parts[0].trim();
+      const key = parts[1].trim();
+      if (attr && key) node.setAttribute(attr, t(key));
+    }
+  });
+
+  if (typeof document !== "undefined" && document.documentElement) {
+    document.documentElement.lang = getLocale();
+  }
+}
+
+/**
+ * Return a list of available locale codes (based on what's loaded).
+ */
+function availableLocales() {
+  return Object.keys(LOCALES).length > 0 ? Object.keys(LOCALES).sort() : SUPPORTED_LOCALES.slice();
+}
+
+return { setMessages, setLocaleMessages, normalizeLocale, detectLocale, setLocale, getLocale, initI18n, saveLocale, t, applyTranslations, availableLocales, SUPPORTED_LOCALES, DEFAULT_LOCALE, LOCALE_DISPLAY };
+    })(),
   };
-  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "revokeGenerator": mods.revokeGenerator };
+  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "revokeGenerator": mods.revokeGenerator, "i18n": mods.i18n };
 })(typeof window !== "undefined" ? window : globalThis);

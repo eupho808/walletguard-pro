@@ -1777,6 +1777,10 @@ const ZERO_WORD = revoke_generator_js_exports.ZERO_WORD;
 
 
 
+
+
+
+
 // content.js - WalletGuard Pro Orchestrator (ISOLATED world)
 //
 // Runs in every page at document_start. Responsibilities:
@@ -2341,6 +2345,10 @@ const ZERO_WORD = revoke_generator_js_exports.ZERO_WORD;
   }
 
 })();
+
+
+
+
 
 
 

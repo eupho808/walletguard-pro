@@ -52,7 +52,8 @@ for (const [label, file] of [["content.js", CONTENT], ["popup-bundle.js", POPUP]
   } else {
     const expected = [
       "constants", "decoder", "typosquatting", "multicallDecoder",
-      "universalRouter", "riskEngine", "capabilities", "simulator", "revokeGenerator"
+      "universalRouter", "riskEngine", "capabilities", "simulator",
+      "revokeGenerator", "i18n"
     ];
     const actual = Object.keys(lib).sort();
     const expSorted = [...expected].sort();

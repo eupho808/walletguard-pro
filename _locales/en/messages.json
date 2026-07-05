@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "WalletGuard Pro",
+    "description": "Extension display name"
+  },
+  "extensionShortName": {
+    "message": "WalletGuard Pro",
+    "description": "Short name for compact UI contexts"
+  },
+  "extensionDescription": {
+    "message": "Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, scans ERC-20/NFT approvals across 9 chains, detects phishing and typosquatted domains. Zero API keys required.",
+    "description": "Extension description shown in Chrome Web Store"
+  }
+}

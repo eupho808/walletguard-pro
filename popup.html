@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WalletGuard Pro Dashboard</title>
+    <title data-i18n="popup.title">WalletGuard Pro Dashboard</title>
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="main-container">
 
         <!-- HEADER -->
         <div class="header">
@@ -16,12 +16,12 @@
                 <div class="status-dot" id="status-dot"></div>
                 <h1 class="logo-text">WalletGuard Pro</h1>
             </div>
-            <div class="radar-badge" id="status-badge">ACTIVE</div>
+            <div class="radar-badge" id="status-badge" data-i18n="popup.header.active">ACTIVE</div>
         </div>
 
         <!-- SCORE CARD -->
         <div class="score-card">
-            <div class="section-title">Wallet Safety Score</div>
+            <div class="section-title" data-i18n="popup.score.label">Wallet Safety Score</div>
             <div class="score-display">
                 <span class="score-main" id="wallet-score">--</span>
                 <span class="score-total">/100</span>
@@ -31,22 +31,22 @@
         <!-- STATS GRID -->
         <div class="stats-grid">
             <div class="stat-box">
-                <div class="stat-title">Sites Scanned</div>
+                <div class="stat-title" data-i18n="popup.stats.sitesScanned">Sites Scanned</div>
                 <div class="stat-value" id="sites-count">0</div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Intercepted</div>
+                <div class="stat-title" data-i18n="popup.stats.intercepted">Intercepted</div>
                 <div class="stat-value" id="intercepted-count">0</div>
             </div>
         </div>
 
         <div class="stats-grid">
             <div class="stat-box">
-                <div class="stat-title">Blocked by You</div>
+                <div class="stat-title" data-i18n="popup.stats.blocked">Blocked by You</div>
                 <div class="stat-value warn-color" id="blocked-count">0</div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Permits Caught</div>
+                <div class="stat-title" data-i18n="popup.stats.permits">Permits Caught</div>
                 <div class="stat-value danger-color" id="permits-count">0</div>
             </div>
         </div>
@@ -54,8 +54,8 @@
         <!-- PROTECTED BANNER -->
         <div class="protected-banner">
             <div>
-                <div class="banner-title">PHISHING BLOCKED</div>
-                <div class="banner-subtitle">Malicious sites stopped</div>
+                <div class="banner-title" data-i18n="popup.banner.title">PHISHING BLOCKED</div>
+                <div class="banner-subtitle" data-i18n="popup.banner.subtitle">Malicious sites stopped</div>
             </div>
             <div class="banner-value" id="phishing-count">0</div>
         </div>
@@ -63,22 +63,25 @@
         <!-- APPROVAL SCANNER -->
         <div class="approval-section">
             <div class="section-title-row">
-                <span class="section-title">Active Token Approvals</span>
-                <button class="rescan-btn" id="rescan-btn" title="Rescan now">Rescan</button>
+                <span class="section-title" data-i18n="popup.approvals.title">Active Token Approvals</span>
+                <button class="rescan-btn" id="rescan-btn"
+                        data-i18n="popup.approvals.rescan"
+                        data-i18n-attr="title:popup.approvals.revokeTitle"
+                        title="Rescan now">Rescan</button>
             </div>
 
             <div class="approval-summary" id="approval-summary">
                 <div class="summary-tile">
                     <div class="summary-num" id="approval-total">--</div>
-                    <div class="summary-label">Total</div>
+                    <div class="summary-label" data-i18n="popup.approvals.total">Total</div>
                 </div>
                 <div class="summary-tile risky" id="approval-risky-tile">
                     <div class="summary-num" id="approval-risky">--</div>
-                    <div class="summary-label">Risky</div>
+                    <div class="summary-label" data-i18n="popup.approvals.risky">Risky</div>
                 </div>
                 <div class="summary-tile">
                     <div class="summary-num" id="approval-unlimited">--</div>
-                    <div class="summary-label">Unlimited</div>
+                    <div class="summary-label" data-i18n="popup.approvals.unlimited">Unlimited</div>
                 </div>
             </div>
 
@@ -88,7 +91,8 @@
             </div>
 
             <div class="approval-list" id="approval-list">
-                <div class="approval-empty" id="approval-empty">
+                <div class="approval-empty" id="approval-empty"
+                     data-i18n="popup.approvals.empty.noWallet">
                     No wallet detected yet. Make any transaction through WalletGuard and your active approvals will be scanned across 9 chains.
                 </div>
             </div>
@@ -97,23 +101,24 @@
         <!-- NFT APPROVAL SCANNER -->
         <div class="approval-section nft-section">
             <div class="section-title-row">
-                <span class="section-title">NFT Collection Access</span>
+                <span class="section-title" data-i18n="popup.nft.title">NFT Collection Access</span>
                 <span class="section-subtitle" id="nft-meta"></span>
             </div>
 
             <div class="nft-summary" id="nft-summary">
                 <div class="summary-tile">
                     <div class="summary-num" id="nft-total">--</div>
-                    <div class="summary-label">NFT Approvals</div>
+                    <div class="summary-label" data-i18n="popup.nft.total">NFT Approvals</div>
                 </div>
                 <div class="summary-tile risky" id="nft-risky-tile">
                     <div class="summary-num" id="nft-risky">--</div>
-                    <div class="summary-label">Risky</div>
+                    <div class="summary-label" data-i18n="popup.nft.risky">Risky</div>
                 </div>
             </div>
 
             <div class="nft-list" id="nft-list">
-                <div class="approval-empty" id="nft-empty">
+                <div class="approval-empty" id="nft-empty"
+                     data-i18n="popup.nft.empty.scanned">
                     No active NFT collection approvals. Your NFTs are safe from custody-takeover.
                 </div>
             </div>
@@ -121,9 +126,9 @@
 
         <!-- LOGS -->
         <div class="logs-section">
-            <div class="section-title">Recent Activity</div>
+            <div class="section-title" data-i18n="popup.logs.title">Recent Activity</div>
             <div class="logs-list" id="logs-list">
-                <div class="log-empty">No activity yet. Browse a dApp to see logs.</div>
+                <div class="log-empty" data-i18n="popup.logs.empty">No activity yet. Browse a dApp to see logs.</div>
             </div>
         </div>
 
@@ -131,9 +136,9 @@
 
         <!-- ACTIONS -->
         <div class="actions-row">
-            <button class="footer-link" id="reset-btn">Reset stats</button>
+            <button class="footer-link" id="reset-btn" data-i18n="popup.actions.reset">Reset stats</button>
             <button class="support-btn" id="settings-btn">
-                <span>Settings</span>
+                <span data-i18n="popup.actions.settings">Settings</span>
                 <span class="arrow">&rarr;</span>
             </button>
         </div>
@@ -145,32 +150,57 @@
       <div class="revoke-modal__backdrop" data-revoke-close></div>
       <div class="revoke-modal__panel" role="dialog" aria-modal="true" aria-labelledby="revoke-modal-title">
         <header class="revoke-modal__header">
-          <h2 id="revoke-modal-title" class="revoke-modal__title">Revoke approval</h2>
-          <button class="revoke-modal__close" data-revoke-close aria-label="Close">&times;</button>
+          <h2 id="revoke-modal-title" class="revoke-modal__title" data-i18n="popup.revoke.title">Revoke approval</h2>
+          <button class="revoke-modal__close" data-revoke-close
+                  data-i18n-attr="aria-label:common.close"
+                  aria-label="Close">&times;</button>
         </header>
         <div class="revoke-modal__body">
           <p class="revoke-modal__lead" id="revoke-modal-lead"></p>
 
           <details class="revoke-modal__details">
-            <summary>Transaction data</summary>
+            <summary data-i18n="popup.revoke.transactionData">Transaction data</summary>
             <dl class="revoke-modal__tx">
-              <dt>Chain</dt>          <dd id="revoke-modal-chain">—</dd>
-              <dt>To (token / collection)</dt> <dd id="revoke-modal-to" class="mono">—</dd>
-              <dt>Value</dt>          <dd id="revoke-modal-value" class="mono">—</dd>
-              <dt>Data</dt>           <dd id="revoke-modal-data" class="mono mono-break">—</dd>
+              <dt data-i18n="popup.revoke.chainLabel">Chain</dt>
+              <dd id="revoke-modal-chain">\u2014</dd>
+              <dt data-i18n="popup.revoke.toLabel">To (token / collection)</dt>
+              <dd id="revoke-modal-to" class="mono">\u2014</dd>
+              <dt data-i18n="popup.revoke.valueLabel">Value</dt>
+              <dd id="revoke-modal-value" class="mono">\u2014</dd>
+              <dt data-i18n="popup.revoke.dataLabel">Data</dt>
+              <dd id="revoke-modal-data" class="mono mono-break">\u2014</dd>
             </dl>
           </details>
 
-          <p class="revoke-modal__note">
+          <p class="revoke-modal__note" id="revoke-modal-note"
+             data-i18n="popup.revoke.note">
             WalletGuard Pro does <strong>not</strong> sign transactions. Copy the calldata
             and broadcast it through your wallet or a tool like
             <a href="#" id="revoke-modal-revoke-cash" target="_blank" rel="noopener noreferrer">revoke.cash</a>.
           </p>
         </div>
         <footer class="revoke-modal__footer">
-          <button class="revoke-modal__btn revoke-modal__btn--ghost" data-revoke-close>Close</button>
-          <button class="revoke-modal__btn" id="revoke-modal-copy">Copy calldata</button>
+          <button class="revoke-modal__btn revoke-modal__btn--ghost" data-revoke-close
+                  data-i18n="common.close">Close</button>
+          <button class="revoke-modal__btn" id="revoke-modal-copy"
+                  data-i18n="popup.revoke.copy">Copy calldata</button>
         </footer>
+      </div>
+    </div>
+
+    <!-- ONBOARDING OVERLAY -->
+    <div class="onboarding" id="onboarding-overlay" hidden>
+      <div class="onboarding__backdrop"></div>
+      <div class="onboarding__panel" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <div class="onboarding__indicator" id="onboarding-indicator"></div>
+        <h2 class="onboarding__title" id="onboarding-title"></h2>
+        <p class="onboarding__body" id="onboarding-body"></p>
+        <div class="onboarding__dots" id="onboarding-dots"></div>
+        <div class="onboarding__actions">
+          <button class="onboarding__btn onboarding__btn--ghost" id="onboarding-skip"
+                  data-i18n="onboarding.skip">Skip tour</button>
+          <button class="onboarding__btn onboarding__btn--primary" id="onboarding-next"></button>
+        </div>
       </div>
     </div>
 
