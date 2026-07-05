@@ -1,20 +1,21 @@
-// build-firefox-pack.js - Package WalletGuard Pro for Firefox AMO submission.
+// build-chrome-pack.js - Package WalletGuard Pro for Chrome Web Store submission.
 //
-// Run with:  node build-firefox-pack.js
+// Run with:  node build-chrome-pack.js
 //
-// Produces:  walletguard-pro-firefox-v1.5.1.zip in the project root,
-//            ready to upload at https://addons.mozilla.org/developers/addon/submit/
+// Produces:  walletguard-pro-v1.5.1.zip in the project root,
+//            ready to upload at https://chrome.google.com/webstore/devconsole/
 //
 // What it does:
-//   1. Creates a staging dir (dist-firefox/) by copying the project.
+//   1. Creates a staging dir (dist-chrome/) by copying the project.
 //   2. Excludes dev cruft (.git/, node_modules/, screenshots/reference/,
-//      screenshots/popup-mock.html, .github/).
-//   3. In staging, renames manifest.firefox.json -> manifest.json
-//      (Firefox requires manifest.json at root).
+//      screenshots/popup-mock.html, .github/, dist-chrome/,
+//      dist-firefox/, build artifacts, ZIPs).
+//   3. Leaves manifest.json as-is (Chrome uses manifest.json at root).
 //   4. Creates a ZIP archive from the staged contents.
 //   5. Cleans up staging.
 //
-// Verified separately by build-firefox.js (manifest fields + gecko.id).
+// Companion to build-firefox-pack.js (which renames manifest.firefox.json
+// → manifest.json in staging; Chrome doesn't need that rename).
 
 import fs from "fs";
 import path from "path";
@@ -26,16 +27,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ROOT = __dirname;
-const STAGING = path.join(ROOT, "dist-firefox");
-const ZIP_PATH = path.join(ROOT, `walletguard-pro-firefox-v1.5.1.zip`);
-const FIREFOX_MANIFEST = path.join(ROOT, "manifest.firefox.json");
 
-const EXCLUDE_DIRS  = [
+// Read version from package.json so this stays in sync automatically.
+const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+const VERSION = pkg.version;
+
+const STAGING = path.join(ROOT, "dist-chrome");
+const ZIP_PATH = path.join(ROOT, `walletguard-pro-v${VERSION}.zip`);
+
+const EXCLUDE_DIRS = [
   ".git", "node_modules", ".github",
-  "dist-firefox", "dist-chrome",
-  "reference",   // screenshots/reference/ — test captures, not for store
-  "lib",         // bundled into content.js + popup-bundle.js
-  "site"         // GitHub Pages source, not part of extension
+  "dist-chrome", "dist-firefox",
+  "reference",         // screenshots/reference/ — test captures, not for store
+  "lib",               // bundled into content.js + popup-bundle.js
+  "site"               // GitHub Pages source, not part of extension
 ];
 
 const EXCLUDE_FILES = [
@@ -53,8 +58,8 @@ const EXCLUDE_FILES = [
   // Stale / current ZIPs
   "walletguard-pro-v1.5.0.zip",
   "walletguard-pro-firefox-v1.5.0.zip",
-  "walletguard-pro-v1.5.1.zip",
-  "walletguard-pro-firefox-v1.5.1.zip"
+  `walletguard-pro-v${VERSION}.zip`,
+  `walletguard-pro-firefox-v${VERSION}.zip`
 ];
 
 function rimraf(p) {
@@ -80,16 +85,12 @@ function copyDirFiltered(src, dst, relBase) {
 }
 
 function zipDirWindows(srcDir, zipPath) {
-  // PowerShell Compress-Archive works on Windows and produces standard ZIPs
-  // that Firefox AMO accepts. Path separators in ZIP entries are OS-native
-  // (backslash) but Firefox's validator handles both.
   if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
   const ps = `
     Compress-Archive -Path "${srcDir}\\*" -DestinationPath "${zipPath}" -CompressionLevel Optimal -Force
   `.trim();
   const r = spawnSync("powershell.exe", ["-NoProfile", "-Command", ps], {
-    stdio: "inherit",
-    shell: false,
+    stdio: "inherit", shell: false,
   });
   return r.status === 0;
 }
@@ -97,50 +98,36 @@ function zipDirWindows(srcDir, zipPath) {
 function zipDirUnix(srcDir, zipPath) {
   if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
   const r = spawnSync("zip", ["-r", "-9", zipPath, "."], {
-    cwd: srcDir,
-    stdio: "inherit",
-    shell: false,
+    cwd: srcDir, stdio: "inherit", shell: false,
   });
   return r.status === 0;
 }
 
-console.log("==> Packaging WalletGuard Pro for Firefox AMO\n");
+console.log(`==> Packaging WalletGuard Pro v${VERSION} for Chrome Web Store\n`);
 
-// 1. Verify Firefox manifest exists.
-if (!fs.existsSync(FIREFOX_MANIFEST)) {
-  console.error("ERROR: manifest.firefox.json not found");
-  process.exit(1);
-}
-
-// 2. Clean and recreate staging.
+// 1. Clean and recreate staging.
 console.log(`Staging -> ${STAGING}`);
 rimraf(STAGING);
 copyDirFiltered(ROOT, STAGING, "");
 
-// 3. In staging, rename manifest.firefox.json -> manifest.json.
-const stagedFxManifest = path.join(STAGING, "manifest.firefox.json");
-const stagedManifest  = path.join(STAGING, "manifest.json");
-if (fs.existsSync(stagedFxManifest)) {
-  fs.renameSync(stagedFxManifest, stagedManifest);
-  console.log(`Renamed: manifest.firefox.json -> manifest.json (in staging)`);
-} else {
-  console.error("ERROR: manifest.firefox.json missing from staging");
-  process.exit(1);
-}
-
-// 4. Sanity check on the staged manifest.
+// 2. Sanity check on the staged manifest.
+const stagedManifest = path.join(STAGING, "manifest.json");
 const staged = JSON.parse(fs.readFileSync(stagedManifest, "utf8"));
 if (staged.manifest_version !== 3) {
   console.error("ERROR: staged manifest is not MV3");
   process.exit(1);
 }
-if (!staged.browser_specific_settings?.gecko?.id) {
-  console.error("ERROR: staged manifest missing gecko.id");
+if (!staged.name || !staged.version) {
+  console.error("ERROR: staged manifest missing name/version");
   process.exit(1);
 }
-console.log(`OK: staged manifest is MV3, gecko.id = ${staged.browser_specific_settings.gecko.id}`);
+if (!staged.default_locale && fs.existsSync(path.join(STAGING, "_locales"))) {
+  console.error("ERROR: _locales/ exists but default_locale missing in manifest");
+  process.exit(1);
+}
+console.log(`OK: staged manifest is MV3, name=${staged.name}, version=${staged.version}, default_locale=${staged.default_locale || "(none)"}`);
 
-// 5. Create ZIP.
+// 3. Create ZIP.
 console.log(`\nCreating ZIP -> ${ZIP_PATH}`);
 const ok = os.platform() === "win32"
   ? zipDirWindows(STAGING, ZIP_PATH)
@@ -154,13 +141,15 @@ if (!ok) {
 const sizeKb = (fs.statSync(ZIP_PATH).size / 1024).toFixed(1);
 console.log(`\nDone: ${ZIP_PATH} (${sizeKb} KB)`);
 console.log(`\nNext steps:`);
-console.log(`  1. Go to https://addons.mozilla.org/developers/addon/submit/`);
-console.log(`  2. Upload ${path.basename(ZIP_PATH)}`);
-console.log(`  3. Source code: NO (no upload needed — AMO will fetch from GitHub)`);
-console.log(`  4. Fill in the listing (similar fields to Chrome Web Store)`);
-console.log(`  5. AMO review is human, ~1-7 days. Free, no fee.`);
+console.log(`  1. Go to https://chrome.google.com/webstore/devconsole/`);
+console.log(`  2. Pay the $5 developer fee (one-time, if not already paid)`);
+console.log(`  3. Click "New Item" → upload ${path.basename(ZIP_PATH)}`);
+console.log(`  4. Copy text from STORE_LISTING.md into the listing form`);
+console.log(`  5. Upload 5 screenshots + 1 promo tile (440x280)`);
+console.log(`  6. Set Privacy tab: single purpose, host permissions, data usage`);
+console.log(`  7. Submit for review (1-3 business days for first submission)`);
 
-// 6. Clean up staging.
+// 4. Clean up staging.
 console.log(`\nCleaning up staging...`);
 rimraf(STAGING);
 console.log("Done.");
