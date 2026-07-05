@@ -139,15 +139,28 @@ Chrome Web Store requires:
 
 ### Screenshot plan (5 screenshots)
 
-| # | Title | What to capture |
-|---|---|---|
-| 1 | "Phishing + typosquatting caught" | Render `test.html` → "Trigger phishing overlay" button, OR fake a `unisvvap.org` URL. Capture the red overlay. |
-| 2 | "Calldata decoded" | Trigger `approve-safe` test button. Capture the full WalletGuard overlay with method, target, value, risk factors. |
-| 3 | "Risk factors explained" | Trigger `approve-unlimited-unknown`. Capture the overlay showing unlimited + unknown + compound rule. |
-| 4 | "Approval scanner — 6 chains" | Open `popup.html` after running a real scan. Capture the dashboard with the multi-chain chips and summary tiles. |
-| 5 | "NFT collection access" | Open `popup.html` with NFT approvals populated. Capture the purple NFT section. |
+All 5 are already captured at 1280×800 PNG, ready to upload.
 
-### Capture recipe (manual)
+| # | File | Title | Shows |
+|---|---|---|---|
+| 1 | `screenshots/01-phishing-block.png` | "Phishing site blocked" | Full-screen red PHISHING BLOCKED overlay (`fake-metamask-claim.io`) |
+| 2 | `screenshots/02-calldata-decoded.png` | "Calldata decoded" | SAFE 100/100 — verified Uniswap V3 approve with risk factors + Asset Changes |
+| 3 | `screenshots/03-risk-factors-explained.png` | "Risk factors explained" | HIGH RISK 35/100 — unlimited approval + unknown contract + Compound rule (-25) |
+| 4 | `screenshots/04-approval-scanner.png` | "Approval scanner" | Dashboard mock (vitalik.eth, 18 approvals, 3 risky, PEPE critical, NFT section) |
+| 5 | `screenshots/05-nft-access.png` | "NFT collection access" | HIGH RISK 30/100 setApprovalForAll + "NFT Root Access to Unverified Operator" compound |
+
+### Bonus screenshots (drop-in replacements, all 1280×800)
+
+These show **real-time domain defense** in transaction context — the red banner appearing above the transaction overlay when you visit a typosquatted domain. Stronger marketing than the standalone phishing block if you want to swap.
+
+| File | Shows |
+|---|---|
+| `screenshots/bonus-subdomain-impersonation.png` | Red "PHISHING — SUBDOMAIN IMPERSONATION" banner above CRITICAL tx (`uniswap.org.evil.com`) |
+| `screenshots/bonus-typosquat-d1.png` | Orange "POSSIBLE TYPOSQUATTING" banner + CRITICAL tx (`uniswopp.org`, d=1) |
+| `screenshots/bonus-typosquat-d2.png` | Orange "POSSIBLE TYPOSQUATTING" banner + CRITICAL tx (`unisvvap.org`, d=2) |
+| `screenshots/bonus-trusted-site.png` | Green "Trusted site" banner + SAFE 100 (on `uniswap.org`) |
+
+### Capture recipe (manual, if re-capturing needed)
 
 ```bash
 # 1. Open Chrome with the unpacked extension loaded
@@ -157,6 +170,20 @@ Chrome Web Store requires:
 # 5. Cmd+Shift+4 (mac) / Win+Shift+S (win) → select overlay area
 # 6. Save to screenshots/01-phishing-block.png etc.
 ```
+
+For screenshot #4 (popup dashboard), if you want a real capture instead of the mock:
+```bash
+# 1. Click the WalletGuard icon → popup opens
+# 2. Settings → enable multi-chain scan toggle
+# 3. Popup → Rescan → wait 5-10s for results
+# 4. Open DevTools (right-click popup → Inspect) → Ctrl+Shift+P → "Capture screenshot"
+```
+
+Or re-render the mock: open `screenshots/popup-mock.html` in Chrome → DevTools → 1280×800 → "Capture screenshot".
+
+### Reference material
+
+`screenshots/reference/` contains 14 extra captures from `test.html` (Universal Router variants, Native ETH transfers, Permit, Multicall, blind signatures, JS error states). Useful for documentation, blog posts, or social media but NOT part of the CWS submission.
 
 ### Promo tile (440×280)
 Use the existing `icons/icon128.png` centered on a dark background with text:
