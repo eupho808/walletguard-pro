@@ -636,3 +636,240 @@ body {
 .nft-card.r-info .nft-reason {
     color: #8a92a3;
 }
+
+/* ---------- REVOKE BUTTON ---------- */
+
+.approval-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.approval-revoke {
+    appearance: none;
+    background: rgba(255, 77, 77, 0.10);
+    color: #ff8a8a;
+    border: 1px solid rgba(255, 77, 77, 0.35);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.approval-revoke:hover {
+    background: rgba(255, 77, 77, 0.20);
+    color: #ffb3b3;
+    border-color: rgba(255, 77, 77, 0.55);
+}
+
+.approval-revoke:active {
+    transform: translateY(1px);
+}
+
+/* ---------- REVOKE MODAL ---------- */
+
+.revoke-modal[hidden] {
+    display: none;
+}
+
+.revoke-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.revoke-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 6, 10, 0.78);
+    backdrop-filter: blur(4px);
+}
+
+.revoke-modal__panel {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #11141d;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(0, 255, 204, 0.06);
+    padding: 18px 20px;
+    box-sizing: border-box;
+}
+
+.revoke-modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.revoke-modal__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ff8a8a;
+    letter-spacing: 0.02em;
+}
+
+.revoke-modal__close {
+    appearance: none;
+    background: transparent;
+    border: none;
+    color: #8a92a3;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.revoke-modal__close:hover {
+    color: #ffffff;
+}
+
+.revoke-modal__lead {
+    margin: 0 0 14px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #e7e9ef;
+}
+
+.revoke-modal__lead--error {
+    color: #ff8a8a;
+}
+
+.revoke-modal__details {
+    margin: 0 0 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.revoke-modal__details > summary {
+    cursor: pointer;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #a4a4ad;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    list-style: none;
+    user-select: none;
+}
+
+.revoke-modal__details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.revoke-modal__details[open] > summary {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.revoke-modal__tx {
+    margin: 0;
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 14px;
+    font-size: 11px;
+}
+
+.revoke-modal__tx dt {
+    color: #6b6b74;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.revoke-modal__tx dd {
+    margin: 0;
+    color: #e7e9ef;
+    word-break: break-all;
+}
+
+.revoke-modal__tx .mono {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+}
+
+.mono-break {
+    word-break: break-all;
+}
+
+.revoke-modal__note {
+    margin: 0 0 14px;
+    font-size: 11px;
+    line-height: 1.55;
+    color: #8a92a3;
+}
+
+.revoke-modal__note a {
+    color: #00ffcc;
+    text-decoration: none;
+}
+
+.revoke-modal__note a:hover {
+    text-decoration: underline;
+}
+
+.revoke-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.revoke-modal__btn {
+    appearance: none;
+    background: #00ffcc;
+    color: #0b0d13;
+    border: 1px solid #00ffcc;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 120ms ease, transform 60ms ease;
+}
+
+.revoke-modal__btn:hover {
+    opacity: 0.88;
+}
+
+.revoke-modal__btn:active {
+    transform: translateY(1px);
+}
+
+.revoke-modal__btn--ghost {
+    background: transparent;
+    color: #a4a4ad;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.revoke-modal__btn--ghost:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.24);
+    opacity: 1;
+}
+
+.revoke-modal__btn.is-ok {
+    background: #00ff66;
+    border-color: #00ff66;
+    color: #0b0d13;
+}
+
+.revoke-modal__btn.is-fail {
+    background: #ff4d4d;
+    border-color: #ff4d4d;
+    color: #ffffff;
+}

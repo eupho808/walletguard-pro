@@ -20,6 +20,27 @@ function attachListeners() {
   });
 
   document.getElementById("rescan-btn").addEventListener("click", triggerRescan);
+
+  // Revoke flow: delegated click handlers on the approval + NFT lists,
+  // and on the modal's close / copy buttons.
+  const approvalList = document.getElementById("approval-list");
+  if (approvalList) approvalList.addEventListener("click", handleRevokeClick);
+  const nftList = document.getElementById("nft-list");
+  if (nftList) nftList.addEventListener("click", handleRevokeClick);
+
+  const modal = document.getElementById("revoke-modal");
+  if (modal) {
+    modal.addEventListener("click", (ev) => {
+      if (ev.target.hasAttribute("data-revoke-close")) hideRevokeModal();
+    });
+  }
+  const copyBtn = document.getElementById("revoke-modal-copy");
+  if (copyBtn) copyBtn.addEventListener("click", copyRevokeCalldata);
+
+  // Escape closes the modal.
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && modal && !modal.hidden) hideRevokeModal();
+  });
 }
 
 async function refreshData() {
@@ -259,7 +280,12 @@ function renderApprovals(data) {
       return (b.isUnlimited ? 1 : 0) - (a.isUnlimited ? 1 : 0);
     }).slice(0, 5);
 
+    // Attach a stable card ID so the Revoke button can look up the original
+    // approval object (with full chain info) when clicked.
+    top.forEach((a, i) => { a._cardId = "erc20-" + i; });
+
     list.innerHTML = top.map(renderApprovalCard).join("");
+    attachRevokeDelegation(list, top, "erc20");
   }
 
   // NFT approvals (separate section).
@@ -318,8 +344,15 @@ function renderApprovalCard(a) {
     ? a.spenderName
     : a.spender.slice(0, 6) + "..." + a.spender.slice(-4);
 
+  // Only show Revoke button for actually-risky approvals: critical / high / medium.
+  // Low/info (e.g. whitelisted, verified protocol) are noise if we offer to revoke.
+  const canRevoke = level === "critical" || level === "high" || level === "medium";
+  const revokeBtn = canRevoke
+    ? `<button class="approval-revoke" data-revoke-id="${escapeHtml(a._cardId || "")}" title="Generate revoke calldata">Revoke</button>`
+    : "";
+
   return `
-    <div class="approval-card r-${level}">
+    <div class="approval-card r-${level}" ${a._cardId ? `data-card-id="${escapeHtml(a._cardId)}"` : ""}>
       <div class="approval-top">
         <span class="approval-token">${escapeHtml(a.tokenSymbol)} <span style="color:#4c5264;font-weight:500;font-size:10px;">${escapeHtml(a.tokenType)}</span></span>
         <span class="approval-allowance ${allowanceClass}">${escapeHtml(allowanceText)}</span>
@@ -329,6 +362,7 @@ function renderApprovalCard(a) {
         <span class="approval-chain">${escapeHtml(a.chainName || "?")}</span>
       </div>
       ${reason ? `<div class="approval-reason">${escapeHtml(reason)}</div>` : ""}
+      ${revokeBtn ? `<div class="approval-actions">${revokeBtn}</div>` : ""}
     </div>
   `;
 }
@@ -394,7 +428,11 @@ function renderNFTApprovals(scan) {
     return ra - rb;
   }).slice(0, 5);
 
+  // Attach stable card IDs so Revoke buttons can look up the source approval.
+  top.forEach((a, i) => { a._cardId = "nft-" + i; });
+
   list.innerHTML = top.map(renderNFTCard).join("");
+  attachRevokeDelegation(list, top, "nft");
 }
 
 function renderNFTCard(a) {
@@ -406,8 +444,14 @@ function renderNFTCard(a) {
   const operatorClass = a.operatorName ? "verified" : "";
   const collectionLabel = a.collectionName || ((a.collection || "").slice(0, 6) + "...");
 
+  // Same risk-gating as ERC-20: only offer Revoke for critical/high/medium.
+  const canRevoke = level === "critical" || level === "high" || level === "medium";
+  const revokeBtn = canRevoke
+    ? `<button class="approval-revoke" data-revoke-id="${escapeHtml(a._cardId || "")}" title="Generate revoke calldata">Revoke</button>`
+    : "";
+
   return `
-    <div class="nft-card r-${level}">
+    <div class="nft-card r-${level}" ${a._cardId ? `data-card-id="${escapeHtml(a._cardId)}"` : ""}>
       <div class="nft-top">
         <span class="nft-collection">${escapeHtml(collectionLabel)} <span class="nft-type">${escapeHtml(a.tokenType || "NFT")}</span></span>
         <span class="nft-risk-badge r-${level}">${escapeHtml(level)}</span>
@@ -417,6 +461,7 @@ function renderNFTCard(a) {
         <span class="nft-chain">${escapeHtml(a.chainName || "?")}</span>
       </div>
       ${reason ? `<div class="nft-reason">${escapeHtml(reason)}</div>` : ""}
+      ${revokeBtn ? `<div class="approval-actions">${revokeBtn}</div>` : ""}
     </div>
   `;
 }
@@ -439,4 +484,155 @@ function relativeTime(iso) {
 function shorten(addr) {
   if (!addr || addr.length < 12) return addr || "";
   return addr.slice(0, 6) + "..." + addr.slice(-4);
+}
+
+// ============================================================
+// REVOKE FLOW
+// ============================================================
+//
+// WalletGuard Pro never signs — we generate calldata and let the user
+// broadcast via their wallet or revoke.cash. `popup-bundle.js` exposes
+// `window.WG_POPUP_LIB.revokeGenerator.buildRevokeTx(approval)` which
+// returns the plan shown in the modal.
+
+let __revokeMap = new Map();      // cardId -> { approval, kind }
+let __activeRevokePlan = null;     // last-generated plan (for copy)
+
+function attachRevokeDelegation(container, items, kind) {
+  // Stash a lookup so the click handler can resolve data-revoke-id back to
+  // the original approval object (we don't re-query storage on click).
+  for (const a of items) {
+    if (a._cardId) __revokeMap.set(a._cardId, { approval: a, kind: kind });
+  }
+}
+
+function handleRevokeClick(ev) {
+  const btn = ev.target.closest(".approval-revoke");
+  if (!btn) return;
+  const id = btn.getAttribute("data-revoke-id");
+  if (!id) return;
+  const entry = __revokeMap.get(id);
+  if (!entry) return;
+
+  // Resolve the revoke plan via the bundled lib module.
+  const lib = (typeof window !== "undefined" && window.WG_POPUP_LIB && window.WG_POPUP_LIB.revokeGenerator) || null;
+  if (!lib || typeof lib.buildRevokeTx !== "function") {
+    showRevokeModal({
+      error: "Revoke generator not loaded. Reload the popup or update WalletGuard Pro."
+    });
+    return;
+  }
+
+  let plan;
+  try {
+    plan = lib.buildRevokeTx(entry.approval);
+  } catch (e) {
+    showRevokeModal({
+      error: "Could not generate revoke calldata: " + (e.message || e)
+    });
+    return;
+  }
+  if (!plan) {
+    showRevokeModal({
+      error: "Unknown approval kind — cannot generate a revoke plan."
+    });
+    return;
+  }
+  showRevokeModal({ plan: plan, approval: entry.approval });
+}
+
+function showRevokeModal({ plan, approval, error }) {
+  const modal = document.getElementById("revoke-modal");
+  if (!modal) return;
+  __activeRevokePlan = plan || null;
+
+  const lead = document.getElementById("revoke-modal-lead");
+  const chainEl = document.getElementById("revoke-modal-chain");
+  const toEl = document.getElementById("revoke-modal-to");
+  const valueEl = document.getElementById("revoke-modal-value");
+  const dataEl = document.getElementById("revoke-modal-data");
+  const revokeCashLink = document.getElementById("revoke-modal-revoke-cash");
+  const copyBtn = document.getElementById("revoke-modal-copy");
+
+  if (error) {
+    lead.textContent = error;
+    lead.classList.add("revoke-modal__lead--error");
+    chainEl.textContent = "—";
+    toEl.textContent = "—";
+    valueEl.textContent = "—";
+    dataEl.textContent = "—";
+    revokeCashLink.style.display = "none";
+    copyBtn.style.display = "none";
+  } else {
+    lead.classList.remove("revoke-modal__lead--error");
+    lead.textContent = plan.description || "Revoke approval";
+    chainEl.textContent = (plan.chainName || "Chain " + plan.chainId) + " (" + plan.chainId + ")";
+    toEl.textContent = plan.to;
+    valueEl.textContent = plan.value;
+    dataEl.textContent = plan.data;
+    revokeCashLink.style.display = "";
+    copyBtn.style.display = "";
+
+    // Deep link to revoke.cash for the affected address — but only when we
+    // know the wallet address (it's in the approval object as `address` for
+    // single-chain, or we can pull it from the global scan context for
+    // multi-chain). If unknown, fall back to revoke.cash root.
+    let walletAddress = "";
+    if (approval) {
+      walletAddress = approval.address || "";
+    }
+    revokeCashLink.href = walletAddress
+      ? "https://revoke.cash/address/" + walletAddress
+      : "https://revoke.cash/";
+  }
+
+  modal.hidden = false;
+}
+
+function hideRevokeModal() {
+  const modal = document.getElementById("revoke-modal");
+  if (modal) modal.hidden = true;
+  __activeRevokePlan = null;
+}
+
+async function copyRevokeCalldata() {
+  if (!__activeRevokePlan) return;
+  const p = __activeRevokePlan;
+  // Copy a structured JSON envelope so the receiver can reconstruct the tx.
+  const payload = JSON.stringify({
+    chainId: p.chainId,
+    to: p.to,
+    data: p.data,
+    value: p.value
+  }, null, 2);
+  try {
+    await navigator.clipboard.writeText(payload);
+    flashCopyButton("Copied!", true);
+  } catch (e) {
+    // Fallback: select-and-copy via a temporary textarea.
+    const ta = document.createElement("textarea");
+    ta.value = payload;
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+      flashCopyButton("Copied!", true);
+    } catch {
+      flashCopyButton("Copy failed", false);
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+}
+
+function flashCopyButton(text, ok) {
+  const btn = document.getElementById("revoke-modal-copy");
+  if (!btn) return;
+  const orig = btn.textContent;
+  btn.textContent = text;
+  btn.classList.add(ok ? "is-ok" : "is-fail");
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.classList.remove("is-ok", "is-fail");
+  }, 1400);
 }

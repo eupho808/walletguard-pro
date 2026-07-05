@@ -140,6 +140,41 @@
 
     </div>
 
+    <!-- REVOKE MODAL -->
+    <div class="revoke-modal" id="revoke-modal" hidden>
+      <div class="revoke-modal__backdrop" data-revoke-close></div>
+      <div class="revoke-modal__panel" role="dialog" aria-modal="true" aria-labelledby="revoke-modal-title">
+        <header class="revoke-modal__header">
+          <h2 id="revoke-modal-title" class="revoke-modal__title">Revoke approval</h2>
+          <button class="revoke-modal__close" data-revoke-close aria-label="Close">&times;</button>
+        </header>
+        <div class="revoke-modal__body">
+          <p class="revoke-modal__lead" id="revoke-modal-lead"></p>
+
+          <details class="revoke-modal__details">
+            <summary>Transaction data</summary>
+            <dl class="revoke-modal__tx">
+              <dt>Chain</dt>          <dd id="revoke-modal-chain">—</dd>
+              <dt>To (token / collection)</dt> <dd id="revoke-modal-to" class="mono">—</dd>
+              <dt>Value</dt>          <dd id="revoke-modal-value" class="mono">—</dd>
+              <dt>Data</dt>           <dd id="revoke-modal-data" class="mono mono-break">—</dd>
+            </dl>
+          </details>
+
+          <p class="revoke-modal__note">
+            WalletGuard Pro does <strong>not</strong> sign transactions. Copy the calldata
+            and broadcast it through your wallet or a tool like
+            <a href="#" id="revoke-modal-revoke-cash" target="_blank" rel="noopener noreferrer">revoke.cash</a>.
+          </p>
+        </div>
+        <footer class="revoke-modal__footer">
+          <button class="revoke-modal__btn revoke-modal__btn--ghost" data-revoke-close>Close</button>
+          <button class="revoke-modal__btn" id="revoke-modal-copy">Copy calldata</button>
+        </footer>
+      </div>
+    </div>
+
+    <script src="popup-bundle.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>

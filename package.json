@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node test-typosquat.js && node test-integration.js && node test-multichain.js && node test-nft.js",
+    "test": "node test-typosquat.js && node test-integration.js && node test-multichain.js && node test-nft.js && node test-revoke.js",
     "build": "node build.js",
     "build:firefox": "node build-firefox.js",
     "build:firefox:pack": "node build-firefox-pack.js"
