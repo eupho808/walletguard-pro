@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WalletGuard Pro — Test Console</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0c12;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .header .dot {
+            width: 12px; height: 12px;
+            background: #00ffcc;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #00ffcc;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+        }
+        .header .ver {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            color: #8a92a3;
+        }
+        .subtitle {
+            color: #8a92a3;
+            font-size: 13px;
+            margin: 0 0 24px 0;
+            line-height: 1.5;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .btn {
+            padding: 14px 16px;
+            background: rgba(21, 26, 38, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            color: #fff;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: rgba(21, 26, 38, 0.9);
+            border-color: rgba(0, 255, 204, 0.3);
+            transform: translateY(-1px);
+        }
+        .btn .label {
+            font-weight: 700;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+        .btn .desc {
+            font-size: 11px;
+            color: #8a92a3;
+            line-height: 1.4;
+        }
+        .btn.danger { border-left: 3px solid #ff4d4d; }
+        .btn.warn { border-left: 3px solid #ffb700; }
+        .btn.safe { border-left: 3px solid #00ff66; }
+        .btn.info { border-left: 3px solid #00ffcc; }
+
+        .section {
+            background: rgba(21, 26, 38, 0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+        .section h2 {
+            margin: 0 0 12px 0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8a92a3;
+        }
+
+        .footer {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            color: #646b7c;
+            font-size: 11px;
+            text-align: center;
+        }
+        code {
+            font-family: 'SF Mono', Menlo, monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="dot"></div>
+            <h1>WalletGuard Pro — Test Console</h1>
+            <div class="ver">v1.2.0</div>
+        </div>
+        <p class="subtitle">
+            Каждая кнопка диспатчит <code>WalletGuardShowUI</code> событие, которое content.js
+            анализирует и показывает UI. Реальный кошелёк не нужен — просто открой эту страницу
+            после загрузки расширения.
+        </p>
+
+        <!-- SIMPLE APPROVES -->
+        <div class="section">
+            <h2>Token Approvals</h2>
+            <div class="grid">
+                <button class="btn safe" data-test="approve-safe">
+                    <div class="label">Approve — Uniswap (limited)</div>
+                    <div class="desc">Approve 1000 USDC to Uniswap V2 Router. Safe pattern.</div>
+                </button>
+                <button class="btn warn" data-test="approve-unknown-limited">
+                    <div class="label">Approve — unknown (limited)</div>
+                    <div class="desc">Limited approval to a contract not in trust database.</div>
+                </button>
+                <button class="btn danger" data-test="approve-unlimited-unknown">
+                    <div class="label">Approve — unlimited, unknown</div>
+                    <div class="desc">UNLIMITED allowance to scammer contract. Drainer pattern.</div>
+                </button>
+                <button class="btn danger" data-test="approval-for-all-unknown">
+                    <div class="label">setApprovalForAll — unknown</div>
+                    <div class="desc">Full NFT custody to unverified operator.</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- ETH TRANSFERS -->
+        <div class="section">
+            <h2>Native ETH Transfers</h2>
+            <div class="grid">
+                <button class="btn safe" data-test="eth-safe">
+                    <div class="label">Send 0.1 ETH — verified</div>
+                    <div class="desc">Small ETH to Uniswap V2 Router (safe).</div>
+                </button>
+                <button class="btn warn" data-test="eth-unknown-small">
+                    <div class="label">Send 0.5 ETH — unknown</div>
+                    <div class="desc">Medium outflow to unknown recipient.</div>
+                </button>
+                <button class="btn danger" data-test="eth-unknown-large">
+                    <div class="label">Send 10 ETH — unknown</div>
+                    <div class="desc">Large outflow to unknown recipient. High risk.</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- SIGNATURES -->
+        <div class="section">
+            <h2>Off-chain Signatures</h2>
+            <div class="grid">
+                <button class="btn danger" data-test="permit-unlimited">
+                    <div class="label">Permit — unlimited (USDC)</div>
+                    <div class="desc">Off-chain signature granting UNLIMITED USDC spending.</div>
+                </button>
+                <button class="btn warn" data-test="permit-limited">
+                    <div class="label">Permit — limited (DAI)</div>
+                    <div class="desc">Limited Permit signature with deadline.</div>
+                </button>
+                <button class="btn info" data-test="personal-sign">
+                    <div class="label">personal_sign — login message</div>
+                    <div class="desc">Sign a typical "Welcome to dApp" message.</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- MULTICALL -->
+        <div class="section">
+            <h2>Multicall</h2>
+            <div class="grid">
+                <button class="btn info" data-test="multicall-safe">
+                    <div class="label">Multicall — 2 safe transfers</div>
+                    <div class="desc">Multicall3 with two ERC-20 transfers to known contracts.</div>
+                </button>
+                <button class="btn danger" data-test="multicall-drainer">
+                    <div class="label">Multicall — drainer pattern</div>
+                    <div class="desc">Multicall3 combining approve + transferFrom to drainer.</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- UNIVERSAL ROUTER -->
+        <div class="section">
+            <h2>Uniswap Universal Router</h2>
+            <div class="grid">
+                <button class="btn info" data-test="ur-wrap">
+                    <div class="label">UR: WRAP_ETH only</div>
+                    <div class="desc">Single command: wrap native ETH into WETH.</div>
+                </button>
+                <button class="btn warn" data-test="ur-swap">
+                    <div class="label">UR: WRAP_ETH + V3_SWAP</div>
+                    <div class="desc">Two-command swap: wrap then swap on V3 pool.</div>
+                </button>
+                <button class="btn danger" data-test="ur-permit2">
+                    <div class="label">UR: PERMIT2_TRANSFER_FROM</div>
+                    <div class="desc">Critical: pulls tokens via Permit2 allowance.</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- TYPOSQUATTING -->
+        <div class="section">
+            <h2>Typosquatting Detection</h2>
+            <div class="grid">
+                <button class="btn danger" data-test="typosquat-distance-2">
+                    <div class="label">unlsvvap.org (d=2)</div>
+                    <div class="desc">Typosquat of uniswap.org. Should show critical phishing banner.</div>
+                </button>
+                <button class="btn danger" data-test="typosquat-distance-1">
+                    <div class="label">unlswapp.org (d=1)</div>
+                    <div class="desc">Typosquat of uniswap.org with extra char. Should show critical banner.</div>
+                </button>
+                <button class="btn danger" data-test="typosquat-subdomain-attack">
+                    <div class="label">unlswap.org.evll.com</div>
+                    <div class="desc">Substring impersonation: trusted name as subdomain of attacker domain.</div>
+                </button>
+                <button class="btn good" data-test="typosquat-trusted-site">
+                    <div class="label">app.unlswap.org (trusted)</div>
+                    <div class="desc">Legit trusted site. Should show green "Trusted site" badge.</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- TOOLS -->
+        <div class="section">
+            <h2>Other Tools</h2>
+            <div class="grid">
+                <button class="btn info" data-test="phishing-test">
+                    <div class="label">Trigger phishing overlay</div>
+                    <div class="desc">Full-screen phishing warning (test event).</div>
+                </button>
+                <button class="btn info" data-test="check-bg">
+                    <div class="label">Check background connection</div>
+                    <div class="desc">Sends a message to background and logs the response.</div>
+                </button>
+                <button class="btn info" data-test="scan-vitalik">
+                    <div class="label">Scan vitalik.eth approvals</div>
+                    <div class="desc">Calls rescanApprovals for a known public address (0xd8dA...6045).</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            Each click dispatches a real <code>WalletGuardShowUI</code> event.
+            Open DevTools console to see logs.
+        </div>
+    </div>
+
+    <script src="test.js"></script>
+</body>
+</html>

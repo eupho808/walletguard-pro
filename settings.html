@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WalletGuard Pro — Settings</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a0c12 0%, #12151d 100%);
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .header .logo-dot {
+            width: 14px;
+            height: 14px;
+            background: #00ffcc;
+            border-radius: 50%;
+            box-shadow: 0 0 14px #00ffcc;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .header .version {
+            margin-left: auto;
+            font-size: 12px;
+            color: #646b7c;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+        }
+
+        /* SECTIONS */
+        .section {
+            background: rgba(21, 26, 38, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-desc {
+            font-size: 12px;
+            color: #8a92a3;
+            margin: 0 0 18px 0;
+            line-height: 1.5;
+        }
+
+        /* INPUTS */
+        .form-row {
+            margin-bottom: 14px;
+        }
+
+        .form-row label {
+            display: block;
+            font-size: 11px;
+            color: #646b7c;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        input[type="text"], input[type="password"], textarea {
+            flex: 1;
+            padding: 11px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+            border-color: #00ffcc;
+            background: rgba(0,0,0,0.4);
+        }
+
+        input[type="text"]::placeholder, input[type="password"]::placeholder, textarea::placeholder {
+            color: #4c5264;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: 'SF Mono', Menlo, monospace;
+            font-size: 12px;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 11px 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .btn-primary {
+            background: #00ffcc;
+            color: #0a0c12;
+            border-color: #00ffcc;
+        }
+
+        .btn-primary:hover {
+            background: #00e6b8;
+            border-color: #00e6b8;
+        }
+
+        .btn-danger {
+            background: rgba(255, 77, 77, 0.1);
+            color: #ff6b6b;
+            border-color: rgba(255, 77, 77, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 77, 77, 0.18);
+        }
+
+        /* LISTS */
+        .list {
+            margin-top: 14px;
+            max-height: 240px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .list-empty {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #4c5264;
+            font-style: italic;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 12px;
+            font-family: 'SF Mono', Menlo, monospace;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item .addr {
+            flex: 1;
+            word-break: break-all;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .list-item .remove {
+            background: transparent;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 6px;
+            transition: color 0.2s;
+        }
+
+        .list-item .remove:hover {
+            color: #ff3333;
+        }
+
+        /* TOGGLE */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .toggle-info {
+            flex: 1;
+        }
+
+        .toggle-info .title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .toggle-info .desc {
+            font-size: 11px;
+            color: #646b7c;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle.on {
+            background: #00ffcc;
+        }
+
+        .toggle.on::after {
+            transform: translateX(20px);
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #12151d;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-color: rgba(0, 255, 102, 0.3);
+            color: #00ff66;
+        }
+
+        .toast.error {
+            border-color: rgba(255, 77, 77, 0.3);
+            color: #ff6b6b;
+        }
+
+        /* INFO */
+        .info-box {
+            background: rgba(0, 255, 204, 0.05);
+            border: 1px solid rgba(0, 255, 204, 0.15);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.5;
+            margin-top: 12px;
+        }
+
+        .info-box a {
+            color: #00ffcc;
+            text-decoration: none;
+        }
+
+        .info-box a:hover {
+            text-decoration: underline;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 3px 8px;
+            background: rgba(0, 255, 102, 0.1);
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            color: #00ff66;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-left: 8px;
+        }
+
+        .status-pill.inactive {
+            background: rgba(255, 77, 77, 0.1);
+            border-color: rgba(255, 77, 77, 0.2);
+            color: #ff6b6b;
+        }
+
+        .chain-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .chain-chip {
+            padding: 4px 10px;
+            background: rgba(0, 255, 204, 0.06);
+            border: 1px solid rgba(0, 255, 204, 0.18);
+            color: #00ffcc;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="logo-dot"></div>
+            <h1>WalletGuard Pro</h1>
+            <span class="version" id="version-pill">v--</span>
+        </div>
+
+        <!-- PROTECTION TOGGLE -->
+        <div class="section">
+            <div class="section-title">Protection Status</div>
+            <p class="section-desc">Master switch for all WalletGuard security layers.</p>
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <div class="title">Active Protection <span class="status-pill" id="status-pill">ACTIVE</span></div>
+                    <div class="desc">When off, transactions are not intercepted or analyzed.</div>
+                </div>
+                <div class="toggle on" id="enabled-toggle"></div>
+            </div>
+        </div>
+
+        <!-- MULTI-CHAIN APPROVAL SCAN -->
+        <div class="section">
+            <div class="section-title">Multi-Chain Approval Scanner</div>
+            <p class="section-desc">
+                When enabled, the approval scanner checks all 6 supported networks in parallel
+                using public RPC endpoints (Ethereum, Optimism, Polygon, Base, Arbitrum, Sepolia).
+                No API key required.
+            </p>
+            <div class="toggle-row">
+                <div class="toggle-info">
+                    <div class="title">Scan All Chains <span class="status-pill" id="multichain-pill">OFF</span></div>
+                    <div class="desc">When off, only the wallet's currently-connected chain is scanned.</div>
+                </div>
+                <div class="toggle" id="multichain-toggle"></div>
+            </div>
+            <div class="chain-grid">
+                <span class="chain-chip">Ethereum</span>
+                <span class="chain-chip">Optimism</span>
+                <span class="chain-chip">Polygon</span>
+                <span class="chain-chip">Base</span>
+                <span class="chain-chip">Arbitrum</span>
+                <span class="chain-chip">Sepolia</span>
+            </div>
+        </div>
+
+        <!-- OPENROUTER API KEY -->
+        <div class="section">
+            <div class="section-title">AI Security Core</div>
+            <p class="section-desc">WalletGuard uses OpenRouter to perform heuristic checks on unknown addresses. Get a free API key at openrouter.ai.</p>
+            <div class="form-row">
+                <label for="api-key-input">OpenRouter API Key</label>
+                <div class="input-group">
+                    <input type="password" id="api-key-input" placeholder="sk-or-v1-..." autocomplete="off">
+                    <button class="btn" id="toggle-key-vis">Show</button>
+                </div>
+            </div>
+            <div class="row-actions">
+                <button class="btn btn-primary" id="save-api-btn">Save Key</button>
+                <button class="btn btn-danger" id="clear-api-btn">Clear</button>
+            </div>
+            <div class="info-box">
+                <strong>Privacy:</strong> The API key is stored locally in your browser via <code>chrome.storage.local</code>. It is only sent to OpenRouter when checking addresses. Without a key, only the local blacklist is used.
+            </div>
+        </div>
+
+        <!-- APPROVAL SCANNER -->
+        <div class="section">
+            <div class="section-title">Approval Scanner</div>
+            <p class="section-desc">Reads active token approvals on your wallet's currently-connected chain. No API key required - WalletGuard queries the same RPC node your wallet already uses (MetaMask, Rabby, etc.).</p>
+            <div class="info-box">
+                <strong>How it works:</strong> When you click <em>Rescan</em> in the popup, WalletGuard reads historical <code>Approval</code> events from your address via <code>eth_getLogs</code>, then queries the current allowance for each (token, spender) pair via <code>eth_call</code>. Zero-allowance entries are filtered out (revoked approvals). The scan covers whichever chain your wallet is currently on.
+            </div>
+        </div>
+
+        <!-- WHITELIST -->
+        <div class="section">
+            <div class="section-title">Trusted Contracts (Whitelist)</div>
+            <p class="section-desc">Addresses that you fully trust. WalletGuard will give them a higher trust score automatically.</p>
+            <div class="form-row">
+                <label for="whitelist-input">Add Address (0x... or domain.tld)</label>
+                <div class="input-group">
+                    <input type="text" id="whitelist-input" placeholder="0x...">
+                    <button class="btn btn-primary" id="add-whitelist-btn">Add</button>
+                </div>
+            </div>
+            <div class="list" id="whitelist-list">
+                <div class="list-empty">No trusted addresses yet.</div>
+            </div>
+        </div>
+
+        <!-- BLACKLIST -->
+        <div class="section">
+            <div class="section-title">Custom Blacklist</div>
+            <p class="section-desc">Addresses or domains that you know are malicious. These will be blocked instantly without an AI check.</p>
+            <div class="form-row">
+                <label for="blacklist-input">Add Address or Domain</label>
+                <div class="input-group">
+                    <input type="text" id="blacklist-input" placeholder="0x... or malicious-site.com">
+                    <button class="btn btn-primary" id="add-blacklist-btn">Add</button>
+                </div>
+            </div>
+            <div class="list" id="blacklist-list">
+                <div class="list-empty">No custom blacklist entries.</div>
+            </div>
+        </div>
+
+        <!-- DATA -->
+        <div class="section">
+            <div class="section-title">Local Data</div>
+            <p class="section-desc">Statistics, logs, and the AI cache live in your browser. You can wipe them at any time.</p>
+            <div class="row-actions">
+                <button class="btn btn-danger" id="reset-stats-btn">Reset Statistics</button>
+                <button class="btn btn-danger" id="clear-cache-btn">Clear AI Cache</button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="section" style="text-align: center; padding: 20px;">
+            <p style="margin: 0; font-size: 12px; color: #646b7c;">
+                WalletGuard Pro is an independent security layer. It never replaces your wallet, never holds your funds, and never has custody of your keys.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="settings.js"></script>
+</body>
+</html>

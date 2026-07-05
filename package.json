@@ -1,0 +1,16 @@
+{
+  "name": "walletguard-pro",
+  "version": "1.5.0",
+  "description": "Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, scans ERC-20/NFT approvals across 6 chains, detects phishing and typosquatted domains. Zero API keys required.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test-typosquat.js && node test-integration.js && node test-multichain.js && node test-nft.js",
+    "build": "node build.js",
+    "build:firefox": "node build-firefox.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

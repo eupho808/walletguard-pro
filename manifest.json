@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "WalletGuard Pro",
+  "version": "1.5.0",
+  "description": "Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, analyzes Permit signatures, scans active ERC-20 + NFT approvals across 6 chains via public RPCs (no API key required), detects typosquatted domains, and blocks phishing sites before they reach MetaMask.",
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://openrouter.ai/*",
+    "https://eth.llamarpc.com/*",
+    "https://optimism.llamarpc.com/*",
+    "https://polygon-rpc.com/*",
+    "https://mainnet.base.org/*",
+    "https://arb1.arbitrum.io/*",
+    "https://ethereum-sepolia-rpc.publicnode.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "WalletGuard Pro"
+  },
+  "options_ui": {
+    "page": "settings.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["injector.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "world": "ISOLATED",
+      "all_frames": true
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
