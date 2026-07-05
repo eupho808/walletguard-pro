@@ -2,7 +2,16 @@
 // Handles: persistent state, OpenRouter AI checks, statistics, message routing,
 // and periodic approval scans via Blockscout.
 
-try { importScripts("approval-scanner.js"); } catch (e) { /* will surface in scanner calls */ }
+// Diagnostic: confirm SW actually loaded (visible in chrome://extensions → service worker → inspect)
+console.log("[WalletGuard] background.js loaded, manifest version:", chrome.runtime.getManifest().version);
+
+// Load scanner module. Wrapped so SW can still register even if scanner fails to load.
+try {
+  importScripts("approval-scanner.js");
+  console.log("[WalletGuard] approval-scanner.js loaded");
+} catch (e) {
+  console.warn("[WalletGuard] approval-scanner.js failed to load:", e && e.message);
+}
 
 const STORAGE_KEYS = {
   API_KEY: "wg_apiKey",
@@ -85,40 +94,46 @@ async function setCachedAi(address, result) {
 
 // ---------- INIT ----------
 
-chrome.runtime.onInstalled.addListener(async (details) => {
-  if (details.reason === "install") {
-    await setStorage(STORAGE_KEYS.STATS, { ...DEFAULT_STATS });
-    await setStorage(STORAGE_KEYS.LOGS, []);
-    await setStorage(STORAGE_KEYS.WHITELIST, []);
-    await setStorage(STORAGE_KEYS.CUSTOM_BLACKLIST, []);
-    await setStorage(STORAGE_KEYS.ENABLED, true);
-    await appendLog("WalletGuard Pro installed. Open settings to add your OpenRouter API key.");
-  } else if (details.reason === "update") {
-    await appendLog(`WalletGuard Pro updated to ${chrome.runtime.getManifest().version}.`);
-  }
-  // Periodic approval rescan (every 6h) — survives MV3 SW sleep.
-  chrome.alarms.create(APPROVAL_SCAN_ALARM, { periodInMinutes: 360 });
-});
+try {
+  chrome.runtime.onInstalled.addListener(async (details) => {
+    if (details.reason === "install") {
+      await setStorage(STORAGE_KEYS.STATS, { ...DEFAULT_STATS });
+      await setStorage(STORAGE_KEYS.LOGS, []);
+      await setStorage(STORAGE_KEYS.WHITELIST, []);
+      await setStorage(STORAGE_KEYS.CUSTOM_BLACKLIST, []);
+      await setStorage(STORAGE_KEYS.ENABLED, true);
+      await appendLog("WalletGuard Pro installed. Open settings to add your OpenRouter API key.");
+    } else if (details.reason === "update") {
+      await appendLog(`WalletGuard Pro updated to ${chrome.runtime.getManifest().version}.`);
+    }
+    // Periodic approval rescan (every 6h) — survives MV3 SW sleep.
+    try { chrome.alarms.create(APPROVAL_SCAN_ALARM, { periodInMinutes: 360 }); } catch (e) { console.warn("[WalletGuard] alarm create failed:", e && e.message); }
+  });
+} catch (e) { console.error("[WalletGuard] onInstalled listener failed:", e && e.message); }
 
 // Service worker startup (MV3) - also reschedule alarm in case it was wiped.
-chrome.runtime.onStartup.addListener(() => {
-  chrome.alarms.create(APPROVAL_SCAN_ALARM, { periodInMinutes: 360 });
-});
+try {
+  chrome.runtime.onStartup.addListener(() => {
+    try { chrome.alarms.create(APPROVAL_SCAN_ALARM, { periodInMinutes: 360 }); } catch (e) { console.warn("[WalletGuard] alarm create failed:", e && e.message); }
+  });
+} catch (e) { console.error("[WalletGuard] onStartup listener failed:", e && e.message); }
 
 // Background alarm handler: silently refresh the approval scan if we know a wallet.
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name !== APPROVAL_SCAN_ALARM) return;
-  const wallet = await getStorage(STORAGE_KEYS.LAST_WALLET, "");
-  const cached = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
-  if (!wallet || !cached) return;
-  // Skip if cache is fresh.
-  if (Date.now() - new Date(cached.scannedAt).getTime() < APPROVAL_SCAN_TTL_MS) return;
-  try {
-    await runApprovalScan(wallet, /* force */ false);
-  } catch (e) {
-    // Silent - alarm handler should not throw.
-  }
-});
+try {
+  chrome.alarms.onAlarm.addListener(async (alarm) => {
+    if (alarm.name !== APPROVAL_SCAN_ALARM) return;
+    const wallet = await getStorage(STORAGE_KEYS.LAST_WALLET, "");
+    const cached = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
+    if (!wallet || !cached) return;
+    // Skip if cache is fresh.
+    if (Date.now() - new Date(cached.scannedAt).getTime() < APPROVAL_SCAN_TTL_MS) return;
+    try {
+      await runApprovalScan(wallet, /* force */ false);
+    } catch (e) {
+      // Silent - alarm handler should not throw.
+    }
+  });
+} catch (e) { console.error("[WalletGuard] onAlarm listener failed:", e && e.message); }
 
 // ---------- AI ADDRESS CHECK ----------
 
@@ -183,12 +198,14 @@ async function aiCheckAddress(address) {
 
 // ---------- MESSAGE ROUTER ----------
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  handleMessage(message, sender).then(sendResponse).catch((err) => {
-    sendResponse({ error: err.message });
+try {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    handleMessage(message, sender).then(sendResponse).catch((err) => {
+      sendResponse({ error: err.message });
+    });
+    return true; // keep channel open for async response
   });
-  return true; // keep channel open for async response
-});
+} catch (e) { console.error("[WalletGuard] onMessage listener failed:", e && e.message); }
 
 async function handleMessage(message, sender) {
   if (!message || typeof message.action !== "string") {
