@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [1.5.1] - 2026-07-05
 
 ### Added
 - **+3 chains**: BNB Chain (56), Avalanche C-Chain (43114), and Fantom Opera (250) added to the multi-chain approval scanner. Coverage expanded from 6 to 9 chains.
@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI: Settings chain chips updated from 6 to 9 entries (added BNB Chain, Fantom, Avalanche).
 - Docs: README, STORE_LISTING, popup-mock, landing page all updated to mention 9 chains and 184 tests.
 
-## [Unreleased — Tier 2]
+## [1.5.1 — Tier 2]
 
 ### Added
 - **Auto-revoke calldata generator**: `lib/revoke-generator.js` generates `approve(spender, 0)` (ERC-20) and `setApprovalForAll(operator, false)` (ERC-721 / ERC-1155) calldata for any risky approval. Functions: `buildERC20RevokeCalldata`, `buildNFT721RevokeCalldata`, `buildERC20RevokeTx`, `buildNFT721RevokeTx`, `buildRevokeTx` (auto-detect), `buildRevokeBatch`, `groupPlansByChain`.
@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased — Tier 3]
+## [1.5.1 — Tier 3]
 
 ### Added (i18n)
 - **`lib/i18n.js`** — custom lightweight i18n system (not Chrome's native `chrome.i18n`, which doesn't support runtime locale switching or placeholder interpolation). API: `initI18n()`, `saveLocale()`, `setLocale()` / `getLocale()`, `t(key, params)` with `{placeholder}` interpolation, `applyTranslations(root)` for DOM walking via `data-i18n` and `data-i18n-attr="attr:key"` attributes. Fallback chain: user override → browser locale → "en". Missing-key behaviour: falls back to English, then returns the key itself so gaps are visible during translation.
@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **`popup-bundle.js` syntax error** — `popupBundle()` in `build.js` emitted module IIFEs as bare statements (`constants: (function(){...})(),`) at the top level of the outer IIFE. JavaScript parses `identifier:` as a label, and a function expression call after a label is `SyntaxError: Unexpected token ':'`. Wrapped in `var mods = { ... }` and referenced `mods.<ns>` in the global assignment. Added `test-build.js` (20 assertions) as a regression guard: `node --check` on both bundles, all 10 modules present in `WG_POPUP_LIB`, structural markers, content.js doesn't pollute `WG_POPUP_LIB`.
+- **`manifest.json` missing `default_locale`** — Chrome MV3 refuses to load an extension with a `_locales/` directory unless `manifest.json` declares `default_locale`. The `_locales/en/messages.json` added above triggered this guard. Fixed by adding `"default_locale": "en"` to both `manifest.json` and `manifest.firefox.json`. Extended `test-build.js` with manifest validation (both files valid JSON, manifest_version 3, semver, default_locale present, `_locales/<locale>/` directory exists). Total: 465 → 478 tests passing.
 
 ---
 

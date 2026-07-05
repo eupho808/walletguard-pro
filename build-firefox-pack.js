@@ -2,7 +2,7 @@
 //
 // Run with:  node build-firefox-pack.js
 //
-// Produces:  walletguard-pro-firefox-v1.5.0.zip in the project root,
+// Produces:  walletguard-pro-firefox-v1.5.1.zip in the project root,
 //            ready to upload at https://addons.mozilla.org/developers/addon/submit/
 //
 // What it does:
@@ -27,11 +27,11 @@ const __dirname = path.dirname(__filename);
 
 const ROOT = __dirname;
 const STAGING = path.join(ROOT, "dist-firefox");
-const ZIP_PATH = path.join(ROOT, `walletguard-pro-firefox-v1.5.0.zip`);
+const ZIP_PATH = path.join(ROOT, `walletguard-pro-firefox-v1.5.1.zip`);
 const FIREFOX_MANIFEST = path.join(ROOT, "manifest.firefox.json");
 
 const EXCLUDE_DIRS  = [".git", "node_modules", ".github", "dist-firefox", "screenshots/reference"];
-const EXCLUDE_FILES = ["screenshots/popup-mock.html", "walletguard-pro-v1.5.0.zip", "walletguard-pro-firefox-v1.5.0.zip"];
+const EXCLUDE_FILES = ["screenshots/popup-mock.html", "walletguard-pro-v1.5.1.zip", "walletguard-pro-firefox-v1.5.1.zip"];
 
 function rimraf(p) {
   if (!fs.existsSync(p)) return;

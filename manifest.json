@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "en",
   "name": "WalletGuard Pro",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, analyzes Permit signatures, scans active ERC-20 + NFT approvals across 9 chains via public RPCs (no API key required), detects typosquatted domains, and blocks phishing sites before they reach MetaMask.",
   "permissions": [
     "storage",

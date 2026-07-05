@@ -269,14 +269,14 @@ free to maximize adoption.)
 
 ## 5. Pre-submission checklist
 
-- [ ] All 184 tests pass: `node test-typosquat.js && node test-integration.js && node test-multichain.js && node test-nft.js`
-- [ ] `node build.js` produces a clean bundle
+- [ ] All 478 tests pass: `npm test`
+- [ ] `npm run build` produces a clean bundle
 - [ ] Icons exist at `icons/icon16.png`, `icons/icon48.png`, `icons/icon128.png`
 - [ ] `PRIVACY.md` is hosted on a publicly accessible URL (GitHub Pages, raw GitHub, or your site)
 - [ ] Screenshots captured at 1280×800 (or 640×400)
 - [ ] Promo tile 440×280 created
 - [ ] No "test" or "TODO" comments in the bundled `content.js`
-- [ ] `manifest.json` version matches `README.md` badge (currently 1.5.0)
+- [ ] `manifest.json` version matches `README.md` badge (currently 1.5.1)
 - [ ] GitHub repo is public with LICENSE, README, PRIVACY
 
 ---
