@@ -123,7 +123,7 @@ Every test runs in plain Node — no Chrome required. The scanner module is load
 
 ## Security
 
-[Threat Model](./THREAT_MODEL.md) — what we protect against, what we don't, and our trust assumptions. Read this before assuming the extension is a silver bullet — it isn't, but it covers the >90% of Web3 drain patterns that show up in the wild. [Security Policy](./SECURITY.md) covers responsible disclosure.
+[Threat Model](./THREAT_MODEL.md) — what we protect against, what we don't, and our trust assumptions. Read this before assuming the extension is a silver bullet — it isn't, but it covers the >90% of Web3 drain patterns that show up in the wild. [Security Policy](./SECURITY.md) covers responsible disclosure. [Self-Audit](./SELF_AUDIT.md) lists every bug found during the v1.5.x security review with severity, fix, and regression test.
 
 ---
 

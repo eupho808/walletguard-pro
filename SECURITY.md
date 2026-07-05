@@ -80,3 +80,13 @@ We do NOT assume:
 - The MAIN-world RPC bridge accepts only methods in the `READ_ONLY_METHODS` whitelist in `injector.js`. Adding a new method there requires a security review.
 - `chrome.storage.local` is sandboxed per-extension. We never use `localStorage`, `sessionStorage`, or cookies.
 - The optional OpenRouter integration is **off by default** and only sends the contract address you explicitly choose to check — never your wallet, transaction, or any other data.
+
+---
+
+## Internal review
+
+For our own security review of v1.5.x — methodology, findings by
+severity (Critical / High / Medium / Low / Info), fixes applied,
+regression tests, residual risks, and recommendations for v1.6.0 —
+see [`SELF_AUDIT.md`](./SELF_AUDIT.md). This is a **self-audit**;
+a third-party audit is on the roadmap but not yet commissioned.
