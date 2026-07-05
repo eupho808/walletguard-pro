@@ -301,3 +301,41 @@ PRs welcome. Please open an issue first for non-trivial changes. The test suite 
 - [ ] Optional, paid: custom domain `walletguard.pro` (~$12/yr) → point DNS to GitHub Pages
 - [ ] Optional, paid: marketing on Twitter/Reddit/HN/Product Hunt (free posting, paid if boosting)
 
+---
+
+### 2026-07-05 — Tier 1 value-add (post-launch prep)
+
+**Goal:** Ship the Tier-1 free value-adds before CWS submit so the listing
+isn't a bare-bones "another wallet security extension" page.
+
+**Step 11 — +3 chains (BNB, Avalanche, Fantom)**
+
+- `approval-scanner.js` — added chainId hex entries for 0x38 (BNB), 0xfa (Fantom), 0xa86a (Avalanche) to `CHAIN_NAMES`; added public RPC URLs to `MULTICHAIN_RPCS` (`bsc-dataseed.bnbchain.org`, `fantom.publicnode.com`, `api.avax.network/ext/bc/C/rpc`); added per-chain lookback caps to `CHAIN_LOOKBACK` (BSC 3M ≈ 1y, Avalanche 5M ≈ 4mo, Fantom 5M ≈ 3mo)
+- `manifest.json` + `manifest.firefox.json` — `host_permissions` extended with the 3 new RPC endpoints
+- `test-multichain.js` — 8 new assertions (per-chain RPC + lookback + `CHAIN_INFO` reverse lookup); updated 5 existing assertions from "6 chains" → "9 chains" (Scenario A: chainsScanned 6→9, Scenario B: 5→8, Object.keys checks 6→9)
+- `settings.html` — 3 new `<span class="chain-chip">` entries (BNB Chain, Fantom, Avalanche); description updated "all 6 supported networks" → "all 9"
+- `settings.js` — toast text "all 6 chains" → "all 9 chains"
+- `background.js` — comment "all 6 chains" → "all 9 chains"
+- `popup.html` — empty-state text "scanned across 6 chains" → "9 chains"
+- `package.json` + `manifest.json` + `manifest.firefox.json` — description "across 6 chains" → "across 9 chains"
+- `screenshots/popup-mock.html` — "six chains" → "nine chains"; chain list updated
+- Docs (README, STORE_LISTING) — chains list updated to include BNB/Fantom/Avalanche; test count 176 → 184; STORE_LISTING privacy tab RPC list updated
+- Tests: **184 passed, 0 failed** (52 + 16 + 55 + 61 — +8 new in test-multichain.js)
+- Commit: `bd32b42`
+
+**Step 12 — THREAT_MODEL.md**
+
+- New file `THREAT_MODEL.md` (220 lines) documenting what we protect against, what we don't, trust assumptions, known limitations, adversary model, and a 7-point "what you should still do" checklist
+- Sections: TL;DR / In scope / Out of scope / Trust assumptions table / Known technical limitations / Adversary model / What you should still do / Reporting
+- Linked from `README.md` (new `## Security` section), `SECURITY.md` (cross-ref in Security Model section), `PROJECT_STATE.md` (Goal section)
+- Commit: `10b2df2`
+
+**Step 13 — Comparison table on landing page**
+
+- `site/index.html` — new `<section class="compare" id="compare">` between Features and Footer (~95 lines): 11-row matrix comparing WalletGuard Pro vs Pocket Universe, Stelo, and Fire; nav link "Compare" added to both desktop and mobile menus; footer links extended with "Threat Model" + "Security"
+- `site/style.css` — new section 13b COMPARE TABLE (~165 lines): accent-highlighted WalletGuard Pro column with gradient bottom border, custom ✅ / ⚠️ / ❌ markers via inline SVG, responsive overflow scroll with `min-width: 720px`, brand-subtitle styling, mobile media query @ ≤768px
+- Honest comparison: Stelo and Fire marked as "shut down" / "discontinued"; Pocket Universe marked as "via MetaMask (MySim)" post-acquisition
+- Commit: `73e11ae`
+
+**Tier 1 status: 3/3 done.** Working tree clean, all 184 tests pass, build clean (81834 bytes). Ready for CWS submit + Tier 2 (auto-revoke + self-audit + typosquat list expansion) or any other direction.
+
