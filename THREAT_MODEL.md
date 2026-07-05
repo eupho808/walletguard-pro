@@ -25,7 +25,7 @@ hardware key, or your judgment — it augments them.
 - **Known-drainer domain list** — full-screen red overlay blocks the
   page before you can sign anything.
 - **Typosquatted domains** — Levenshtein distance + eTLD+1 + IDN
-  (Cyrillic/Latin homoglyph) checks against 17 trusted protocols
+  (Cyrillic/Latin homoglyph) checks against 47 trusted protocols
   (Uniswap, OpenSea, MetaMask, Rabby, Aave, Curve, etc.).
 - **Subdomain impersonation** — `uniswap.org.evil.com` flagged
   even though it contains "uniswap".

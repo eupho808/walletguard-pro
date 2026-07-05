@@ -45,7 +45,7 @@ Weighted scoring with explicit factors. Every transaction shows you **why** it's
 
 ### Phishing & typosquatting defense
 - **Phishing overlay** on known-drainer domains and custom blacklist hits
-- **Typosquatting detection** via Levenshtein distance + substring + IDN/homoglyph checks against 17 trusted protocols (Uniswap, OpenSea, MetaMask, Rabby, etc.)
+- **Typosquatting detection** via Levenshtein distance + substring + IDN/homoglyph checks against 47 trusted protocols (Uniswap, OpenSea, MetaMask, Rabby, Lido, Blur, GMX, ENS, Aave, Curve, Balancer, …)
 - **Compound banner** in the transaction overlay when you're on a `unisvvap.org`-style lookalike
 
 ### Universal — no API keys, no accounts

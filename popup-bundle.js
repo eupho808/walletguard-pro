@@ -11,17 +11,52 @@
   constants: (function() {
 // lib/constants.js - Shared constants used across modules.
 
-// Known trusted domains (lowercased, no leading www.)
+// Known trusted domains (lowercased, no leading www.).
+//
+// The list is intentionally curated rather than exhaustive: each entry
+// must be a stable, well-known Web3 entrypoint that users actually
+// visit. False positives (flagging a legitimate new protocol as a
+// typosquat of "uniswap.org") erode trust in the feature, so we
+// keep the list conservative. To add a domain:
+//   1. Verify it's a public-good protocol (not a random DeFi clone).
+//   2. Add the registrable domain (e.g. `uniswap.org`, not `app.uniswap.org`).
+//   3. Bump the count in README.md + CHANGELOG.md + THREAT_MODEL.md.
+//   4. Add a regression test in test-typosquat.js that the new entry is
+//      correctly classified as `trusted`.
 const TRUSTED_DOMAINS = [
+  // ---- DEX & AMM (existing) ----
   "uniswap.org", "app.uniswap.org",
   "pancakeswap.finance",
+  "curve.fi", "balancer.fi", "sushi.com",
+  "1inch.io", "matcha.xyz", "cow.fi",
+
+  // ---- Lending & yield (existing + new) ----
+  "aave.com", "compound.finance",
+  "lido.fi", "rocketpool.net",
+  "makerdao.com", "spark.fi",
+  "morpho.org", "convex.fi", "yearn.fi",
+  "beefy.com", "frax.finance", "pendle.finance",
+
+  // ---- NFTs ----
   "opensea.io", "looksrare.org",
-  "metamask.io", "rabby.io",
-  "etherscan.io",
-  "1inch.io", "matcha.xyz",
-  "cow.fi", "zerion.io",
-  "curve.fi", "aave.com", "compound.finance",
-  "balancer.fi", "sushi.com"
+  "blur.io", "magiceden.io",
+  "foundation.app", "zora.co", "sudoswap.xyz",
+
+  // ---- Cross-chain bridges & messaging ----
+  "stargate.finance", "across.to", "hop.exchange",
+  "layerzero.network", "wormhole.com",
+
+  // ---- Wallets ----
+  "metamask.io", "rabby.io", "frame.xyz", "rainbow.me", "zerion.io",
+
+  // ---- Explorers ----
+  "etherscan.io", "polygonscan.com", "arbiscan.io",
+
+  // ---- Perpetuals / derivatives ----
+  "gmx.io", "dydx.exchange", "hyperliquid.xyz",
+
+  // ---- Identity & social ----
+  "ens.domains", "mirror.xyz", "lens.xyz"
 ];
 
 // Hardcoded seed blacklist of known drainers / phishers.

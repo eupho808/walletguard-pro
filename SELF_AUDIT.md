@@ -332,7 +332,7 @@ These are accepted limitations — documented, not bugs:
 4. **No RPC simulation.** Asset Diff Engine is heuristic, not
    `tenderly.co`-backed.
 5. **3-address seed blacklist.** Tiny on purpose. Users can extend.
-6. **17-domain typosquat dictionary.** New legitimate protocols can
+6. **47-domain typosquat dictionary.** New legitimate protocols can
    cause false positives until whitelisted.
 7. **Extension updates are not auto-installed.** Chrome may delay
    updates; a brand-new drainer domain isn't caught until the user

@@ -34,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `popup.css` adds revoke button (red-tinted) + modal styles (panel, details/summary tx data, accent footer).
 - README "Security" section now cross-references `SELF_AUDIT.md` alongside `THREAT_MODEL.md` and `SECURITY.md`.
 
+### Added (Tier 2.3)
+- **`TRUSTED_DOMAINS` expanded from 17 to 47 entries.** Coverage now spans DeFi (Lido, Rocket Pool, MakerDAO, Spark, Morpho, Convex, Yearn, Beefy, Frax, Pendle), NFTs (Blur, Magic Eden, Foundation, Zora, Sudoswap), bridges & cross-chain messaging (Stargate, Across, Hop, LayerZero, Wormhole), wallets (Frame, Rainbow), explorers (Polygonscan, Arbiscan), perpetuals (GMX, dYdX, Hyperliquid), and identity / social (ENS, Mirror, Lens).
+- 51 new typosquat tests in `test-typosquat.js` covering trusted detection for all new entries (incl. subdomain propagation + case-insensitivity), distance-1 typosquats of short new domains, distance-1/2 typosquats of longer ones, and substring / subdomain attacks on new targets. Total now 311 across 5 suites (52 → 103 in typosquat).
+- `lib/constants.js` re-organised into 8 categories with header comments and a "How to add a domain" guide.
+- Docs updated: README "Typosquatting" line, THREAT_MODEL "In scope" line, SELF_AUDIT residual-risk note all bumped from "17" to "47".
+
 ---
 
 ## [1.5.0] - 2026-07-05
@@ -41,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Approval Scanner v1.5.0: NFT collection approvals across 6 chains (`isApprovedForAll` + `getApproved` per collection)
 - Multi-chain approval scanner: parallel scanning across Ethereum, Optimism, Polygon, Base, Arbitrum, Sepolia
-- Typosquatting detection via Levenshtein distance + eTLD+1 + IDN/homoglyph checks (17 trusted protocols)
+- Typosquatting detection via Levenshtein distance + eTLD+1 + IDN/homoglyph checks (47 trusted protocols)
 - Compound risk rules: unlimited approval + unknown contract = CRITICAL combo (-25)
 - Phishing overlay on known-drainer domains + custom blacklist
 - Asset Diff Engine: estimated token balance changes per transaction
