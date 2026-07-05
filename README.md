@@ -109,8 +109,12 @@ node test-typosquat.js     # 52 tests — Levenshtein + typosquatting detection
 node test-integration.js   # 16 tests — risk-engine + typosquatting end-to-end
 node test-multichain.js    # 47 tests — multi-chain aggregation, RPC adapters
 node test-nft.js           # 61 tests — NFT approval scanning + risk classification
-                           # ─────
-                           # 184 tests total
+node test-revoke.js         # 76 tests — revoke calldata generation
+node test-build.js          # 33 tests — bundle integrity + manifest validation
+node test-i18n.js           # 54 tests — locale normalization, fallback, interpolation
+node test-onboarding.js     # 80 tests — 4-step overlay + ARIA + storage
+                            # ─────
+                            # 478 tests total
 ```
 
 Every test runs in plain Node — no Chrome required. The scanner module is loaded via `vm.runInContext()` with mocked `chrome.*` and `fetch()` APIs.

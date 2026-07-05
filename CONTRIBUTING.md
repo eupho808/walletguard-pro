@@ -13,7 +13,7 @@ If you change behaviour in `lib/`, add or update a test in the matching `test-*.
 ```bash
 git clone https://github.com/eupho808/walletguard-pro.git
 cd walletguard-pro
-npm test                # runs all 184 tests across 4 suites
+npm test                # runs all 478 tests across 8 suites
 node build.js           # regenerates content.js from lib/*
 ```
 
@@ -45,7 +45,7 @@ lib/                    Source modules — bundled into content.js by build.js
   risk-engine.js        Weighted risk scoring + factor explanations
   capabilities.js       Human-readable capability descriptions
   simulator.js          Asset Diff Engine (estimated balance changes)
-test-*.js               Node-only smoke tests (184 total across 4 files)
+test-*.js               Node-only smoke tests (478 total across 8 files)
 ```
 
 ---

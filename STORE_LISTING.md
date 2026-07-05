@@ -93,7 +93,7 @@ KEY FEATURES
 • Typosquatting detection via Levenshtein + homoglyph checks
 • Phishing overlay on known-drainer domains
 • Multicall V1/V2/V3 + Universal Router command decoding
-• 184 automated tests, MIT licensed, open source
+• 478 automated tests, MIT licensed, open source
 
 ────────────────────────────────────────────────────────────
 PRIVACY
@@ -110,7 +110,7 @@ Full privacy policy: [GitHub link]
 OPEN SOURCE
 ────────────────────────────────────────────────────────────
 
-MIT licensed. 184 tests passing. Contributions welcome.
+MIT licensed. 478 tests passing. Contributions welcome.
 [GitHub link]
 ```
 
