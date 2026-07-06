@@ -77,14 +77,15 @@
   function applyEnabledUI(enabled) {
     const toggle = document.getElementById("enabled-toggle");
     const pill = document.getElementById("status-pill");
+    if (!toggle) return;
     if (enabled) {
-      toggle.classList.add("on");
+      toggle.setAttribute("aria-checked", "true");
       pill.textContent = t("popup.header.active");
-      pill.classList.remove("inactive");
+      pill.classList.remove("wg-pill--off");
     } else {
-      toggle.classList.remove("on");
+      toggle.setAttribute("aria-checked", "false");
       pill.textContent = t("popup.header.paused");
-      pill.classList.add("inactive");
+      pill.classList.add("wg-pill--off");
     }
   }
 
@@ -93,13 +94,13 @@
     const pill = document.getElementById("multichain-pill");
     if (!toggle || !pill) return;
     if (on) {
-      toggle.classList.add("on");
+      toggle.setAttribute("aria-checked", "true");
       pill.textContent = t("settings.toggle.on");
-      pill.classList.remove("inactive");
+      pill.classList.remove("wg-pill--off");
     } else {
-      toggle.classList.remove("on");
+      toggle.setAttribute("aria-checked", "false");
       pill.textContent = t("settings.toggle.off");
-      pill.classList.add("inactive");
+      pill.classList.add("wg-pill--off");
     }
   }
 
@@ -107,18 +108,18 @@
     const container = document.getElementById(elementId);
     const emptyKey = listType === "whitelist" ? "settings.list.whitelistEmpty" : "settings.list.blacklistEmpty";
     if (!items || items.length === 0) {
-      container.innerHTML = `<div class="list-empty">${escapeHtml(t(emptyKey))}</div>`;
+      container.innerHTML = `<div class="wg-list-empty">${escapeHtml(t(emptyKey))}</div>`;
       return;
     }
 
     container.innerHTML = items.map((item, idx) => `
-      <div class="list-item">
-        <span class="addr">${escapeHtml(item)}</span>
-        <button class="remove" data-type="${listType}" data-index="${idx}" title="${escapeHtml(t("settings.list.remove"))}">&times;</button>
+      <div class="wg-list-item" style="animation-delay:${Math.min(idx * 30, 240)}ms">
+        <span class="wg-list-item__addr">${escapeHtml(item)}</span>
+        <button class="wg-list-item__remove" data-type="${listType}" data-index="${idx}" title="${escapeHtml(t("settings.list.remove"))}" aria-label="${escapeHtml(t("settings.list.remove"))}">\u00d7</button>
       </div>
     `).join("");
 
-    container.querySelectorAll(".remove").forEach((btn) => {
+    container.querySelectorAll(".wg-list-item__remove").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const type = btn.dataset.type;
         const index = parseInt(btn.dataset.index, 10);
@@ -162,7 +163,7 @@
     // ---- Protection toggle ----
     document.getElementById("enabled-toggle").addEventListener("click", async () => {
       const toggle = document.getElementById("enabled-toggle");
-      const newState = !toggle.classList.contains("on");
+      const newState = toggle.getAttribute("aria-checked") !== "true";
       const res = await sendMessage({ action: "setEnabled", enabled: newState });
       if (res && !res.error) {
         applyEnabledUI(res.enabled);
@@ -173,7 +174,7 @@
     // ---- Multi-chain toggle ----
     document.getElementById("multichain-toggle").addEventListener("click", async () => {
       const toggle = document.getElementById("multichain-toggle");
-      const newState = !toggle.classList.contains("on");
+      const newState = toggle.getAttribute("aria-checked") !== "true";
       const res = await sendMessage({ action: "setMultiChain", enabled: newState });
       if (res && !res.error) {
         applyMultiChainUI(res.multiChain);

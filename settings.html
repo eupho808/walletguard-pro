@@ -4,543 +4,230 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="settings.title">WalletGuard Pro &mdash; Settings</title>
-    <style>
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #0a0c12 0%, #12151d 100%);
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 40px 24px;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 32px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .header .logo-dot {
-            width: 14px;
-            height: 14px;
-            background: #00ffcc;
-            border-radius: 50%;
-            box-shadow: 0 0 14px #00ffcc;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .header .version {
-            margin-left: auto;
-            font-size: 12px;
-            color: #646b7c;
-            padding: 4px 10px;
-            background: rgba(255,255,255,0.04);
-            border-radius: 12px;
-        }
-
-        .section {
-            background: rgba(21, 26, 38, 0.6);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #fff;
-            margin: 0 0 4px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .section-desc {
-            font-size: 12px;
-            color: #8a92a3;
-            margin: 0 0 18px 0;
-            line-height: 1.5;
-        }
-
-        .form-row {
-            margin-bottom: 14px;
-        }
-
-        .form-row label {
-            display: block;
-            font-size: 11px;
-            color: #646b7c;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        input[type="text"], input[type="password"], textarea, select {
-            flex: 1;
-            padding: 11px 14px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 13px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.2s, background 0.2s;
-        }
-
-        select {
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='%2300ffcc'%3e%3cpath d='M3 5l3 3 3-3'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 36px;
-            cursor: pointer;
-        }
-
-        input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
-            border-color: #00ffcc;
-            background: rgba(0,0,0,0.4);
-        }
-
-        input[type="text"]::placeholder, input[type="password"]::placeholder, textarea::placeholder {
-            color: #4c5264;
-        }
-
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-            font-family: 'SF Mono', Menlo, monospace;
-            font-size: 12px;
-        }
-
-        .btn {
-            padding: 11px 18px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .btn:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.15);
-        }
-
-        .btn-primary {
-            background: #00ffcc;
-            color: #0a0c12;
-            border-color: #00ffcc;
-        }
-
-        .btn-primary:hover {
-            background: #00e6b8;
-            border-color: #00e6b8;
-        }
-
-        .btn-danger {
-            background: rgba(255, 77, 77, 0.1);
-            color: #ff6b6b;
-            border-color: rgba(255, 77, 77, 0.3);
-        }
-
-        .btn-danger:hover {
-            background: rgba(255, 77, 77, 0.18);
-        }
-
-        .list {
-            margin-top: 14px;
-            max-height: 240px;
-            overflow-y: auto;
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .list-empty {
-            padding: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #4c5264;
-            font-style: italic;
-        }
-
-        .list-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 12px;
-            font-family: 'SF Mono', Menlo, monospace;
-        }
-
-        .list-item:last-child {
-            border-bottom: none;
-        }
-
-        .list-item .addr {
-            flex: 1;
-            word-break: break-all;
-            color: rgba(255,255,255,0.85);
-        }
-
-        .list-item .remove {
-            background: transparent;
-            border: none;
-            color: #ff6b6b;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 0 6px;
-            transition: color 0.2s;
-        }
-
-        .list-item .remove:hover {
-            color: #ff3333;
-        }
-
-        .toggle-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 4px 0;
-        }
-
-        .toggle-info {
-            flex: 1;
-        }
-
-        .toggle-info .title {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .toggle-info .desc {
-            font-size: 11px;
-            color: #646b7c;
-        }
-
-        .toggle {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-            flex-shrink: 0;
-        }
-
-        .toggle::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 20px;
-            height: 20px;
-            background: #fff;
-            border-radius: 50%;
-            transition: transform 0.2s;
-        }
-
-        .toggle.on {
-            background: #00ffcc;
-        }
-
-        .toggle.on::after {
-            transform: translateX(20px);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #12151d;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            padding: 12px 18px;
-            font-size: 13px;
-            font-weight: 600;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .toast.success {
-            border-color: rgba(0, 255, 102, 0.3);
-            color: #00ff66;
-        }
-
-        .toast.error {
-            border-color: rgba(255, 77, 77, 0.3);
-            color: #ff6b6b;
-        }
-
-        .info-box {
-            background: rgba(0, 255, 204, 0.05);
-            border: 1px solid rgba(0, 255, 204, 0.15);
-            border-radius: 10px;
-            padding: 12px 14px;
-            font-size: 12px;
-            color: rgba(255,255,255,0.8);
-            line-height: 1.5;
-            margin-top: 12px;
-        }
-
-        .info-box a {
-            color: #00ffcc;
-            text-decoration: none;
-        }
-
-        .info-box a:hover {
-            text-decoration: underline;
-        }
-
-        .info-box code {
-            background: rgba(0,0,0,0.3);
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-family: 'SF Mono', Menlo, monospace;
-            font-size: 11px;
-        }
-
-        .status-pill {
-            display: inline-block;
-            padding: 3px 8px;
-            background: rgba(0, 255, 102, 0.1);
-            border: 1px solid rgba(0, 255, 102, 0.2);
-            color: #00ff66;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin-left: 8px;
-        }
-
-        .status-pill.inactive {
-            background: rgba(255, 77, 77, 0.1);
-            border-color: rgba(255, 77, 77, 0.2);
-            color: #ff6b6b;
-        }
-
-        .chain-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .chain-chip {
-            padding: 4px 10px;
-            background: rgba(0, 255, 204, 0.06);
-            border: 1px solid rgba(0, 255, 204, 0.18);
-            color: #00ffcc;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        .row-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 14px;
-            flex-wrap: wrap;
-        }
-    </style>
+    <link rel="stylesheet" href="settings.css">
 </head>
-<body>
-    <div class="container">
+<body class="wg-theme-dark">
+
+    <!-- Decorative background -->
+    <div class="wg-bg-decoration" aria-hidden="true">
+        <div class="wg-bg-blob wg-bg-blob--cyan"></div>
+        <div class="wg-bg-blob wg-bg-blob--blue"></div>
+    </div>
+
+    <div class="wg-settings">
 
         <!-- HEADER -->
-        <div class="header">
-            <div class="logo-dot"></div>
-            <h1>WalletGuard Pro</h1>
-            <span class="version" id="version-pill">v--</span>
-        </div>
+        <header class="wg-settings-header">
+            <div class="wg-settings-header__brand">
+                <span class="wg-status-dot" aria-hidden="true"></span>
+                <h1 class="wg-settings-header__title">WalletGuard <span class="wg-settings-header__accent">Pro</span></h1>
+            </div>
+            <span class="wg-version-pill" id="version-pill">v--</span>
+        </header>
 
         <!-- APPEARANCE & LANGUAGE -->
-        <div class="section">
-            <div class="section-title" data-i18n="settings.section.appearance">Appearance &amp; Language</div>
-            <p class="section-desc" data-i18n="settings.section.appearance.desc">
-                Choose your language. WalletGuard Pro will use it for the popup, settings, and onboarding tour.
-            </p>
-            <div class="form-row">
+        <section class="wg-card wg-settings-section">
+            <div class="wg-settings-section__header">
+                <div class="wg-settings-section__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14.7 14.7 0 010 18M12 3a14.7 14.7 0 000 18"/></svg>
+                </div>
+                <div>
+                    <div class="wg-settings-section__title" data-i18n="settings.section.appearance">Appearance &amp; Language</div>
+                    <div class="wg-settings-section__desc" data-i18n="settings.section.appearance.desc">
+                        Choose your language. WalletGuard Pro will use it for the popup, settings, and onboarding tour.
+                    </div>
+                </div>
+            </div>
+            <div class="wg-form-row">
                 <label for="locale-select" data-i18n="common.language">Language</label>
-                <select id="locale-select"></select>
+                <select id="locale-select" class="wg-select"></select>
             </div>
-            <div class="row-actions">
-                <button class="btn" id="replay-onboarding-btn" data-i18n="settings.onboarding.replay">Replay onboarding tour</button>
+            <div class="wg-row-actions">
+                <button class="wg-btn wg-btn--ghost wg-btn--sm" id="replay-onboarding-btn" data-i18n="settings.onboarding.replay">Replay onboarding tour</button>
             </div>
-        </div>
+        </section>
 
         <!-- PROTECTION TOGGLE -->
-        <div class="section">
-            <div class="section-title" data-i18n="settings.section.protection">Protection Status</div>
-            <p class="section-desc" data-i18n="settings.section.protection.desc">Master switch for all WalletGuard security layers.</p>
-            <div class="toggle-row">
-                <div class="toggle-info">
-                    <div class="title"><span data-i18n="settings.toggle.protection">Active Protection</span> <span class="status-pill" id="status-pill" data-i18n="popup.header.active">ACTIVE</span></div>
-                    <div class="desc" data-i18n="settings.toggle.protection.desc">When off, transactions are not intercepted or analyzed.</div>
+        <section class="wg-card wg-settings-section">
+            <div class="wg-settings-section__header">
+                <div class="wg-settings-section__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
                 </div>
-                <div class="toggle on" id="enabled-toggle"></div>
+                <div>
+                    <div class="wg-settings-section__title" data-i18n="settings.section.protection">Protection Status</div>
+                    <div class="wg-settings-section__desc" data-i18n="settings.section.protection.desc">Master switch for all WalletGuard security layers.</div>
+                </div>
             </div>
-        </div>
+            <div class="wg-toggle-row">
+                <div class="wg-toggle-info">
+                    <div class="wg-toggle-info__title">
+                        <span data-i18n="settings.toggle.protection">Active Protection</span>
+                        <span class="wg-pill" id="status-pill" data-i18n="popup.header.active">ACTIVE</span>
+                    </div>
+                    <div class="wg-toggle-info__desc" data-i18n="settings.toggle.protection.desc">When off, transactions are not intercepted or analyzed.</div>
+                </div>
+                <button class="wg-toggle" id="enabled-toggle" role="switch" aria-checked="false"></button>
+            </div>
+        </section>
 
         <!-- MULTI-CHAIN APPROVAL SCAN -->
-        <div class="section">
-            <div class="section-title" data-i18n="settings.section.multichain">Multi-Chain Approval Scanner</div>
-            <p class="section-desc" data-i18n="settings.section.multichain.desc">
-                When enabled, the approval scanner checks all 9 supported networks in parallel
-                using public RPC endpoints.
-            </p>
-            <div class="toggle-row">
-                <div class="toggle-info">
-                    <div class="title"><span data-i18n="settings.toggle.multichain">Scan All Chains</span> <span class="status-pill" id="multichain-pill" data-i18n="settings.toggle.off">OFF</span></div>
-                    <div class="desc" data-i18n="settings.toggle.multichain.desc">When off, only the wallet's currently-connected chain is scanned.</div>
+        <section class="wg-card wg-settings-section">
+            <div class="wg-settings-section__header">
+                <div class="wg-settings-section__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9c2.5 0 4.7 1 6.4 2.6L21 8"/><path d="M21 3v5h-5"/></svg>
                 </div>
-                <div class="toggle" id="multichain-toggle"></div>
+                <div>
+                    <div class="wg-settings-section__title" data-i18n="settings.section.multichain">Multi-Chain Approval Scanner</div>
+                    <div class="wg-settings-section__desc" data-i18n="settings.section.multichain.desc">
+                        When enabled, the approval scanner checks all 9 supported networks in parallel using public RPC endpoints.
+                    </div>
+                </div>
             </div>
-            <div class="chain-grid">
-                <span class="chain-chip">Ethereum</span>
-                <span class="chain-chip">Optimism</span>
-                <span class="chain-chip">BNB Chain</span>
-                <span class="chain-chip">Polygon</span>
-                <span class="chain-chip">Fantom</span>
-                <span class="chain-chip">Base</span>
-                <span class="chain-chip">Arbitrum</span>
-                <span class="chain-chip">Avalanche</span>
-                <span class="chain-chip">Sepolia</span>
+            <div class="wg-toggle-row">
+                <div class="wg-toggle-info">
+                    <div class="wg-toggle-info__title">
+                        <span data-i18n="settings.toggle.multichain">Scan All Chains</span>
+                        <span class="wg-pill wg-pill--off" id="multichain-pill" data-i18n="settings.toggle.off">OFF</span>
+                    </div>
+                    <div class="wg-toggle-info__desc" data-i18n="settings.toggle.multichain.desc">When off, only the wallet's currently-connected chain is scanned.</div>
+                </div>
+                <button class="wg-toggle" id="multichain-toggle" role="switch" aria-checked="false"></button>
             </div>
-        </div>
+            <div class="wg-chain-grid">
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Ethereum</span>
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Optimism</span>
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>BNB Chain</span>
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Polygon</span>
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Fantom</span>
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Base</span>
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Arbitrum</span>
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Avalanche</span>
+                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Sepolia</span>
+            </div>
+        </section>
 
         <!-- OPENROUTER API KEY -->
-        <div class="section">
-            <div class="section-title" data-i18n="settings.section.ai">AI Security Core</div>
-            <p class="section-desc" data-i18n="settings.section.ai.desc">WalletGuard uses OpenRouter to perform heuristic checks on unknown addresses. Get a free API key at openrouter.ai.</p>
-            <div class="form-row">
+        <section class="wg-card wg-settings-section">
+            <div class="wg-settings-section__header">
+                <div class="wg-settings-section__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/><circle cx="12" cy="11" r="2"/><path d="M12 13v3"/></svg>
+                </div>
+                <div>
+                    <div class="wg-settings-section__title" data-i18n="settings.section.ai">AI Security Core</div>
+                    <div class="wg-settings-section__desc" data-i18n="settings.section.ai.desc">WalletGuard uses OpenRouter to perform heuristic checks on unknown addresses. Get a free API key at openrouter.ai.</div>
+                </div>
+            </div>
+            <div class="wg-form-row">
                 <label for="api-key-input" data-i18n="settings.api.keyLabel">OpenRouter API Key</label>
-                <div class="input-group">
-                    <input type="password" id="api-key-input"
+                <div class="wg-input-group">
+                    <input type="password" id="api-key-input" class="wg-input"
                            data-i18n-attr="placeholder:settings.api.keyPlaceholder"
                            placeholder="sk-or-v1-..." autocomplete="off">
-                    <button class="btn" id="toggle-key-vis" data-i18n="settings.api.show">Show</button>
+                    <button class="wg-btn wg-btn--ghost wg-btn--sm" id="toggle-key-vis" data-i18n="settings.api.show">Show</button>
                 </div>
             </div>
-            <div class="row-actions">
-                <button class="btn btn-primary" id="save-api-btn" data-i18n="settings.api.save">Save Key</button>
-                <button class="btn btn-danger" id="clear-api-btn" data-i18n="settings.api.clear">Clear</button>
+            <div class="wg-row-actions">
+                <button class="wg-btn wg-btn--primary wg-btn--sm" id="save-api-btn" data-i18n="settings.api.save">Save Key</button>
+                <button class="wg-btn wg-btn--danger wg-btn--sm" id="clear-api-btn" data-i18n="settings.api.clear">Clear</button>
             </div>
-            <div class="info-box" data-i18n="settings.api.privacy">
+            <div class="wg-info-box" data-i18n="settings.api.privacy">
                 <strong>Privacy:</strong> The API key is stored locally in your browser via <code>chrome.storage.local</code>. It is only sent to OpenRouter when checking addresses.
             </div>
-        </div>
+        </section>
 
-        <!-- APPROVAL SCANNER -->
-        <div class="section">
-            <div class="section-title" data-i18n="settings.section.approvals">Approval Scanner</div>
-            <p class="section-desc" data-i18n="settings.section.approvals.desc">Reads active token approvals on your wallet's currently-connected chain.</p>
-            <div class="info-box" data-i18n="settings.section.approvals.how">
+        <!-- APPROVAL SCANNER INFO -->
+        <section class="wg-card wg-settings-section">
+            <div class="wg-settings-section__header">
+                <div class="wg-settings-section__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                </div>
+                <div>
+                    <div class="wg-settings-section__title" data-i18n="settings.section.approvals">Approval Scanner</div>
+                    <div class="wg-settings-section__desc" data-i18n="settings.section.approvals.desc">Reads active token approvals on your wallet's currently-connected chain.</div>
+                </div>
+            </div>
+            <div class="wg-info-box" data-i18n="settings.section.approvals.how">
                 <strong>How it works:</strong> When you click <em>Rescan</em> in the popup, WalletGuard reads historical <code>Approval</code> events.
             </div>
-        </div>
+        </section>
 
         <!-- WHITELIST -->
-        <div class="section">
-            <div class="section-title" data-i18n="settings.section.whitelist">Trusted Contracts (Whitelist)</div>
-            <p class="section-desc" data-i18n="settings.section.whitelist.desc">Addresses that you fully trust. WalletGuard will give them a higher trust score automatically.</p>
-            <div class="form-row">
+        <section class="wg-card wg-settings-section">
+            <div class="wg-settings-section__header">
+                <div class="wg-settings-section__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-4 9-9 9s-9-4-9-9 4-9 9-9c2.5 0 4.7 1 6.4 2.6"/></svg>
+                </div>
+                <div>
+                    <div class="wg-settings-section__title" data-i18n="settings.section.whitelist">Trusted Contracts (Whitelist)</div>
+                    <div class="wg-settings-section__desc" data-i18n="settings.section.whitelist.desc">Addresses that you fully trust. WalletGuard will give them a higher trust score automatically.</div>
+                </div>
+            </div>
+            <div class="wg-form-row">
                 <label for="whitelist-input" data-i18n="settings.list.whitelistInput.label">Add Address (0x... or domain.tld)</label>
-                <div class="input-group">
-                    <input type="text" id="whitelist-input"
+                <div class="wg-input-group">
+                    <input type="text" id="whitelist-input" class="wg-input"
                            data-i18n-attr="placeholder:settings.list.whitelistInput.placeholder"
                            placeholder="0x...">
-                    <button class="btn btn-primary" id="add-whitelist-btn" data-i18n="settings.list.add">Add</button>
+                    <button class="wg-btn wg-btn--primary wg-btn--sm" id="add-whitelist-btn" data-i18n="settings.list.add">Add</button>
                 </div>
             </div>
-            <div class="list" id="whitelist-list">
-                <div class="list-empty" data-i18n="settings.list.whitelistEmpty">No trusted addresses yet.</div>
+            <div class="wg-list" id="whitelist-list">
+                <div class="wg-list-empty" data-i18n="settings.list.whitelistEmpty">No trusted addresses yet.</div>
             </div>
-        </div>
+        </section>
 
         <!-- BLACKLIST -->
-        <div class="section">
-            <div class="section-title" data-i18n="settings.section.blacklist">Custom Blacklist</div>
-            <p class="section-desc" data-i18n="settings.section.blacklist.desc">Addresses or domains that you know are malicious. These will be blocked instantly without an AI check.</p>
-            <div class="form-row">
-                <label for="blacklist-input" data-i18n="settings.list.blacklistInput.label">Add Address or Domain</label>
-                <div class="input-group">
-                    <input type="text" id="blacklist-input"
-                           data-i18n-attr="placeholder:settings.list.blacklistInput.placeholder"
-                           placeholder="0x... or malicious-site.com">
-                    <button class="btn btn-primary" id="add-blacklist-btn" data-i18n="settings.list.add">Add</button>
+        <section class="wg-card wg-settings-section">
+            <div class="wg-settings-section__header">
+                <div class="wg-settings-section__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+                </div>
+                <div>
+                    <div class="wg-settings-section__title" data-i18n="settings.section.blacklist">Custom Blacklist</div>
+                    <div class="wg-settings-section__desc" data-i18n="settings.section.blacklist.desc">Addresses or domains that you know are malicious. These will be blocked instantly without an AI check.</div>
                 </div>
             </div>
-            <div class="list" id="blacklist-list">
-                <div class="list-empty" data-i18n="settings.list.blacklistEmpty">No custom blacklist entries.</div>
+            <div class="wg-form-row">
+                <label for="blacklist-input" data-i18n="settings.list.blacklistInput.label">Add Address or Domain</label>
+                <div class="wg-input-group">
+                    <input type="text" id="blacklist-input" class="wg-input"
+                           data-i18n-attr="placeholder:settings.list.blacklistInput.placeholder"
+                           placeholder="0x... or malicious-site.com">
+                    <button class="wg-btn wg-btn--danger wg-btn--sm" id="add-blacklist-btn" data-i18n="settings.list.add">Add</button>
+                </div>
             </div>
-        </div>
+            <div class="wg-list" id="blacklist-list">
+                <div class="wg-list-empty" data-i18n="settings.list.blacklistEmpty">No custom blacklist entries.</div>
+            </div>
+        </section>
 
         <!-- DATA -->
-        <div class="section">
-            <div class="section-title" data-i18n="settings.section.data">Local Data</div>
-            <p class="section-desc" data-i18n="settings.section.data.desc">Statistics, logs, and the AI cache live in your browser. You can wipe them at any time.</p>
-            <div class="row-actions">
-                <button class="btn btn-danger" id="reset-stats-btn" data-i18n="settings.data.resetStats">Reset Statistics</button>
-                <button class="btn btn-danger" id="clear-cache-btn" data-i18n="settings.data.clearCache">Clear AI Cache</button>
+        <section class="wg-card wg-settings-section">
+            <div class="wg-settings-section__header">
+                <div class="wg-settings-section__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                </div>
+                <div>
+                    <div class="wg-settings-section__title" data-i18n="settings.section.data">Local Data</div>
+                    <div class="wg-settings-section__desc" data-i18n="settings.section.data.desc">Statistics, logs, and the AI cache live in your browser. You can wipe them at any time.</div>
+                </div>
             </div>
-        </div>
+            <div class="wg-row-actions">
+                <button class="wg-btn wg-btn--danger wg-btn--sm" id="reset-stats-btn" data-i18n="settings.data.resetStats">Reset Statistics</button>
+                <button class="wg-btn wg-btn--danger wg-btn--sm" id="clear-cache-btn" data-i18n="settings.data.clearCache">Clear AI Cache</button>
+            </div>
+        </section>
 
         <!-- FOOTER -->
-        <div class="section" style="text-align: center; padding: 20px;">
-            <p style="margin: 0; font-size: 12px; color: #646b7c;" data-i18n="settings.footer">
+        <footer class="wg-settings-footer">
+            <p data-i18n="settings.footer">
                 WalletGuard Pro is an independent security layer. It never replaces your wallet, never holds your funds, and never has custody of your keys.
             </p>
-        </div>
+        </footer>
 
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div class="wg-toast" id="toast" aria-live="polite"></div>
 
     <script src="popup-bundle.js"></script>
     <script src="settings.js"></script>

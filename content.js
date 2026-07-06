@@ -5095,6 +5095,8 @@ const explainTransaction = explain_js_exports.explainTransaction;
 
 
 
+
+
 // content.js - WalletGuard Pro Orchestrator (ISOLATED world)
 //
 // Runs in every page at document_start. Responsibilities:
@@ -6447,6 +6449,8 @@ const explainTransaction = explain_js_exports.explainTransaction;
   }
 
 })();
+
+
 
 
 
