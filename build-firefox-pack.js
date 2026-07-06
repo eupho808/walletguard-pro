@@ -40,18 +40,50 @@ const EXCLUDE_DIRS  = [
   ".git", "node_modules", ".github",
   "dist-firefox", "dist-chrome",
   "reference",   // screenshots/reference/ — test captures, not for store
-  "lib",         // bundled into content.js + popup-bundle.js
   "site",        // GitHub Pages source, not part of extension
   "packages",    // npm monorepo packages (walletguard-core), separate from extension
   "assets"       // brand kit (banners), not part of extension runtime
 ];
 
+// lib/ files that are inlined into content.js or popup-bundle.js by build.js.
+// Listed explicitly so the 2 standalone modules (address-utils.js, storage-validators.js)
+// still ship — they're loaded via <script src> and importScripts() respectively.
+// Keep in sync with ORDER + POPUP_ORDER in build.js.
+const BUNDLED_LIB_FILES = new Set([
+  // content.js (ORDER in build.js)
+  "lib/constants.js",
+  "lib/decoder.js",
+  "lib/typosquatting.js",
+  "lib/multicall-decoder.js",
+  "lib/universal-router.js",
+  "lib/risk-engine.js",
+  "lib/capabilities.js",
+  "lib/simulator.js",
+  "lib/mev-detector.js",
+  "lib/revoke-generator.js",
+  "lib/eip7702-detector.js",
+  "lib/session-key-analyzer.js",
+  "lib/threat-feed.js",
+  "lib/wallet-dna.js",
+  "lib/drainer-detector.js",
+  "lib/visual-phish.js",
+  "lib/hw-wallet.js",
+  "lib/safe-multisig.js",
+  "lib/explain.js",
+  // popup-bundle.js (POPUP_ORDER additions)
+  "lib/address-book.js",
+  "lib/i18n.js",
+  // Locales are inlined into popup-bundle.js
+  "lib/locales/en.js",
+  "lib/locales/ru.js",
+  "lib/locales/es.js",
+  "lib/locales/zh.js"
+]);
+
 const EXCLUDE_FILES = [
   // Dev tooling
   "build.js", "build-chrome-pack.js", "build-firefox.js", "build-firefox-pack.js",
   "test.js", "test.html",
-  "test-typosquat.js", "test-integration.js", "test-multichain.js",
-  "test-nft.js", "test-revoke.js", "test-build.js", "test-i18n.js",
   "generate-icons.ps1",
   "package-lock.json",
   // Dev documentation
@@ -65,7 +97,10 @@ const EXCLUDE_FILES = [
 // Dynamically exclude all *.zip files in root to prevent stale version bundling.
 function isExcludedFile(name) {
   if (EXCLUDE_FILES.includes(name)) return true;
-  if (/^walletguard-pro.*\.zip$/i.test(name)) return true;
+  if (BUNDLED_LIB_FILES.has(name)) return true;
+  // Any test-*.js file at root (regression suites live there)
+  if (/^test-.*\.js$/.test(name)) return true;
+  if (/\.zip$/i.test(name)) return true;
   return false;
 }
 
@@ -92,12 +127,12 @@ function copyDirFiltered(src, dst, relBase) {
 }
 
 function zipDirWindows(srcDir, zipPath) {
-  // PowerShell Compress-Archive works on Windows and produces standard ZIPs
-  // that Firefox AMO accepts. Path separators in ZIP entries are OS-native
-  // (backslash) but Firefox's validator handles both.
+  // Use System.IO.Compression.ZipFile via PowerShell. Handles recursion
+  // natively and produces a clean ZIP (no srcDir/ prefix).
   if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
   const ps = `
-    Compress-Archive -Path "${srcDir}\\*" -DestinationPath "${zipPath}" -CompressionLevel Optimal -Force
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::CreateFromDirectory('${srcDir.replace(/\\/g, "\\\\")}', '${zipPath.replace(/\\/g, "\\\\")}', [System.IO.Compression.CompressionLevel]::Optimal, $false)
   `.trim();
   const r = spawnSync("powershell.exe", ["-NoProfile", "-Command", ps], {
     stdio: "inherit",

@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.1] - 2026-07-06 - "HARDENED"
+
+Bug-fix release on top of 3.2.0. A targeted audit found 13 bugs across UI
+layout, event handling, storage I/O, network calls, provider wrapping, and
+animation races. All fixed with regression tests.
+
+### 🐛 Fixes (by severity)
+
+**Critical**
+- **#1 Activity time truncated to "22:"** — `.activity__item` had `grid-template-columns: 4px 56px 1fr` (3 cols) but only 2 children, so the time span fell into the 4px leading column and got cut off. Now `52px 1fr` with `white-space: nowrap` on `.activity__time`.
+- **#2 Token/NFT permission rows silently did nothing** — `popup.js` still called `document.getElementById("rescan-btn").click()`, but `#rescan-btn` was removed in v4 CALM. Replaced with a proper `triggerRescan()` async function that sends `rescanApprovals` + `getApprovalScan` and shows toast feedback.
+
+**High**
+- **#3 Settings page could crash on a single missing element** — 11 `document.getElementById(X).addEventListener(...)` chained calls without null checks. Any typo or partial DOM load broke the entire page. Now `onClick()` / `onToggleClick()` / `onEnterKey()` helpers with null guards; bare chained calls are banned.
+- **#4 Whitelist / blacklist overflowed the layout** — full 42-char addresses were rendered raw. Now shortened to `0x + 4 … 4` via new `lib/address-utils.js` (`isFullAddress()` + `shortenAddr()`), with `title=` for the full value.
+- **#5 Export Settings leaked the OpenRouter API key** — `exportSettings` returned every storage key including `wg_apiKey`. Now a `SENSITIVE_KEYS` set excludes it from the dump and the settings page shows the user which keys were skipped.
+- **#6 Hero score animation could fight itself** — two parallel `requestAnimationFrame` loops on quick consecutive `setScore()` calls. Now a `__scoreGen` monotonic counter; `tick()` bails when the generation has changed.
+
+**Medium**
+- **#7 Locale switch didn't refresh notifications / threat-feed pill text** — `refreshDynamicUI` only updated the toggles, not their labels. Both `applyToggleUI()` calls now run.
+- **#8 `aiCheckAddress` wasted API credits on garbage input** — any string went straight to OpenRouter. Now validates `/^0x[a-fA-F0-9]{40}$/` before calling the API.
+- **#9 Import Settings wrote any shape into any storage key** — no type validation, so a malicious or corrupted file could clobber `STATS` with an array etc. Now `lib/storage-validators.js`'s `validateStorageShape()` per-key type checks; skipped keys reported in toast.
+- **#10 Log messages had no per-entry size cap** — a 100 KB spam entry could fill storage quota. Now `MAX_LOG_MSG_LEN = 240` enforced via `clampString()`.
+- **#12 Overlay could hang the user's wallet forever** — `awaitUIResponse()` had no timeout, so closing the tab without responding left the underlying tx blocked. Now `UI_RESPONSE_TIMEOUT_MS = 90000` fail-open (resolves `false`, original call passes through).
+- **#13 Provider mock poisoned later real-wallet detection** — `installProxy()` stamped `isWalletGuard=true` on a placeholder when `window.ethereum` wasn't ready, then `return`-ed; the real wallet appearing later was filtered out as "already wrapped". Mock branch removed; real-wallet race now impossible.
+
+**Low**
+- **#11 `classifyLog()` treated "Auto-revoke disabled" as info** — should be warn. Regex extended with `disabled|paused|stopped`.
+
+### 📦 Internal
+- New files: `lib/address-utils.js`, `lib/storage-validators.js` (classic-script modules; loaded via `<script src>` in HTML and `importScripts()` in the service worker; tested via Node's `vm`).
+- New test suite: `test-bugfixes.js` — 29 regression tests, one per bug (+ extras for the shared validators).
+- **Test count: 727 → 756.** 18 → 19 suites.
+- `node --check` clean on every entry point and every lib file.
+
+---
+
 ## [3.2.0] - 2026-07-06
 
 ### ✨ UX additions (all v4 CALM compliant)
