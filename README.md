@@ -2,7 +2,7 @@
 
 > Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, scans token and NFT approvals across 9 chains, detects phishing sites and typosquatted domains — **no API keys required**.
 
-[![Version](https://img.shields.io/badge/version-1.5.1-00ffcc?style=flat-square)](./manifest.json)
+[![Version](https://img.shields.io/badge/version-1.5.2-00ffcc?style=flat-square)](./manifest.json)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
 [![Tests](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml)
 [![Chrome](https://img.shields.io/badge/Chrome-Available-4285F4?style=flat-square&logo=google-chrome)](https://chromewebstore.google.com/detail/walletguard-pro)

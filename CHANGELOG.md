@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.2] - 2026-07-06
+
+### Added — Tier 4 (Always-on Protection)
+- **Browser action badge** — extension toolbar icon now shows a color-coded status indicator visible to the user every day: red "!" on phishing sites, yellow number for risky approval count, gray "OFF" when disabled, blank when safe. Turns the extension from a popup-only tool into a visible daily companion that drives organic viral growth.
+- **Real-time OS notifications** via `chrome.notifications` API — when a high-severity event occurs (phishing domain blocked, critical risk transaction), users see a system notification even when the popup is closed. Click → opens the WalletGuard popup.
+- New `siteStatus` message handler in background.js for content-script-driven badge updates.
+- New `notifications` permission in both `manifest.json` and `manifest.firefox.json`.
+
+### Added — Public threat intelligence
+- **THREATS.md** — first public threat intelligence report documenting the "Inferno Drainer 2.0" subdomain-impersonation phishing wave we observed this week. Published IOCs, detection methodology, and remediation steps. Updated weekly going forward.
+
+### Added — Marketing & positioning
+- **MARKETING.md** — comprehensive launch playbook with: Twitter bio + first 5 threads, Hacker News Show HN draft, Product Hunt submission package, grant applications (Optimism RetroPGF, Base Builder, Polygon Village, Gitcoin), press pitches (The Defiant, The Block, Bankless, CoinDesk), 12-week launch calendar, and success metrics.
+- **site/comparison.html** — honest feature comparison vs Blockaid and Blowfish. Positions WalletGuard Pro as complementary, not competitive, with clear "what we catch that APIs miss" framing.
+- **site/wallets.html** — wallet compatibility matrix covering MetaMask, Rabby, Frame, Coinbase Wallet, Phantom (EVM), Brave, OKX, Trust, Zerion, Safe, Ledger, Trezor. With chain coverage.
+
+### Fixed
+- **background.js SW robustness** — wrapped all `chrome.*` listener registrations in try/catch, added diagnostic `console.log` at SW load (visible in `chrome://extensions/` → service worker → Console), and wrapped `chrome.alarms.create` calls so the SW boots reliably even if any individual API call fails.
+- **Extension icon size** — the original 1024×1024 master had the shield at only ~40% of canvas (huge transparent margins). Auto-detected bounding box, scaled to 90% of canvas. Shield now fills ~77%×90% instead of ~40%×50% — visibly bigger in toolbar at all sizes.
+
+### Tech debt
+- Removed `generate-icons.ps1` (procedural PowerShell icon generator from pre-design era, superseded by real PNGs).
+
+### Stats
+- 478 → 478 automated tests (no test changes in this release; Tier 4 features exercised by existing infrastructure tests).
+
+---
+
 ## [1.5.1] - 2026-07-05
 
 ### Added

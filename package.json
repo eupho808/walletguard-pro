@@ -1,6 +1,6 @@
 {
   "name": "walletguard-pro",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, scans ERC-20/NFT approvals across 9 chains, detects phishing and typosquatted domains. Zero API keys required.",
   "private": true,
   "type": "module",

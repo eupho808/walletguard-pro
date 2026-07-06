@@ -334,9 +334,11 @@ async function handleMessage(message, sender) {
 
     // --- Toggle enabled state ---
     case "setEnabled": {
-      await setStorage(STORAGE_KEYS.ENABLED, !!message.enabled);
-      await appendLog(`Protection ${message.enabled ? "enabled" : "disabled"}.`);
-      return { status: "ok", enabled: !!message.enabled };
+      const enabled = !!message.enabled;
+      await setStorage(STORAGE_KEYS.ENABLED, enabled);
+      await setBadgeState(enabled ? "clear" : "disabled", enabled ? "" : "OFF");
+      await appendLog(`Protection ${enabled ? "enabled" : "disabled"}.`);
+      return { status: "ok", enabled };
     }
 
     // --- Toggle multi-chain scanning ---
@@ -393,6 +395,30 @@ async function handleMessage(message, sender) {
       return { error: "Invalid wallet address." };
     }
 
+    // --- Site status update from content script (Tier 4: drives badge) ---
+    case "siteStatus": {
+      // message: { host, level: "clear"|"warn"|"danger", reason, notify }
+      const level = ["clear", "warn", "danger"].includes(message.level) ? message.level : "clear";
+      if (level === "danger") {
+        await setBadgeState("danger", "!");
+        if (message.notify) {
+          await notifyUser({
+            title: "⚠️ Phishing site blocked",
+            message: `${message.host || "This site"} — ${message.reason || "known drainer domain"}`,
+            level: "danger",
+            host: message.host
+          });
+        }
+        await bumpStat("phishingBlocked");
+        await appendLog(`Phishing blocked via badge alert: ${message.host || "unknown"} — ${message.reason || ""}.`);
+      } else if (level === "warn") {
+        await setBadgeState("warn", message.text || "!");
+      } else {
+        await setBadgeState("clear", "");
+      }
+      return { status: "ok" };
+    }
+
     default:
       return { error: `unknown action: ${message.action}` };
   }
@@ -424,6 +450,9 @@ async function runApprovalScan(address, forceLog) {
     result = await self.WGApprovalScanner.scanApprovalsMultiChain(address, wl);
     result.address = address;
     await setStorage(STORAGE_KEYS.APPROVAL_SCAN, result);
+    // Tier 4: update browser action badge with risky count
+    const risky = (result.summary && result.summary.risky) || 0;
+    await setBadgeState(risky > 0 ? "warn" : "clear", risky > 0 ? String(risky) : "");
     if (forceLog) {
       const s = result.summary || {};
       await appendLog(
@@ -436,6 +465,9 @@ async function runApprovalScan(address, forceLog) {
     result = await self.WGApprovalScanner.scanApprovals(address, wl);
     result.address = address;
     await setStorage(STORAGE_KEYS.APPROVAL_SCAN, result);
+    // Tier 4: update browser action badge with risky count
+    const risky = (result.summary && result.summary.risky) || 0;
+    await setBadgeState(risky > 0 ? "warn" : "clear", risky > 0 ? String(risky) : "");
     if (forceLog) {
       await appendLog(
         `Approval scan on ${result.chainName}: ${result.summary.total} total, ` +
@@ -445,3 +477,90 @@ async function runApprovalScan(address, forceLog) {
   }
   return result;
 }
+
+// ---------- TIER 4: BROWSER ACTION BADGE + NOTIFICATIONS ----------
+// Visible status indicator on the extension icon itself — the user
+// sees it every day in their toolbar, so it doubles as a viral
+// "always-on" reminder that the extension is protecting them.
+// Risk states:
+//   • clear (no badge)
+//   • risky approvals (yellow badge with count)
+//   • active phishing block (red badge with "!")
+//   • protection disabled (gray badge with "OFF")
+
+const BADGE_COLORS = {
+  clear:    "#3a3f4b", // dim gray (no badge shown)
+  warn:     "#ffb700", // yellow — risky approvals or warnings
+  danger:   "#ff3333", // red — phishing/active block
+  disabled: "#5a606e"  // gray — extension turned off
+};
+
+let lastBadgeState = { text: "", color: BADGE_COLORS.clear };
+
+async function setBadgeState(level, text) {
+  // level: "clear" | "warn" | "danger" | "disabled"
+  const safeText = String(text || "").slice(0, 4); // Chrome badge is max 4 chars
+  try {
+    if (level === "clear" || !safeText) {
+      await chrome.action.setBadgeText({ text: "" });
+      await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.clear });
+    } else {
+      await chrome.action.setBadgeText({ text: safeText });
+      await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS[level] || BADGE_COLORS.warn });
+    }
+    lastBadgeState = { text: safeText, color: BADGE_COLORS[level] || BADGE_COLORS.warn };
+  } catch (e) {
+    console.warn("[WalletGuard] setBadgeState failed:", e && e.message);
+  }
+}
+
+async function notifyUser(opts) {
+  // opts: { title, message, level: "warn"|"danger", id?, host? }
+  if (!opts || !opts.title) return;
+  try {
+    const id = opts.id || ("wg-" + Date.now());
+    await chrome.notifications.create(id, {
+      type: "basic",
+      iconUrl: "icons/icon128.png",
+      title: opts.title,
+      message: (opts.message || "").slice(0, 200),
+      priority: opts.level === "danger" ? 2 : 1
+    });
+    if (opts.host) await bumpStat(opts.level === "danger" ? "phishingBlocked" : "warningsShown");
+  } catch (e) {
+    console.warn("[WalletGuard] notifyUser failed:", e && e.message);
+  }
+}
+
+// Click handler: open popup when notification clicked.
+if (chrome.notifications && chrome.notifications.onClicked) {
+  try {
+    chrome.notifications.onClicked.addListener((notifId) => {
+      chrome.notifications.clear(notifId);
+      chrome.action.openPopup ? chrome.action.openPopup() : null;
+    });
+  } catch (e) { console.warn("[WalletGuard] notif click handler failed:", e && e.message); }
+}
+
+// Initialize badge from persisted state on SW startup.
+(async () => {
+  try {
+    const enabled = await getStorage(STORAGE_KEYS.ENABLED, true);
+    if (!enabled) {
+      await setBadgeState("disabled", "OFF");
+    } else {
+      // Refresh approval scan summary if available
+      const scan = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
+      if (scan && scan.summary && scan.summary.risky > 0) {
+        await setBadgeState("warn", String(scan.summary.risky));
+      } else {
+        await setBadgeState("clear", "");
+      }
+    }
+  } catch (e) {
+    console.warn("[WalletGuard] badge init failed:", e && e.message);
+  }
+})();
+
+// Update badge whenever enabled state changes (from setEnabled handler below)
+// and whenever approval scan updates.
