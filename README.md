@@ -1,9 +1,10 @@
 # WalletGuard Pro
 
-> The most comprehensive Web3 wallet security extension ever built. **20 protection layers**, **zero dependencies**, **805 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
+> The most comprehensive Web3 wallet security extension ever built. **20 protection layers**, **zero dependencies**, **807 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
 
-[![Version](https://img.shields.io/badge/version-2.2.0-00ffcc?style=flat-square)](./manifest.json)
-[![Tests](https://img.shields.io/badge/tests-805-00ff66?style=flat-square)](./test-build.js)
+[![Version](https://img.shields.io/badge/version-3.0.0-00ffcc?style=flat-square)](./manifest.json)
+[![Design](https://img.shields.io/badge/design-STELLAR-ffb700?style=flat-square)](#v30-stellar)
+[![Tests](https://img.shields.io/badge/tests-807-00ff66?style=flat-square)](./test-build.js)
 [![Modules](https://img.shields.io/badge/modules-20-ffb700?style=flat-square)](./lib/)
 [![Chains](https://img.shields.io/badge/chains-9-4285F4?style=flat-square)](./lib/constants.js)
 [![Wallets](https://img.shields.io/badge/wallets-12-FF7139?style=flat-square)](./site/wallets.html)
@@ -24,18 +25,36 @@ Every Web3 wallet trusts you to read raw `0x...` calldata and approve it. Most d
 
 ### What makes it the best
 
-| | WalletGuard Pro v2.2.0 |
+| | WalletGuard Pro v3.0 "STELLAR" |
 |---|---|
 | **Attack surfaces covered** | **20** (EIP-7702, session keys, MEV, drainers, phish clones, Safe multi-sig, hardware wallet rules, wallet DNA, threat feed, ...) |
 | **Modules** | **20** pure ES modules, zero runtime dependencies |
-| **Tests** | **805** automated tests, 19 suites, all green |
+| **Tests** | **807** automated tests, 19 suites, all green |
 | **Chains** | **9** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia) |
 | **Wallets** | **12** (MetaMask, Rabby, Frame, Rainbow, Zerion, Trust, Coinbase, Brave, OKX, Phantom, ...) |
 | **Locales** | **4** (en, ru, es, zh) — every UI string |
-| **Bundle size** | content 247K + popup 276K (≈ 520K total) — smaller than Blockaid's SW |
+| **Design system** | v3.0 STELLAR — full design tokens, glass cards, spring physics, light/dark themes |
+| **Bundle size** | content 255K + popup 286K (≈ 540K total) — smaller than Blockaid's SW |
 | **Privacy** | No backend. No tracking. No user data leaves the device. |
 | **License** | MIT — fork, extend, audit, ship |
 | **CI** | GitHub Actions on Node 18, 20, 22 |
+
+### v3.0 STELLAR design language
+
+A premium dark-first design system built from the ground up:
+- **Glass cards** with backdrop-filter blur + radial gradient mesh background
+- **Spring physics** (`cubic-bezier(0.34, 1.56, 0.64, 1)`) on every interactive element
+- **Custom SVG icons** throughout (no emoji) — shield, DNA helix, radar, magnifier, grid, sparkle
+- **Animated counters** for every stat (ease-out cubic, 600ms)
+- **SVG safety-score ring** with circumference animation + tabular-num count-up + dynamic caption
+- **Pulsing status dot** with ripple ring (3-stage CSS animation)
+- **Hover lift** + glow shadow on all tiles (cards translate Y -2px with spring physics)
+- **Shake animation** on invalid input
+- **Spring spinner** for scan-in-progress state
+- **Timeline-style logs** with color-coded dots
+- **Toast notification system** replaces browser alerts
+- **Light theme parity** via `.wg-theme-light` on body
+- **Reduced-motion media query** for accessibility
 
 ---
 

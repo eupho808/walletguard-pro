@@ -227,13 +227,17 @@
   "onboarding.indicator": "Step {current} of {total}",
   "onboarding.skip": "Skip tour",
   "onboarding.step1.title": "Welcome to WalletGuard Pro",
-  "onboarding.step1.body": "Your independent security layer against phishing, drainers, and risky token approvals. Everything runs locally \u2014 no accounts, no tracking.",
-  "onboarding.step2.title": "Approval Scanner",
-  "onboarding.step2.body": "See all your active ERC-20 and NFT approvals across 9 chains. Risks are auto-classified by severity \u2014 critical, high, medium, low.",
-  "onboarding.step3.title": "One-Click Revoke",
-  "onboarding.step3.body": "Generate revoke calldata for risky approvals with one click. You sign the transaction in your own wallet \u2014 WalletGuard never touches your keys.",
+  "onboarding.step1.body": "The most comprehensive Web3 wallet security extension ever built. 20 protection layers \u2014 phishing, drainers, MEV, EIP-7702, session keys, hardware wallets, and more. Everything runs locally. No accounts, no tracking.",
+  "onboarding.step1.bullets": "Independent security layer|0 dependencies, 100% open source|MIT licensed",
+  "onboarding.step2.title": "Real-Time Transaction Analysis",
+  "onboarding.step2.body": "Every transaction is decoded, simulated, and scored before it reaches your wallet. We catch unlimited approvals, hidden multicalls, permit signatures, and unknown calldata.",
+  "onboarding.step2.bullets": "eth_call simulation against your RPC|Uniswap V3 exact swap quotes|MEV sandwich detection|Live MEV bot blacklists",
+  "onboarding.step3.title": "20 Attack Surfaces Covered",
+  "onboarding.step3.body": "Typosquatting, drainer patterns, visual phishing clones, wallet DNA anomalies, hardware wallet rules, Safe multi-sig analysis \u2014 if it can drain your wallet, we detect it.",
+  "onboarding.step3.bullets": "EIP-7702 delegation (NEW in Pectra)|Visual pHash DOM fingerprinting|Behavioral DNA learning|Stale approval auto-cleanup",
   "onboarding.step4.title": "You're All Set",
-  "onboarding.step4.body": "Open Settings to customize chains, trusted domains, the AI security core, or replay this tour anytime."
+  "onboarding.step4.body": "Browse any dApp to see WalletGuard in action. Open Settings any time to customize chains, trusted domains, the threat feed, and replay this tour.",
+  "onboarding.step4.bullets": "Replay tour from Settings|Help us improve: github.com/eupho808/walletguard-pro|Tweet @WalletGuardPro_ with feedback"
 },
     "es": {
   "common.close": "Cerrar",
@@ -416,13 +420,17 @@
   "onboarding.indicator": "Paso {current} de {total}",
   "onboarding.skip": "Omitir recorrido",
   "onboarding.step1.title": "Bienvenido a WalletGuard Pro",
-  "onboarding.step1.body": "Tu capa de seguridad independiente contra phishing, drainers y aprobaciones de tokens riesgosas. Todo funciona localmente \u2014 sin cuentas, sin rastreo.",
-  "onboarding.step2.title": "Esc\u00e1ner de aprobaciones",
-  "onboarding.step2.body": "Ve todas tus aprobaciones ERC-20 y NFT activas en 9 redes. Los riesgos se clasifican autom\u00e1ticamente por severidad: cr\u00edtico, alto, medio, bajo.",
-  "onboarding.step3.title": "Revocaci\u00f3n en un clic",
-  "onboarding.step3.body": "Genera calldata de revocaci\u00f3n para aprobaciones riesgosas con un clic. La firma ocurre en tu propia billetera \u2014 WalletGuard nunca toca tus claves.",
+  "onboarding.step1.body": "La extensi\u00f3n de seguridad Web3 m\u00e1s completa jam\u00e1s creada. 20 capas de protecci\u00f3n \u2014 phishing, drainers, MEV, EIP-7702, session keys, hardware wallets. Todo funciona localmente. Sin cuentas, sin rastreo.",
+  "onboarding.step1.bullets": "Capa de seguridad independiente|0 dependencias, 100% c\u00f3digo abierto|Licencia MIT",
+  "onboarding.step2.title": "An\u00e1lisis de transacciones en tiempo real",
+  "onboarding.step2.body": "Cada transacci\u00f3n se decodifica, simula y punt\u00faa antes de llegar a tu billetera. Detectamos aprobaciones ilimitadas, multicalls ocultos, firmas permit y datos desconocidos.",
+  "onboarding.step2.bullets": "Simulaci\u00f3n eth_call en tu RPC|Cotizaciones exactas Uniswap V3|Detecci\u00f3n de sandwich MEV|Lista negra de bots MEV en vivo",
+  "onboarding.step3.title": "20 superficies de ataque cubiertas",
+  "onboarding.step3.body": "Typosquatting, patrones de drainer, clones visuales de phishing, anomal\u00edas de ADN de billetera, reglas de hardware wallet, an\u00e1lisis Safe multi-sig \u2014 si puede vaciar tu billetera, lo detectamos.",
+  "onboarding.step3.bullets": "Delegaci\u00f3n EIP-7702 (NUEVO en Pectra)|Huella visual pHash del DOM|Aprendizaje de ADN conductual|Limpieza auto de aprobaciones vencidas",
   "onboarding.step4.title": "Todo listo",
-  "onboarding.step4.body": "Abre Ajustes para personalizar redes, dominios de confianza, el n\u00facleo de seguridad IA, o repetir este recorrido en cualquier momento."
+  "onboarding.step4.body": "Visita cualquier dApp para ver WalletGuard en acci\u00f3n. Abre Ajustes en cualquier momento para personalizar redes, dominios de confianza, la fuente de amenazas y repetir este recorrido.",
+  "onboarding.step4.bullets": "Repetir recorrido desde Ajustes|Ay\u00fadanos: github.com/eupho808/walletguard-pro|Tweet a @WalletGuardPro_"
 },
     "ru": {
   // ---- Common ----
@@ -609,13 +617,17 @@
   "onboarding.indicator": "\u0428\u0430\u0433 {current} \u0438\u0437 {total}",
   "onboarding.skip": "\u041f\u0440\u043e\u043f\u0443\u0441\u0442\u0438\u0442\u044c \u043e\u0431\u0437\u043e\u0440",
   "onboarding.step1.title": "\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c \u0432 WalletGuard Pro",
-  "onboarding.step1.body": "\u0412\u0430\u0448 \u043d\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043c\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0437\u0430\u0449\u0438\u0442\u044b \u043e\u0442 \u0444\u0438\u0448\u0438\u043d\u0433\u0430, \u0434\u0440\u0435\u0439\u043d\u0435\u0440\u043e\u0432 \u0438 \u0440\u0438\u0441\u043a\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439. \u0412\u0441\u0451 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u043e \u2014 \u0431\u0435\u0437 \u0430\u043a\u043a\u0430\u0443\u043d\u0442\u043e\u0432, \u0431\u0435\u0437 \u0442\u0440\u0435\u043a\u0438\u043d\u0433\u0430.",
-  "onboarding.step2.title": "\u0421\u043a\u0430\u043d\u0435\u0440 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439",
-  "onboarding.step2.body": "\u0412\u0438\u0434\u044c\u0442\u0435 \u0432\u0441\u0435 \u0430\u043a\u0442\u0438\u0432\u043d\u044b\u0435 ERC-20 \u0438 NFT-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u0432 9 \u0441\u0435\u0442\u044f\u0445. \u0420\u0438\u0441\u043a\u0438 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438 \u043a\u043b\u0430\u0441\u0441\u0438\u0444\u0438\u0446\u0438\u0440\u0443\u044e\u0442\u0441\u044f \u043f\u043e \u0441\u0435\u0440\u044c\u0451\u0437\u043d\u043e\u0441\u0442\u0438 \u2014 \u043a\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0435, \u0432\u044b\u0441\u043e\u043a\u0438\u0435, \u0441\u0440\u0435\u0434\u043d\u0438\u0435, \u043d\u0438\u0437\u043a\u0438\u0435.",
-  "onboarding.step3.title": "\u041e\u0442\u0437\u044b\u0432 \u0432 \u043e\u0434\u0438\u043d \u043a\u043b\u0438\u043a",
-  "onboarding.step3.body": "\u0421\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u0443\u0439\u0442\u0435 calldata \u0434\u043b\u044f \u043e\u0442\u0437\u044b\u0432\u0430 \u0440\u0438\u0441\u043a\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439 \u043e\u0434\u043d\u0438\u043c \u043a\u043b\u0438\u043a\u043e\u043c. \u041f\u043e\u0434\u043f\u0438\u0441\u044c \u0432\u044b\u043f\u043e\u043b\u043d\u044f\u0435\u0442\u0441\u044f \u0432 \u0432\u0430\u0448\u0435\u043c \u043a\u043e\u0448\u0435\u043b\u044c\u043a\u0435 \u2014 WalletGuard \u043d\u0438\u043a\u043e\u0433\u0434\u0430 \u043d\u0435 \u043f\u0440\u0438\u043a\u0430\u0441\u0430\u0435\u0442\u0441\u044f \u043a \u0432\u0430\u0448\u0438\u043c \u043a\u043b\u044e\u0447\u0430\u043c.",
+  "onboarding.step1.body": "\u0421\u0430\u043c\u043e\u0435 \u043a\u043e\u043c\u043f\u043b\u0435\u043a\u0441\u043d\u043e\u0435 \u0440\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u0438\u0435 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438 Web3-\u043a\u043e\u0448\u0435\u043b\u044c\u043a\u043e\u0432 \u0432 \u043c\u0438\u0440\u0435. 20 \u0443\u0440\u043e\u0432\u043d\u0435\u0439 \u0437\u0430\u0449\u0438\u0442\u044b \u2014 \u0444\u0438\u0448\u0438\u043d\u0433, drainer-\u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442\u044b, MEV, EIP-7702, session keys, hardware wallets. \u0412\u0441\u0451 \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u043e. \u0411\u0435\u0437 \u0430\u043a\u043a\u0430\u0443\u043d\u0442\u043e\u0432, \u0431\u0435\u0437 \u0442\u0440\u0435\u043a\u0438\u043d\u0433\u0430.",
+  "onboarding.step1.bullets": "\u041d\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043c\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0437\u0430\u0449\u0438\u0442\u044b|0 \u0437\u0430\u0432\u0438\u0441\u0438\u043c\u043e\u0441\u0442\u0435\u0439, 100% open source|\u041b\u0438\u0446\u0435\u043d\u0437\u0438\u044f MIT",
+  "onboarding.step2.title": "\u0410\u043d\u0430\u043b\u0438\u0437 \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u0439 \u0432 \u0440\u0435\u0430\u043b\u044c\u043d\u043e\u043c \u0432\u0440\u0435\u043c\u0435\u043d\u0438",
+  "onboarding.step2.body": "\u041a\u0430\u0436\u0434\u0430\u044f \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u044f \u0434\u0435\u043a\u043e\u0434\u0438\u0440\u0443\u0435\u0442\u0441\u044f, \u0441\u0438\u043c\u0443\u043b\u0438\u0440\u0443\u0435\u0442\u0441\u044f \u0438 \u043e\u0446\u0435\u043d\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u0434\u043e \u0442\u043e\u0433\u043e, \u043a\u0430\u043a \u043f\u043e\u043f\u0430\u0434\u044c \u0432 \u0432\u0430\u0448 \u043a\u043e\u0448\u0451\u043b\u0451\u043a. \u041c\u044b \u043b\u043e\u0432\u0438\u043c \u0431\u0435\u0441\u043a\u043e\u043d\u0435\u0447\u043d\u044b\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f, \u0441\u043a\u0440\u044b\u0442\u044b\u0435 multicall, permit-\u043f\u043e\u0434\u043f\u0438\u0441\u0438 \u0438 \u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435.",
+  "onboarding.step2.bullets": "eth_call \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u044f \u043d\u0430 \u0432\u0430\u0448\u0435\u0439 RPC|\u0422\u043e\u0447\u043d\u044b\u0435 \u043a\u043e\u0442\u0438\u0440\u043e\u0432\u043a\u0438 Uniswap V3|\u041e\u0431\u043d\u0430\u0440\u0443\u0436\u0435\u043d\u0438\u0435 MEV-\u0441\u044d\u043d\u0434\u0432\u0438\u0447\u0435\u0439|\u0416\u0438\u0432\u043e\u0439 \u0447\u0451\u0440\u043d\u044b\u0439 \u0441\u043f\u0438\u0441\u043e\u043a MEV-\u0431\u043e\u0442\u043e\u0432",
+  "onboarding.step3.title": "20 \u0430\u0442\u0430\u043a-\u043f\u043e\u0432\u0435\u0440\u0445\u043d\u043e\u0441\u0442\u0435\u0439 \u043f\u043e\u043a\u0440\u044b\u0442\u043e",
+  "onboarding.step3.body": "\u0422\u0438\u043f\u043e\u0441\u043a\u0432\u0430\u0442\u0442\u0438\u043d\u0433, \u043f\u0430\u0442\u0442\u0435\u0440\u043d\u044b drainer-\u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442\u043e\u0432, \u0432\u0438\u0437\u0443\u0430\u043b\u044c\u043d\u044b\u0435 \u043a\u043b\u043e\u043d\u044b \u0444\u0438\u0448\u0438\u043d\u0433\u0430, \u0430\u043d\u043e\u043c\u0430\u043b\u0438\u0438 Wallet DNA, \u043f\u0440\u0430\u0432\u0438\u043b\u0430 hardware-\u043a\u043e\u0448\u0435\u043b\u044c\u043a\u043e\u0432, \u0430\u043d\u0430\u043b\u0438\u0437 Safe-\u043c\u0443\u043b\u044c\u0442\u0438\u043f\u043e\u0434\u043f\u0438\u0441\u0435\u0439 \u2014 \u0435\u0441\u043b\u0438 \u044d\u0442\u043e \u043c\u043e\u0436\u0435\u0442 \u043e\u043f\u0443\u0441\u0442\u043e\u0448\u0438\u0442\u044c \u0432\u0430\u0448 \u043a\u043e\u0448\u0451\u043b\u0451\u043a, \u043c\u044b \u044d\u0442\u043e \u043e\u0431\u043d\u0430\u0440\u0443\u0436\u0438\u043c.",
+  "onboarding.step3.bullets": "EIP-7702 \u0434\u0435\u043b\u0435\u0433\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 (\u041d\u041e\u0412\u041e\u0415 \u0432 Pectra)|\u0412\u0438\u0437\u0443\u0430\u043b\u044c\u043d\u0430\u044f pHash-\u0444\u0438\u043d\u0433\u0435\u0440\u043f\u0440\u0438\u043d\u0442\u0438\u043d\u0433\u0430 DOM|\u041e\u0431\u0443\u0447\u0435\u043d\u0438\u0435 \u043f\u043e\u0432\u0435\u0434\u0435\u043d\u0438\u044e DNA|\u0410\u0432\u0442\u043e-\u043e\u0447\u0438\u0441\u0442\u043a\u0430 \u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0438\u0445 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439",
   "onboarding.step4.title": "\u0412\u0441\u0451 \u0433\u043e\u0442\u043e\u0432\u043e",
-  "onboarding.step4.body": "\u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438, \u0447\u0442\u043e\u0431\u044b \u043d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c \u0441\u0435\u0442\u0438, \u0434\u043e\u0432\u0435\u0440\u0435\u043d\u043d\u044b\u0435 \u0434\u043e\u043c\u0435\u043d\u044b, \u0418\u0418-\u044f\u0434\u0440\u043e \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438 \u0438\u043b\u0438 \u043f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u044c \u044d\u0442\u043e\u0442 \u043e\u0431\u0437\u043e\u0440 \u0432 \u043b\u044e\u0431\u043e\u0439 \u043c\u043e\u043c\u0435\u043d\u0442."
+  "onboarding.step4.body": "\u0417\u0430\u0439\u0434\u0438\u0442\u0435 \u043d\u0430 \u043b\u044e\u0431\u043e\u0439 dApp, \u0447\u0442\u043e\u0431\u044b \u0443\u0432\u0438\u0434\u0435\u0442\u044c WalletGuard \u0432 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0438. \u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0432 \u043b\u044e\u0431\u043e\u0435 \u0432\u0440\u0435\u043c\u044f, \u0447\u0442\u043e\u0431\u044b \u043d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c \u0441\u0435\u0442\u0438, \u0434\u043e\u0432\u0435\u0440\u0435\u043d\u043d\u044b\u0435 \u0434\u043e\u043c\u0435\u043d\u044b, \u043b\u0435\u043d\u0442\u0443 \u0443\u0433\u0440\u043e\u0437 \u0438 \u043f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u044c \u044d\u0442\u043e\u0442 \u043e\u0431\u0437\u043e\u0440.",
+  "onboarding.step4.bullets": "\u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u044c \u043e\u0431\u0437\u043e\u0440 \u0438\u0437 \u041d\u0430\u0441\u0442\u0440\u043e\u0435\u043a|\u041f\u043e\u043c\u043e\u0433\u0438\u0442\u0435 \u043d\u0430\u043c: github.com/eupho808/walletguard-pro|\u0422\u0432\u0438\u0442: @WalletGuardPro_"
 },
     "zh": {
   "common.close": "\u5173\u95ed",
@@ -798,13 +810,17 @@
   "onboarding.indicator": "\u7b2c {current} \u6b65\uff0c\u5171 {total} \u6b65",
   "onboarding.skip": "\u8df3\u8fc7\u5bfc\u822a",
   "onboarding.step1.title": "\u6b22\u8fce\u4f7f\u7528 WalletGuard Pro",
-  "onboarding.step1.body": "\u4e0e\u949c\u9c7c\u3001\u5438\u8840\u4ee3\u5e01\u548c\u9ad8\u98ce\u9669\u4ee3\u5e01\u6388\u6743\u9694\u79bb\u7684\u72ec\u7acb\u5b89\u5168\u5c42\u3002\u5168\u90e8\u672c\u5730\u8fd0\u884c \u2014 \u65e0\u8d26\u53f7\u3001\u65e0\u8ddf\u8e2a\u3002",
-  "onboarding.step2.title": "\u6388\u6743\u626b\u63cf\u5668",
-  "onboarding.step2.body": "\u67e5\u770b\u60a8\u5728 9 \u4e2a\u7f51\u7edc\u4e0a\u7684\u6240\u6709\u6d3b\u8dc3 ERC-20 \u548c NFT \u6388\u6743\u3002\u98ce\u9669\u6309\u4e25\u91cd\u7a0b\u5ea6\u81ea\u52a8\u5206\u7ea7 \u2014 \u5371\u9669\u3001\u9ad8\u3001\u4e2d\u3001\u4f4e\u3002",
-  "onboarding.step3.title": "\u4e00\u952e\u64a4\u9500",
-  "onboarding.step3.body": "\u4e00\u952e\u751f\u6210\u9ad8\u98ce\u9669\u6388\u6743\u7684\u64a4\u9500 calldata\u3002\u7b7e\u540d\u5728\u60a8\u81ea\u5df1\u7684\u94b1\u5305\u4e2d\u5b8c\u6210 \u2014 WalletGuard \u4ece\u4e0d\u89e6\u53ca\u60a8\u7684\u5bc6\u94a5\u3002",
+  "onboarding.step1.body": "\u6709\u5386\u4ee5\u6765\u6700\u5168\u9762\u7684 Web3 \u94b1\u5305\u5b89\u5168\u6269\u5c55\u300220 \u5c42\u4fdd\u62a4 \u2014 \u949c\u9c7c\u3001\u5438\u8840\u3001MEV\u3001EIP-7702\u3001session key\u3001\u786c\u4ef6\u94b1\u5305\u3002\u5168\u90e8\u672c\u5730\u8fd0\u884c\u3002\u65e0\u8d26\u53f7\u3001\u65e0\u8ddf\u8e2a\u3002",
+  "onboarding.step1.bullets": "\u72ec\u7acb\u5b89\u5168\u5c42|0 \u4f9d\u8d56\uff0c\u5b8c\u5168\u5f00\u6e90|MIT \u8bb8\u53ef",
+  "onboarding.step2.title": "\u5b9e\u65f6\u4ea4\u6613\u5206\u6790",
+  "onboarding.step2.body": "\u6bcf\u7b14\u4ea4\u6613\u5728\u8fdb\u5165\u60a8\u7684\u94b1\u5305\u4e4b\u524d\u90fd\u4f1a\u88ab\u89e3\u7801\u3001\u6a21\u62df\u548c\u8bc4\u5206\u3002\u6211\u4eec\u4f1a\u6355\u6349\u65e0\u9650\u6388\u6743\u3001\u9690\u85cf\u7684 multicall\u3001permit \u7b7e\u540d\u548c\u672a\u77e5\u7684\u8c03\u7528\u6570\u636e\u3002",
+  "onboarding.step2.bullets": "eth_call \u6a21\u62df\u5728\u60a8\u7684 RPC \u4e0a|Uniswap V3 \u51c6\u786e\u4ef7\u683c|MEV \u4e09\u660e\u6cbb\u6355\u83b7|\u5b9e\u65f6 MEV \u9ed1\u540d\u5355",
+  "onboarding.step3.title": "20 \u4e2a\u653b\u51fb\u9762\u5168\u8986\u76d6",
+  "onboarding.step3.body": "\u62fc\u5199\u653b\u51fb\u3001\u5438\u8840\u6a21\u5f0f\u3001\u89c6\u89c9\u949c\u9c7c\u514b\u9686\u3001\u94b1\u5305 DNA \u5f02\u5e38\u3001\u786c\u4ef6\u94b1\u5305\u89c4\u5219\u3001Safe \u591a\u7b7e\u5206\u6790 \u2014 \u5982\u679c\u5b83\u80fd\u8d70\u7a7a\u60a8\u7684\u94b1\u5305\uff0c\u6211\u4eec\u90fd\u4f1a\u6355\u83b7\u3002",
+  "onboarding.step3.bullets": "EIP-7702 \u6388\u6743\uff08Pectra \u65b0\u589e\uff09|\u89c6\u89c9 pHash DOM \u6307\u7eb9|\u884c\u4e3a DNA \u5b66\u4e60|\u8fc7\u671f\u6388\u6743\u81ea\u52a8\u6e05\u7406",
   "onboarding.step4.title": "\u5168\u90e8\u5c31\u7eea",
-  "onboarding.step4.body": "\u6253\u5f00\u8bbe\u7f6e\u4ee5\u81ea\u5b9a\u4e49\u7f51\u7edc\u3001\u53ef\u4fe1\u57df\u540d\u3001AI \u5b89\u5168\u6838\u5fc3,\u6216\u968f\u65f6\u91cd\u653e\u672c\u5bfc\u822a\u3002"
+  "onboarding.step4.body": "\u8bbf\u95ee\u4efb\u4f55 dApp \u4ee5\u67e5\u770b WalletGuard \u5982\u4f55\u5de5\u4f5c\u3002\u968f\u65f6\u6253\u5f00\u8bbe\u7f6e\u4ee5\u81ea\u5b9a\u4e49\u7f51\u7edc\u3001\u53ef\u4fe1\u57df\u540d\u3001\u5a01\u80c1\u60c5\u62a5\u6e90\u4ee5\u53ca\u91cd\u653e\u672c\u5bfc\u822a\u3002",
+  "onboarding.step4.bullets": "\u4ece\u8bbe\u7f6e\u91cd\u653e\u5bfc\u822a|\u5e2e\u6211\u4eec\u6539\u8fdb\uff1agithub.com/eupho808/walletguard-pro|\u53d1\u63a8\u7ed9 @WalletGuardPro_"
 } };
 
   var mods = {

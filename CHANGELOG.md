@@ -7,6 +7,83 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.0] - 2026-07-06 — "STELLAR"
+
+### 🎨 Complete UI redesign (popup + overlay + settings)
+
+**Design system v3.0** — full token-based theming across all surfaces:
+- 3 elevation tiers (bg-0/bg-1/bg-2/bg-3)
+- 5 accent colors (primary / success / warning / danger / info)
+- Glass cards with backdrop-filter + radial gradient backgrounds
+- Spring physics (`cubic-bezier(0.34, 1.56, 0.64, 1)`) for snappy feel
+- Light/dark theme parity via `.wg-theme-light` / `.wg-theme-dark`
+
+**Popup (`popup.html` / `popup.css` / `popup.js`):**
+- Full BEM refactor: `.wg-card`, `.wg-sec__tile`, `.wg-score`, etc.
+- Custom inline SVG icons throughout (no emoji)
+- **Safety Score** redesigned: SVG ring (circumference animation, color-coded)
+  + tabular-num count-up + dynamic caption (Protected/Caution/At Risk/Danger)
+- **Animated counters** for all stats (ease-out cubic, 600ms)
+- **Pulsing status dot** with ripple ring (3-stage CSS animation)
+- **Hover lift** on tiles with spring physics + glow shadow
+- **Glass cards** with backdrop-filter blur + radial gradient mesh
+- **Shake animation** on invalid address input
+- **Spring spinner** for scan-in-progress state
+- **Timeline-style logs** with color-coded dots (alert/warn/good)
+- **Stagger animation** on address book cards (40ms delay each)
+- **Toast notification system** replaces browser alerts/confirm()
+- **Empty states** with dashed border + diagonal stripe pattern
+
+**Overlay (`content.js`):**
+- Backdrop: 8px → 14px blur + fade-in animation
+- Modal: 16px → 20px radius, spring rise entrance, sticky header/footer
+- Color-coded risk accent (uses `risk.accentColor` for title + score)
+- Sections: staggered slide-in (60ms cascade)
+- Risk factors: gradient backgrounds by severity + hover slide
+- MEV/EIP-7702/Session/Drainer/Visual/HW/Safe/DNA/Feed sections: severity-
+  coded gradient + recommendation arrow icons (::before)
+- Buttons: 14×14 padding, spring hover, primary has inset highlight + drop
+  shadow, danger has pulsing animation
+- Domain warnings: red gradient banner with radial glow overlay
+- Permit section: refactored to `.wg-permit-row` layout
+- Capabilities: cyan-colored bullet markers
+
+**Settings (`settings.html` + new `settings.css`):**
+- Extracted 380 lines of inline CSS to standalone settings.css
+- Decorative animated background blobs (cyan + blue, 18-22s float)
+- Header: pulsing status dot + gradient title + version pill
+- 7 sections with icon headers (shield, globe, refresh, key, check, ban-x, DB)
+- Card hover: border lightens + icon rotates -6° + scales 1.05
+- Toggle: now `<button role="switch" aria-checked>` (proper a11y)
+- Toggle thumb: 20px circle with shadow + spring transition
+- Pills: 6px dot prefix with pulse animation + glow shadow
+- Chain chips: 9 chains with staggered fade-up (30ms cascade)
+- List items: animate in with stagger (30ms each, max 240ms)
+
+**Onboarding (`popup.html` + `popup.css` + `popup.js` + locales):**
+- New floating icon (per-step SVG: shield, magnifier, grid, sparkle)
+- Feature bullets rendered from pipe-separated i18n strings
+- Animated dots on bullet items (primary / info / purple colors)
+- Content rewritten to highlight 20 protection layers
+
+**i18n:** +24 keys across en/ru/es/zh for v3.0 UX
+- `popup.score.title{Protected,Caution,AtRisk,Danger}` + captions
+- `popup.toast.{statsReset,scanComplete,scanFailed,enabled,disabled,added,removed,invalidAddress,addFailed}`
+- `onboarding.step{1-4}.bullets` (3 bullets per step)
+
+### 📊 Bundle sizes
+| File              | v2.2.0  | v3.0.0  | Δ |
+|---|---|---|---|
+| content.js        | 247K    | 255K    | +8K (overlay CSS upgrade) |
+| popup-bundle.js   | 276K    | 286K    | +10K (locale keys) |
+| popup.css         | 1.3K    | 28K     | +27K (full design system) |
+| settings.css      | (inline)| 12K     | new extracted file |
+
+### ✅ Tests
+807 passing, 0 failing (no regressions)
+
+---
+
 ## [2.2.0] - 2026-07-06 — "TRANSCENDENCE"
 
 ### 🚀 Tier 7-8: the remaining attack surfaces

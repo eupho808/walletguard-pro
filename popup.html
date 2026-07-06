@@ -335,9 +335,16 @@
     <div class="wg-onboarding" id="onboarding-overlay" hidden>
       <div class="wg-onboarding__backdrop"></div>
       <div class="wg-onboarding__panel" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <div class="wg-onboarding__icon" id="onboarding-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M32 4L8 14v18c0 14 10 26 24 28 14-2 24-14 24-28V14L32 4z"/>
+            <path d="M22 32l7 7 14-14"/>
+          </svg>
+        </div>
         <div class="wg-onboarding__indicator" id="onboarding-indicator"></div>
         <h2 class="wg-onboarding__title" id="onboarding-title"></h2>
         <p class="wg-onboarding__body" id="onboarding-body"></p>
+        <ul class="wg-onboarding__bullets" id="onboarding-bullets"></ul>
         <div class="wg-onboarding__dots" id="onboarding-dots"></div>
         <div class="wg-onboarding__actions">
           <button class="wg-btn wg-btn--ghost" id="onboarding-skip"

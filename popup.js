@@ -1050,6 +1050,18 @@
     if (!completed) showOnboardingStep(0);
   }
 
+  // 4 onboarding icons (one per step)
+  const ONBOARDING_ICONS = [
+    // 1. Welcome — shield with check
+    `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M32 4L8 14v18c0 14 10 26 24 28 14-2 24-14 24-28V14L32 4z"/><path d="M22 32l7 7 14-14"/></svg>`,
+    // 2. Real-time analysis — magnifier + radar
+    `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="26" cy="26" r="16"/><path d="M38 38l16 16"/><path d="M26 18v16M18 26h16"/></svg>`,
+    // 3. 20 attack surfaces — grid
+    `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="6" width="20" height="20" rx="3"/><rect x="38" y="6" width="20" height="20" rx="3"/><rect x="6" y="38" width="20" height="20" rx="3"/><rect x="38" y="38" width="20" height="20" rx="3"/><path d="M26 16h12M48 16v12M48 48H26M16 48V36"/></svg>`,
+    // 4. You're all set — sparkle/rocket
+    `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M32 6l6 14 14 6-14 6-6 14-6-14-14-6 14-6z"/><path d="M48 48l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/></svg>`
+  ];
+
   function showOnboardingStep(idx) {
     const overlay = document.getElementById("onboarding-overlay");
     if (!overlay) return;
@@ -1059,6 +1071,20 @@
     document.getElementById("onboarding-body").textContent  = t("onboarding.step" + n + ".body");
     document.getElementById("onboarding-indicator").textContent =
       t("onboarding.indicator", { current: n, total: ONBOARDING_STEPS });
+
+    // Icon
+    const iconEl = document.getElementById("onboarding-icon");
+    if (iconEl && ONBOARDING_ICONS[idx]) {
+      iconEl.innerHTML = ONBOARDING_ICONS[idx];
+    }
+
+    // Bullets (pipe-separated in i18n)
+    const bulletsEl = document.getElementById("onboarding-bullets");
+    if (bulletsEl) {
+      const bulletsStr = t("onboarding.step" + n + ".bullets") || "";
+      const items = bulletsStr.split("|").map((s) => s.trim()).filter(Boolean);
+      bulletsEl.innerHTML = items.map((b) => `<li>${escapeHtml(b)}</li>`).join("");
+    }
 
     const dotsEl = document.getElementById("onboarding-dots");
     dotsEl.innerHTML = "";
