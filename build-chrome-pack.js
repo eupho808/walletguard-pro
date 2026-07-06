@@ -2,14 +2,15 @@
 //
 // Run with:  node build-chrome-pack.js
 //
-// Produces:  walletguard-pro-v1.5.1.zip in the project root,
+// Produces:  walletguard-pro-v<VERSION>.zip in the project root,
 //            ready to upload at https://chrome.google.com/webstore/devconsole/
+//            (VERSION read from package.json)
 //
 // What it does:
 //   1. Creates a staging dir (dist-chrome/) by copying the project.
 //   2. Excludes dev cruft (.git/, node_modules/, screenshots/reference/,
-//      screenshots/popup-mock.html, .github/, dist-chrome/,
-//      dist-firefox/, build artifacts, ZIPs).
+//      screenshots/popup-mock.html, .github/, packages/, assets/, dist-*,
+//      build artifacts, all *.zip files at any version).
 //   3. Leaves manifest.json as-is (Chrome uses manifest.json at root).
 //   4. Creates a ZIP archive from the staged contents.
 //   5. Cleans up staging.
@@ -40,7 +41,9 @@ const EXCLUDE_DIRS = [
   "dist-chrome", "dist-firefox",
   "reference",         // screenshots/reference/ — test captures, not for store
   "lib",               // bundled into content.js + popup-bundle.js
-  "site"               // GitHub Pages source, not part of extension
+  "site",              // GitHub Pages source, not part of extension
+  "packages",          // npm monorepo packages (walletguard-core), separate from extension
+  "assets"             // brand kit (banners), not part of extension runtime
 ];
 
 const EXCLUDE_FILES = [
@@ -55,12 +58,19 @@ const EXCLUDE_FILES = [
   "CHECKPOINT.md", "PROJECT_STATE.md", "SELF_AUDIT.md",
   // Screenshots: dev reference
   "popup-mock.html",
-  // Stale / current ZIPs
-  "walletguard-pro-v1.5.0.zip",
-  "walletguard-pro-firefox-v1.5.0.zip",
-  `walletguard-pro-v${VERSION}.zip`,
-  `walletguard-pro-firefox-v${VERSION}.zip`
+  // Git metadata
+  ".gitignore", ".gitattributes",
+  // All ZIPs at any version (handled dynamically below too)
+  "walletguard-pro.zip", "walletguard-pro-firefox.zip"
 ];
+
+// Dynamically exclude all *.zip files in root to prevent stale version bundling.
+function isExcludedFile(name) {
+  if (EXCLUDE_FILES.includes(name)) return true;
+  // Any ZIP file in root (e.g. walletguard-pro-v1.5.0.zip, walletguard-pro-v1.5.2.zip, ...)
+  if (/^walletguard-pro.*\.zip$/i.test(name)) return true;
+  return false;
+}
 
 function rimraf(p) {
   if (!fs.existsSync(p)) return;
@@ -78,7 +88,7 @@ function copyDirFiltered(src, dst, relBase) {
     if (EXCLUDE_DIRS.includes(relPath) || EXCLUDE_DIRS.includes(entry.name)) continue;
     if (entry.isDirectory()) {
       copyDirFiltered(srcPath, dstPath, relPath);
-    } else if (!EXCLUDE_FILES.includes(relPath) && !EXCLUDE_FILES.includes(entry.name)) {
+    } else if (!isExcludedFile(relPath) && !isExcludedFile(entry.name)) {
       fs.copyFileSync(srcPath, dstPath);
     }
   }

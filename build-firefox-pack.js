@@ -2,13 +2,14 @@
 //
 // Run with:  node build-firefox-pack.js
 //
-// Produces:  walletguard-pro-firefox-v1.5.1.zip in the project root,
+// Produces:  walletguard-pro-firefox-v<VERSION>.zip in the project root,
 //            ready to upload at https://addons.mozilla.org/developers/addon/submit/
+//            (VERSION read from package.json)
 //
 // What it does:
 //   1. Creates a staging dir (dist-firefox/) by copying the project.
 //   2. Excludes dev cruft (.git/, node_modules/, screenshots/reference/,
-//      screenshots/popup-mock.html, .github/).
+//      screenshots/popup-mock.html, .github/, packages/, assets/, all *.zip).
 //   3. In staging, renames manifest.firefox.json -> manifest.json
 //      (Firefox requires manifest.json at root).
 //   4. Creates a ZIP archive from the staged contents.
@@ -26,8 +27,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ROOT = __dirname;
+
+// Read version from package.json so this stays in sync automatically.
+const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+const VERSION = pkg.version;
+
 const STAGING = path.join(ROOT, "dist-firefox");
-const ZIP_PATH = path.join(ROOT, `walletguard-pro-firefox-v1.5.1.zip`);
+const ZIP_PATH = path.join(ROOT, `walletguard-pro-firefox-v${VERSION}.zip`);
 const FIREFOX_MANIFEST = path.join(ROOT, "manifest.firefox.json");
 
 const EXCLUDE_DIRS  = [
@@ -35,7 +41,9 @@ const EXCLUDE_DIRS  = [
   "dist-firefox", "dist-chrome",
   "reference",   // screenshots/reference/ — test captures, not for store
   "lib",         // bundled into content.js + popup-bundle.js
-  "site"         // GitHub Pages source, not part of extension
+  "site",        // GitHub Pages source, not part of extension
+  "packages",    // npm monorepo packages (walletguard-core), separate from extension
+  "assets"       // brand kit (banners), not part of extension runtime
 ];
 
 const EXCLUDE_FILES = [
@@ -50,12 +58,16 @@ const EXCLUDE_FILES = [
   "CHECKPOINT.md", "PROJECT_STATE.md", "SELF_AUDIT.md",
   // Screenshots: dev reference
   "popup-mock.html",
-  // Stale / current ZIPs
-  "walletguard-pro-v1.5.0.zip",
-  "walletguard-pro-firefox-v1.5.0.zip",
-  "walletguard-pro-v1.5.1.zip",
-  "walletguard-pro-firefox-v1.5.1.zip"
+  // Git metadata
+  ".gitignore", ".gitattributes"
 ];
+
+// Dynamically exclude all *.zip files in root to prevent stale version bundling.
+function isExcludedFile(name) {
+  if (EXCLUDE_FILES.includes(name)) return true;
+  if (/^walletguard-pro.*\.zip$/i.test(name)) return true;
+  return false;
+}
 
 function rimraf(p) {
   if (!fs.existsSync(p)) return;
@@ -73,7 +85,7 @@ function copyDirFiltered(src, dst, relBase) {
     if (EXCLUDE_DIRS.includes(relPath) || EXCLUDE_DIRS.includes(entry.name)) continue;
     if (entry.isDirectory()) {
       copyDirFiltered(srcPath, dstPath, relPath);
-    } else if (!EXCLUDE_FILES.includes(relPath) && !EXCLUDE_FILES.includes(entry.name)) {
+    } else if (!isExcludedFile(relPath) && !isExcludedFile(entry.name)) {
       fs.copyFileSync(srcPath, dstPath);
     }
   }
@@ -104,7 +116,7 @@ function zipDirUnix(srcDir, zipPath) {
   return r.status === 0;
 }
 
-console.log("==> Packaging WalletGuard Pro for Firefox AMO\n");
+console.log(`==> Packaging WalletGuard Pro v${VERSION} for Firefox AMO\n`);
 
 // 1. Verify Firefox manifest exists.
 if (!fs.existsSync(FIREFOX_MANIFEST)) {
