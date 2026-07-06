@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "WalletGuard Pro",
+    "description": "확장 프로그램 표시 이름"
+  },
+  "extensionShortName": {
+    "message": "WalletGuard Pro",
+    "description": "컴팩트 UI 컨텍스트용 짧은 이름"
+  },
+  "extensionDescription": {
+    "message": "Web3 지갑용 독립적인 보안 레이어. 거래를 가로채고, calldata를 디코드하며, 9개 체인에서 ERC-20/NFT 승인을 스캔하고, 피싱 및 타이포스쿼트 도메인을 감지합니다. API 키가 필요하지 않습니다.",
+    "description": "Chrome 웹 스토어에 표시되는 확장 프로그램 설명"
+  }
+}

@@ -7,8 +7,8 @@
 //   4. Fallback to English when a key is missing in the active locale.
 //   5. Key-as-fallback when missing everywhere.
 //   6. setMessages / setLocaleMessages for test injection.
-//   7. All 4 locale files load and have matching key sets.
-//   8. Popup bundle injects all 4 locales via __WG_LOCALES__.
+//   7. All 6 locale files load and have matching key sets.
+//   8. Popup bundle injects all 6 locales via __WG_LOCALES__.
 
 import fs from "fs";
 import path from "path";
@@ -31,6 +31,8 @@ import { MESSAGES as EN } from "./lib/locales/en.js";
 import { MESSAGES as RU } from "./lib/locales/ru.js";
 import { MESSAGES as ES } from "./lib/locales/es.js";
 import { MESSAGES as ZH } from "./lib/locales/zh.js";
+import { MESSAGES as JA } from "./lib/locales/ja.js";
+import { MESSAGES as KO } from "./lib/locales/ko.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -144,9 +146,17 @@ for (const k of [...SIM_KEYS, ...ADDR_KEYS]) {
     console.log(`  FAIL zh missing/empty: ${k}`);
     v2KeyFailures++;
   }
+  if (typeof JA[k] !== "string" || JA[k].trim() === "") {
+    console.log(`  FAIL ja missing/empty: ${k}`);
+    v2KeyFailures++;
+  }
+  if (typeof KO[k] !== "string" || KO[k].trim() === "") {
+    console.log(`  FAIL ko missing/empty: ${k}`);
+    v2KeyFailures++;
+  }
 }
 if (v2KeyFailures === 0) {
-  ok(`v2.0 keys present in all 4 locales (${SIM_KEYS.length + ADDR_KEYS.length} keys)`);
+  ok(`v2.0 keys present in all 6 locales (${SIM_KEYS.length + ADDR_KEYS.length} keys)`);
 } else {
   failed += v2KeyFailures;
 }
@@ -172,22 +182,34 @@ setLocale("es"); // re-resolve messages after adding es
 eq(t("a"), "A-es", "es after setLocaleMessages(es) + setLocale(es) returns A-es");
 
 // ---- 8. availableLocales ----
-setMessages({ en: EN, ru: RU, es: ES, zh: ZH });
+setMessages({ en: EN, ru: RU, es: ES, zh: ZH, ja: JA, ko: KO });
 const avail = availableLocales();
-if (avail.includes("en") && avail.includes("ru") && avail.includes("es") && avail.includes("zh")) {
-  ok(`availableLocales includes all 4 (got ${avail.length})`);
+if (avail.includes("en") && avail.includes("ru") && avail.includes("es") && avail.includes("zh") && avail.includes("ja") && avail.includes("ko")) {
+  ok(`availableLocales includes all 6 (got ${avail.length})`);
 } else {
   console.log(`  FAIL availableLocales missing one: ${avail.join(",")}`);
   failed++;
 }
 
 // ---- 9. SUPPORTED_LOCALES / DEFAULT_LOCALE / LOCALE_DISPLAY ----
-eq(SUPPORTED_LOCALES.length, 4, "SUPPORTED_LOCALES has 4 entries");
+eq(SUPPORTED_LOCALES.length, 6, "SUPPORTED_LOCALES has 6 entries");
 eq(DEFAULT_LOCALE, "en", "DEFAULT_LOCALE is en");
 if (LOCALE_DISPLAY.ru && /[\u0400-\u04ff]/.test(LOCALE_DISPLAY.ru)) {
   ok("LOCALE_DISPLAY.ru contains Cyrillic");
 } else {
   console.log(`  FAIL LOCALE_DISPLAY.ru: ${JSON.stringify(LOCALE_DISPLAY.ru)}`);
+  failed++;
+}
+if (LOCALE_DISPLAY.ja && /[\u3040-\u30ff\u4e00-\u9fff]/.test(LOCALE_DISPLAY.ja)) {
+  ok("LOCALE_DISPLAY.ja contains Japanese chars");
+} else {
+  console.log(`  FAIL LOCALE_DISPLAY.ja: ${JSON.stringify(LOCALE_DISPLAY.ja)}`);
+  failed++;
+}
+if (LOCALE_DISPLAY.ko && /[\uac00-\ud7af]/.test(LOCALE_DISPLAY.ko)) {
+  ok("LOCALE_DISPLAY.ko contains Korean chars");
+} else {
+  console.log(`  FAIL LOCALE_DISPLAY.ko: ${JSON.stringify(LOCALE_DISPLAY.ko)}`);
   failed++;
 }
 
@@ -196,6 +218,8 @@ const enKeys = new Set(Object.keys(EN));
 const ruKeys = new Set(Object.keys(RU));
 const esKeys = new Set(Object.keys(ES));
 const zhKeys = new Set(Object.keys(ZH));
+const jaKeys = new Set(Object.keys(JA));
+const koKeys = new Set(Object.keys(KO));
 
 function missingKeys(haveSet, refSet) {
   return [...refSet].filter((k) => !haveSet.has(k));
@@ -210,6 +234,10 @@ const esMissing = missingKeys(esKeys, enKeys);
 const esExtra = extraKeys(esKeys, enKeys);
 const zhMissing = missingKeys(zhKeys, enKeys);
 const zhExtra = extraKeys(zhKeys, enKeys);
+const jaMissing = missingKeys(jaKeys, enKeys);
+const jaExtra = extraKeys(jaKeys, enKeys);
+const koMissing = missingKeys(koKeys, enKeys);
+const koExtra = extraKeys(koKeys, enKeys);
 
 if (ruMissing.length === 0 && ruExtra.length === 0) {
   ok("ru.js has same key set as en.js");
@@ -238,9 +266,27 @@ if (zhMissing.length === 0 && zhExtra.length === 0) {
   failed++;
 }
 
+if (jaMissing.length === 0 && jaExtra.length === 0) {
+  ok("ja.js has same key set as en.js");
+} else {
+  console.log(`  FAIL ja.js keys differ: missing=${jaMissing.length} extra=${jaExtra.length}`);
+  if (jaMissing.length) console.log(`    missing: ${jaMissing.slice(0, 5).join(", ")}`);
+  if (jaExtra.length) console.log(`    extra:   ${jaExtra.slice(0, 5).join(", ")}`);
+  failed++;
+}
+
+if (koMissing.length === 0 && koExtra.length === 0) {
+  ok("ko.js has same key set as en.js");
+} else {
+  console.log(`  FAIL ko.js keys differ: missing=${koMissing.length} extra=${koExtra.length}`);
+  if (koMissing.length) console.log(`    missing: ${koMissing.slice(0, 5).join(", ")}`);
+  if (koExtra.length) console.log(`    extra:   ${koExtra.slice(0, 5).join(", ")}`);
+  failed++;
+}
+
 // ---- 11. No empty translations ----
 let emptyCount = 0;
-for (const [code, msgs] of [["en", EN], ["ru", RU], ["es", ES], ["zh", ZH]]) {
+for (const [code, msgs] of [["en", EN], ["ru", RU], ["es", ES], ["zh", ZH], ["ja", JA], ["ko", KO]]) {
   for (const k of Object.keys(msgs)) {
     if (typeof msgs[k] !== "string" || msgs[k].trim() === "") {
       emptyCount++;
@@ -257,7 +303,7 @@ if (popupSrc.includes("__WG_LOCALES__")) {
   console.log(`  FAIL popup-bundle.js missing __WG_LOCALES__`);
   failed++;
 }
-for (const code of ["en", "ru", "es", "zh"]) {
+for (const code of ["en", "ru", "es", "zh", "ja", "ko"]) {
   if (popupSrc.includes(`"${code}":`)) {
     ok(`popup-bundle.js contains locale "${code}"`);
   } else {

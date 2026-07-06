@@ -42,7 +42,12 @@
     "0x2105":  { name: "Base",      id: 8453 },
     "0xa4b1":  { name: "Arbitrum",  id: 42161 },
     "0xa86a":  { name: "Avalanche", id: 43114 },
-    "0xaa36a7":{ name: "Sepolia",   id: 11155111 }
+    "0xaa36a7":{ name: "Sepolia",   id: 11155111 },
+    // ---- New L2s added in v3.3 ----
+    "0x144":   { name: "zkSync Era", id: 324 },
+    "0xe708":  { name: "Linea",      id: 59144 },
+    "0x13e31": { name: "Blast",      id: 81457 },
+    "0x868b":  { name: "Mode",       id: 34443 }
   };
 
   // Reverse lookup: chainId (number) -> display info.
@@ -76,7 +81,12 @@
     8453:     "https://mainnet.base.org",
     42161:    "https://arb1.arbitrum.io/rpc",
     43114:    "https://api.avax.network/ext/bc/C/rpc",
-    11155111: "https://ethereum-sepolia-rpc.publicnode.com"
+    11155111: "https://ethereum-sepolia-rpc.publicnode.com",
+    // ---- New L2s added in v3.3 ----
+    324:      "https://mainnet.era.zksync.io",
+    59144:    "https://rpc.linea.build",
+    81457:    "https://rpc.blast.io",
+    34443:    "https://mainnet.mode.network"
   };
 
   // Per-chain lookback cap (in blocks). Different chains have very
@@ -88,6 +98,10 @@
   //   - Fantom:                              ~1.5s blocks -> 5M blocks ~= 3 months
   //   - BNB Chain:                            ~3s blocks -> 3M blocks ~= 1 year
   //   - Arbitrum:                           ~0.26s blocks -> 5M blocks ~= 2 weeks (max needed)
+  //   - zkSync Era:                          ~1s blocks -> 3M blocks ~= 1 month
+  //   - Linea:                              ~2s blocks -> 5M blocks ~= 4 months
+  //   - Blast:                              ~2s blocks -> 5M blocks ~= 4 months
+  //   - Mode:                               ~2s blocks -> 5M blocks ~= 4 months
   const CHAIN_LOOKBACK = {
     1:        1000000n,
     10:       1000000n,
@@ -97,7 +111,12 @@
     8453:     1000000n,
     42161:    5000000n,
     43114:    5000000n,
-    11155111: 1000000n
+    11155111: 1000000n,
+    // ---- New L2s added in v3.3 ----
+    324:      3000000n,
+    59144:    5000000n,
+    81457:    5000000n,
+    34443:    5000000n
   };
 
   // Approval(address,address,uint256) event signature topic

@@ -9,7 +9,7 @@
 //   • Mempool exposure heuristics
 //   • Address book helpers
 
-import { simulate, detectRevert, detectMevRisk } from "./lib/simulator.js";
+import { simulate, detectRevert, detectMevRisk, classifyError, checkExistingAllowance } from "./lib/simulator.js";
 import { assessMevRisk, estimatePriceImpact } from "./lib/mev-detector.js";
 import { diffTransaction } from "./lib/simulator.js";
 import { normalizeAddress, isValidEntry } from "./lib/address-book.js";
@@ -77,6 +77,77 @@ await test("parses panic code", async () => {
 await test("handles missing provider", async () => {
   const result = await detectRevert({ to: "0xabc", data: "0x" }, null);
   assert.equal(result.reason, "no-provider");
+});
+
+// ---------- classifyError() — error categorization ----------
+await test("classifyError: user-rejected", async () => {
+  const r = classifyError("MetaMask Tx Signature: User rejected the transaction.");
+  assert.equal(r.category, "user-rejected");
+  assert.match(r.friendly, /cancelled/);
+});
+await test("classifyError: insufficient-funds", async () => {
+  const r = classifyError("insufficient funds for gas * price + value");
+  assert.equal(r.category, "insufficient-funds");
+  assert.match(r.friendly, /ETH/i);
+});
+await test("classifyError: nonce too low", async () => {
+  const r = classifyError("nonce too low");
+  assert.equal(r.category, "nonce");
+  assert.match(r.friendly, /nonce/i);
+});
+await test("classifyError: nonce too high", async () => {
+  const r = classifyError("replacement transaction underpriced");
+  assert.equal(r.category, "nonce");
+});
+await test("classifyError: rpc network error", async () => {
+  const r = classifyError("fetch failed: ECONNRESET");
+  assert.equal(r.category, "rpc-error");
+  assert.match(r.friendly, /RPC|internet/i);
+});
+await test("classifyError: rpc timeout", async () => {
+  const r = classifyError("Request timeout after 30000ms");
+  assert.equal(r.category, "rpc-error");
+});
+await test("classifyError: rpc 502 bad gateway", async () => {
+  const r = classifyError("502 Bad Gateway from upstream");
+  assert.equal(r.category, "rpc-error");
+});
+await test("classifyError: gas estimation failed", async () => {
+  const r = classifyError("gas required exceeds allowance or gas estimation failed");
+  assert.equal(r.category, "gas-estimation");
+  assert.match(r.friendly, /Gas estimation/);
+});
+await test("classifyError: revert", async () => {
+  const r = classifyError("execution reverted: ERC20: transfer amount exceeds balance");
+  assert.equal(r.category, "revert");
+  assert.match(r.friendly, /smart contract rejected/);
+});
+await test("classifyError: unknown", async () => {
+  const r = classifyError("something completely unexpected happened");
+  assert.equal(r.category, "unknown");
+});
+await test("classifyError: null/empty input", async () => {
+  assert.equal(classifyError("").category, "unknown");
+  assert.equal(classifyError(null).category, "unknown");
+});
+
+// ---------- detectRevert() now returns category + friendly ----------
+await test("detectRevert includes category=friendly fields on revert", async () => {
+  const provider = mockProvider({
+    "eth_call:{\"to\":\"0xabc\",\"data\":\"0x\",\"from\":\"0xdef\",\"value\":\"0x0\"}": new Error("execution reverted: Insufficient balance")
+  });
+  const result = await detectRevert({ to: "0xabc", data: "0x", from: "0xdef" }, provider);
+  assert.equal(result.ok, false);
+  assert.equal(result.category, "revert");
+  assert.ok(typeof result.friendly === "string" && result.friendly.length > 0);
+});
+await test("detectRevert categorizes RPC errors", async () => {
+  const provider = mockProvider({
+    "eth_call:{\"to\":\"0xabc\",\"data\":\"0x\",\"value\":\"0x0\"}": new Error("fetch failed")
+  });
+  const result = await detectRevert({ to: "0xabc", data: "0x" }, provider);
+  assert.equal(result.category, "rpc-error");
+  assert.match(result.friendly, /RPC|internet/);
 });
 
 // ---------- simulate() ----------
@@ -212,6 +283,129 @@ await test("isValidEntry rejects empty label", () => {
 });
 await test("isValidEntry rejects too long", () => {
   assert.equal(isValidEntry({ label: "x".repeat(100) }), false);
+});
+
+// ---------- checkExistingAllowance() — pre-flight approval check ----------
+await test("checkExistingAllowance: no findings for non-approve tx", async () => {
+  const provider = mockProvider({});
+  const tx = { to: "0xabc", data: "0xdecafbad", from: "0xfrom" };
+  const findings = await checkExistingAllowance(tx, provider);
+  assert.equal(findings.length, 0);
+});
+
+await test("checkExistingAllowance: flags redundant unlimited allowance", async () => {
+  // approve(address 0xSpender, uint256 MAX) with existing allowance = MAX
+  const spender = "0x" + "b".repeat(40);
+  const spenderPadded = spender.slice(2).padStart(64, "0");
+  const maxUint256 = "f".repeat(64);
+  const approveData = "0x095ea7b3" + spenderPadded + maxUint256;
+  const owner = "0x" + "a".repeat(40);
+  const ownerPadded = owner.slice(2).padStart(64, "0");
+  const allowanceData = "0xdd62ed3e" + ownerPadded + spenderPadded;
+  const provider = mockProvider({
+    [`eth_call:{"to":"0xtoken","data":"${allowanceData}"}`]: "0x" + "f".repeat(64)
+  });
+  const findings = await checkExistingAllowance(
+    { to: "0xtoken", data: approveData, from: owner },
+    provider
+  );
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].type, "existing-unlimited-allowance");
+  assert.equal(findings[0].severity, "info");
+});
+
+await test("checkExistingAllowance: flags upgrade to unlimited", async () => {
+  const spender = "0x" + "b".repeat(40);
+  const spenderPadded = spender.slice(2).padStart(64, "0");
+  const maxUint256 = "f".repeat(64);
+  const approveData = "0x095ea7b3" + spenderPadded + maxUint256;
+  const owner = "0x" + "a".repeat(40);
+  const ownerPadded = owner.slice(2).padStart(64, "0");
+  const allowanceData = "0xdd62ed3e" + ownerPadded + spenderPadded;
+  const provider = mockProvider({
+    // existing allowance is non-zero but not max (e.g. 1000 USDC)
+    [`eth_call:{"to":"0xtoken","data":"${allowanceData}"}`]: "0x" + "0".repeat(60) + "3e8"
+  });
+  const findings = await checkExistingAllowance(
+    { to: "0xtoken", data: approveData, from: owner },
+    provider
+  );
+  const types = findings.map(f => f.type);
+  assert.ok(types.includes("existing-allowance"), "should flag existing allowance");
+  assert.ok(types.includes("upgrade-to-unlimited"), "should flag upgrade to unlimited");
+});
+
+await test("checkExistingAllowance: no findings when existing is zero", async () => {
+  const spender = "0x" + "b".repeat(40);
+  const spenderPadded = spender.slice(2).padStart(64, "0");
+  const amount = "0".repeat(63) + "1"; // 1 wei
+  const approveData = "0x095ea7b3" + spenderPadded + amount;
+  const owner = "0x" + "a".repeat(40);
+  const ownerPadded = owner.slice(2).padStart(64, "0");
+  const allowanceData = "0xdd62ed3e" + ownerPadded + spenderPadded;
+  const provider = mockProvider({
+    [`eth_call:{"to":"0xtoken","data":"${allowanceData}"}`]: "0x0"
+  });
+  const findings = await checkExistingAllowance(
+    { to: "0xtoken", data: approveData, from: owner },
+    provider
+  );
+  assert.equal(findings.length, 0);
+});
+
+await test("checkExistingAllowance: approve to zero address is skipped", async () => {
+  const spenderPadded = "0".repeat(64);
+  const approveData = "0x095ea7b3" + spenderPadded + "0".repeat(64);
+  const provider = mockProvider({});
+  const findings = await checkExistingAllowance(
+    { to: "0xtoken", data: approveData, from: "0xfrom" },
+    provider
+  );
+  assert.equal(findings.length, 0);
+});
+
+await test("checkExistingAllowance: setApprovalForAll flagged when already approved", async () => {
+  const operator = "0x" + "c".repeat(40);
+  const operatorPadded = operator.slice(2).padStart(64, "0");
+  const approved = "0".repeat(63) + "1"; // true
+  const setAllData = "0xa22cb465" + operatorPadded + approved;
+  const owner = "0x" + "a".repeat(40);
+  const ownerPadded = owner.slice(2).padStart(64, "0");
+  const isApprovedData = "0xe985e9c5" + ownerPadded + operatorPadded;
+  const provider = mockProvider({
+    [`eth_call:{"to":"0xnft","data":"${isApprovedData}"}`]: "0x1"
+  });
+  const findings = await checkExistingAllowance(
+    { to: "0xnft", data: setAllData, from: owner },
+    provider
+  );
+  assert.ok(findings.some(f => f.type === "existing-unlimited-allowance"));
+});
+
+await test("checkExistingAllowance: returns empty array on RPC failure", async () => {
+  const spender = "0x" + "b".repeat(40);
+  const spenderPadded = spender.slice(2).padStart(64, "0");
+  const approveData = "0x095ea7b3" + spenderPadded + "0".repeat(64);
+  const provider = {
+    request: async () => { throw new Error("RPC unreachable"); }
+  };
+  const findings = await checkExistingAllowance(
+    { to: "0xtoken", data: approveData, from: "0xfrom" },
+    provider
+  );
+  assert.equal(findings.length, 0);
+});
+
+await test("checkExistingAllowance: missing provider returns empty", async () => {
+  const findings = await checkExistingAllowance({ to: "0xtoken", data: "0x095ea7b3" + "0".repeat(128), from: "0xfrom" }, null);
+  assert.equal(findings.length, 0);
+});
+
+await test("simulate() includes preflightFindings field", async () => {
+  const provider = mockProvider({});
+  const tx = { to: "0xabc", data: "0xdecafbad", from: "0xfrom" };
+  const result = await simulate(tx, provider);
+  assert.ok(Array.isArray(result.preflightFindings), "preflightFindings is an array");
 });
 
 console.log(`\n${passed} passed, ${failed} failed`);

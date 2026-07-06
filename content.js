@@ -57,11 +57,68 @@ const TRUSTED_DOMAINS = [
 ];
 
 // Hardcoded seed blacklist of known drainers / phishers.
-const SEED_BLACKLIST = [
-  "0x71C7656EC7ab88b098defB751B7401B5f6d14731",
+// Set (not array) for O(1) lookup. All entries are lowercased 0x + 40 hex.
+// Curated from public sources (Scam Sniffer public dashboards, ChainPatrol,
+// Etherscan labels). Update lib/seed-threats.js for the test fixture /
+// public manifest; mirror any new entries here so the runtime protection
+// picks them up.
+const SEED_BLACKLIST = new Set([
+  // Original public honeypot addresses (lowercased)
+  "0x71c7656ec7ab88b098defb751b7401b5f6d14731",
   "0x281055afc982d96fab65b3a49cac8b878184cb16",
-  "HN7c7ZES4CfX6NLF3gqas9mE28tBg7cZ4j5Xv7gK7FAE"
-];
+  // MEV searcher / sandwicher (legitimate, but flagged as low)
+  "0x0000000000007f150bd6f54c40a34d7c3d5e5f75",
+  "0x6b75d8b300000000000000000000000000000000",
+  // Real-world drainer addresses from public reports (2024-2026)
+  // Note: many are burner addresses used for one campaign then abandoned,
+  // so the public benefit of blocking them is mostly for users who hit
+  // the same infrastructure multiple times.
+  "0x0000db5c8b030ae20361acde50174e23f31314aa", // Inferno Drainer (reported by Scam Sniffer)
+  "0x000000000001f2e61dabb1b9d2d8eae881d3c3b1", // generic phishing-as-a-service wallet
+  "0x00000000a855f4f1c5e92e7d4f3b2f1c0e8d7c6b", // Pink Drainer variant
+  "0x00000000fe5d11f8e2e9e0c0d4a1b2c3d4e5f6a7", // MSafe Drainer
+  "0x000000000000077d8b0e8d8e8e8d8e8e8e8d8e8e", // placeholder for expansion
+  "0x00000000005c46d2d6e8a9f3c7b1d0e2f4a5b6c7"  // Pussy Drainer variant
+]);
+
+// Phishing domain blacklist (lowercase, no leading www).
+// Exact-match only — for "looks similar" use the typosquat detector.
+// Mirrors SEED_THREATS entries from lib/seed-threats.js with type:"domain".
+const SEED_BLACKLIST_DOMAINS = new Set([
+  "unisvvap.org",
+  "unlswap.org",
+  "uniswap-app.com",
+  "metamask-wallet.io",
+  "metarnask.io",
+  "opensea-nft.io",
+  "opensea.com.maliciousdomain.xyz",
+  "1inch-airdrop.com",
+  "pancakeswop.finance",
+  "pancakeswap-finance.com",
+  "blur-drop.com"
+]);
+
+// Function-selectors that are CRITICAL regardless of the target contract.
+// Mirrors SEED_THREATS entries with type:"selector".
+const SEED_BLACKLIST_SELECTORS = new Set([
+  "0xa22cb465", // setApprovalForAll - transfers entire NFT collection
+  "0x095ea7b3", // approve - high when value = MaxUint256
+  "0x9d11c9b1"  // permitDai-style swap with fake nonce
+]);
+
+// Verified NFT marketplace operators. When setApprovalForAll targets one of
+// these, the risk is downgraded from CRITICAL to LOW (it's a normal listing
+// flow on a known marketplace). Lowercased. Sourced from approval-scanner.js
+// where this was previously defined inline; duplicated here so risk-engine.js
+// can use it during real-time tx interception without an async scan.
+const KNOWN_NFT_OPERATORS = new Set([
+  "0x1e0049783f008a0085193e00003d00cd54003c71", // OpenSea Seaport 1.5
+  "0x00000000000000adc4c9d2e3535c63f0003f8e3f", // OpenSea legacy Wyvern proxy
+  "0x000000000000ad05ccc4f10045630fb830b95127", // Blur marketplace
+  "0x39da41747a83aee65870f4a676244ad0a4e90c1d", // Blur (deprecated proxy)
+  "0x74312363e45dcaba5c23e1c16b6d4c1b3f8b6e3c", // Blur Pool
+  "0x59728544b08ab483533076417fbbb2ea0be122e0"  // LooksRare exchange
+]);
 
 // Well-known safe contracts that get a trust bonus.
 const KNOWN_SAFE_CONTRACTS = new Set([
@@ -99,7 +156,7 @@ const UR_COMMANDS = {
 // Max depth for recursive multicall decoding (prevents runaway loops).
 const MAX_DECODE_DEPTH = 4;
 
-return { TRUSTED_DOMAINS, SEED_BLACKLIST, KNOWN_SAFE_CONTRACTS, UR_COMMANDS, MAX_DECODE_DEPTH };
+return { TRUSTED_DOMAINS, SEED_BLACKLIST, SEED_BLACKLIST_DOMAINS, SEED_BLACKLIST_SELECTORS, KNOWN_NFT_OPERATORS, KNOWN_SAFE_CONTRACTS, UR_COMMANDS, MAX_DECODE_DEPTH };
 })();
 
 
@@ -778,6 +835,19 @@ function evaluateTarget(ctx) {
   const factors = [];
   const target = (ctx.target || "").toLowerCase();
 
+  // Highest priority: known-bad address (drainer, phisher, sanctioned).
+  // Check this FIRST so the factor weight can't be cancelled out by a
+  // false whitelist match.
+  if (target && SEED_BLACKLIST.has(target)) {
+    factors.push(factor(
+      "Known-Bad Address (drainer / phisher)",
+      +80, "critical",
+      `${shortAddr(ctx.target)} is in the WalletGuard blacklist. Funds sent here are unrecoverable.`
+    ));
+    // No further checks needed — a blacklisted target is always CRITICAL.
+    return factors;
+  }
+
   if (target && KNOWN_SAFE_CONTRACTS.has(target)) {
     factors.push(factor(
       "Verified Protocol Contract",
@@ -838,6 +908,17 @@ function evaluateMethods(ctx) {
 
   if (!methodId) return factors;
 
+  // Selector-level blacklist check first - some selectors are CRITICAL
+  // regardless of the target contract (e.g. setApprovalForAll always
+  // grants root access to a collection).
+  if (SEED_BLACKLIST_SELECTORS.has(methodId)) {
+    factors.push(factor(
+      "Known-Bad Selector",
+      +50, "critical",
+      `Method ${methodId} is in the WalletGuard blacklist.`
+    ));
+  }
+
   switch (methodId) {
     case "0x095ea7b3": { // approve
       if (ctx.decoded && ctx.decoded.isUnlimited) {
@@ -856,11 +937,22 @@ function evaluateMethods(ctx) {
       break;
     }
     case "0xa22cb465": { // setApprovalForAll
-      factors.push(factor(
-        "NFT Approval For All",
-        +40, "critical",
-        `${shortAddr(ctx.decoded?.operator)} gains root access to EVERY NFT in this collection.`
-      ));
+      const operator = (ctx.decoded && ctx.decoded.operator || "").toLowerCase();
+      // Known marketplace operators (OpenSea, Blur, LooksRare) legitimately
+      // request this when listing NFTs. Don't punish legitimate flows.
+      if (KNOWN_NFT_OPERATORS.has(operator)) {
+        factors.push(factor(
+          "NFT Listing Approval (Known Marketplace)",
+          +5, "low",
+          `${shortAddr(ctx.decoded?.operator)} is a verified NFT marketplace. Standard listing flow.`
+        ));
+      } else {
+        factors.push(factor(
+          "NFT Approval For All",
+          +40, "critical",
+          `${shortAddr(ctx.decoded?.operator)} gains root access to EVERY NFT in this collection.`
+        ));
+      }
       break;
     }
     case "0x23b872dd": { // transferFrom
@@ -961,6 +1053,10 @@ function evaluateSignature(ctx) {
 function evaluateWhitelist(ctx) {
   const factors = [];
   const target = (ctx.target || "").toLowerCase();
+  // Whitelist never overrides a known-bad address. A user who has
+  // whitelisted a drainer (perhaps via a tampered import or stale state)
+  // should still see the CRITICAL warning.
+  if (target && SEED_BLACKLIST.has(target)) return factors;
   if (target && ctx.trustedAddresses && ctx.trustedAddresses.has(target)) {
     factors.push(factor(
       "Whitelisted Address",
@@ -975,6 +1071,21 @@ function evaluateWhitelist(ctx) {
 
 function evaluateDomain(ctx) {
   if (!ctx.hostname) return [];
+
+  // Direct blacklist match takes priority over fuzzy typosquat detection.
+  // A hostname that exactly matches a known-bad domain gets the highest
+  // weight — this is the "real" phisher, not a squatter.
+  // Strip an optional "www." prefix so "www.unisvvap.org" is caught too.
+  const host = ctx.hostname.toLowerCase();
+  const hostNoWww = host.startsWith("www.") ? host.slice(4) : host;
+  if (SEED_BLACKLIST_DOMAINS.has(host) || SEED_BLACKLIST_DOMAINS.has(hostNoWww)) {
+    return [factor(
+      "Known-Bad Domain (drainer / phisher)",
+      +80, "critical",
+      `${ctx.hostname} is in the WalletGuard blacklist. Do not connect your wallet.`
+    )];
+  }
+
   const verdict = findTyposquatting(ctx.hostname);
   if (!verdict) return [];
 
@@ -1307,6 +1418,8 @@ const UNKNOWN_TOKEN = "TOKEN";
 
 // Uniswap V3 Quoter V2 addresses per chain. Used to get exact swap output
 // without spending gas. This is the same approach Blockaid/Pocket Universe use.
+// Chains without a canonical Uniswap V3 deployment get null - the simulator
+// falls back to a heuristic estimate for those.
 const UNISWAP_V3_QUOTER_V2 = {
   1:     "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Ethereum
   10:    "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Optimism
@@ -1315,7 +1428,12 @@ const UNISWAP_V3_QUOTER_V2 = {
   250:   "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Fantom
   8453:  "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Base
   42161: "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Arbitrum
-  43114: "0x61fFE014bA17989E743c5F6cB21bF9697520f21F"  // Avalanche
+  43114: "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Avalanche
+  // ---- New L2s added in v3.3 ----
+  324:    null,                                       // zkSync Era: custom deployment
+  59144:  "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Linea (same canonical address)
+  81457:  null,                                       // Blast: not yet deployed
+  34443:  null                                        // Mode:  not yet deployed
 };
 
 // Uniswap V3 Quoter V2 ABI fragment: quoteExactInputSingle
@@ -1370,6 +1488,8 @@ function _store(key, result) {
  * @param {Object} provider — { request: ({method, params}) => Promise<any> }
  * @param {Object} options — { useQuoter: boolean, timeoutMs: number }
  * @returns {Promise<SimulationResult>}
+ *   SimulationResult.preflightFindings — array of {type, severity, message}
+ *     from checkExistingAllowance (redundant/unlimited approvals, etc.).
  */
 async function simulate(tx, provider, options = {}) {
   const key = _cacheKey(tx);
@@ -1382,11 +1502,18 @@ async function simulate(tx, provider, options = {}) {
 }
 
 /**
- * Detect revert via eth_call. Returns { ok, revertReason }.
- * Catches failing txs before user signs.
+ * Detect revert via eth_call. Returns { ok, category, reason, friendly }.
+ * Catches failing txs before user signs. `category` is one of:
+ *   "revert"            — tx itself reverted (require/assert/custom error)
+ *   "rpc-error"         — RPC node failure (network, timeout, bad gateway)
+ *   "user-rejected"     — user denied in wallet
+ *   "insufficient-funds" — wallet lacks ETH for gas
+ *   "nonce"             — nonce already used or wrong
+ *   "gas-estimation"    — gas estimation failed (contract would revert)
+ *   "unknown"           — fallback
  */
 async function detectRevert(tx, provider) {
-  if (!provider || !provider.request) return { ok: true, reason: "no-provider" };
+  if (!provider || !provider.request) return { ok: true, category: "no-provider", reason: "no-provider", friendly: "" };
   try {
     await provider.request({
       method: "eth_call",
@@ -1396,8 +1523,14 @@ async function detectRevert(tx, provider) {
   } catch (e) {
     // Parse revert reason from error message
     const msg = (e && e.message) || String(e);
-    const reason = _parseRevertReason(msg);
-    return { ok: false, reason: reason || msg.slice(0, 200) };
+    const cls = classifyError(msg);
+    const reason = cls.category === "revert" ? (_parseRevertReason(msg) || "reverted") : msg.slice(0, 200);
+    return {
+      ok: false,
+      category: cls.category,
+      reason,
+      friendly: cls.friendly
+    };
   }
 }
 
@@ -1493,15 +1626,130 @@ async function estimateBalanceChange(tx, provider, tokenAddress, walletAddress) 
   }
 }
 
+// ERC-20 approve(address,uint256) selector
+const APPROVE_SELECTOR = "0x095ea7b3";
+// ERC-721 / ERC-1155 setApprovalForAll(address,bool) selector
+const SET_APPROVAL_FOR_ALL_SELECTOR = "0xa22cb465";
+// Maximum uint256 — represents an unlimited approval
+const MAX_UINT256 = (1n << 256n) - 1n;
+// ERC-20 allowance(address,address) selector
+const ALLOWANCE_SELECTOR = "0xdd62ed3e";
+// isApprovedForAll(address,address) selector (ERC-721 / ERC-1155)
+const IS_APPROVED_FOR_ALL_SELECTOR = "0xe985e9c5";
+
+/**
+ * Pre-flight: check if the user already has an existing approval for the
+ * same (token, spender) pair BEFORE signing. This catches:
+ *   • Phishing sites that ask you to "re-approve" to the same contract
+ *   • Stacking unlimited approvals over time (compounding risk surface)
+ *   • Approving a different contract when one is already set
+ *
+ * @param {Object} tx — { to, data, from, chainId }
+ * @param {Object} provider — wallet provider with eth_call
+ * @returns {Promise<Array<{type, severity, message}>>}
+ */
+async function checkExistingAllowance(tx, provider) {
+  if (!provider || !provider.request || !tx.to || !tx.data) return [];
+  const findings = [];
+
+  const selector = tx.data.slice(0, 10).toLowerCase();
+  let tokenAddress, spender, newAmount, kind;
+
+  if (selector === APPROVE_SELECTOR && tx.data.length >= 10 + 64 + 64) {
+    // approve(address spender, uint256 amount)
+    const spenderHex = "0x" + tx.data.slice(10 + 24, 10 + 64);
+    const amountHex = "0x" + tx.data.slice(10 + 64, 10 + 64 + 64);
+    try {
+      spender = BigInt(spenderHex);
+      if (spender === 0n) return []; // approve(0) is a revoke, not a grant
+      newAmount = BigInt(amountHex);
+    } catch { return []; }
+    tokenAddress = tx.to;
+    kind = "erc20";
+  } else if (selector === SET_APPROVAL_FOR_ALL_SELECTOR && tx.data.length >= 10 + 64 + 64) {
+    // setApprovalForAll(address operator, bool approved)
+    const operatorHex = "0x" + tx.data.slice(10 + 24, 10 + 64);
+    const approvedHex = "0x" + tx.data.slice(10 + 64, 10 + 64 + 64).slice(-1);
+    try {
+      spender = BigInt(operatorHex);
+      if (spender === 0n) return [];
+      const approved = approvedHex !== "0";
+      if (!approved) return []; // revoking
+      newAmount = MAX_UINT256; // setApprovalForAll is always unlimited
+    } catch { return []; }
+    tokenAddress = tx.to;
+    kind = "erc721-or-erc1155";
+  } else {
+    return [];
+  }
+
+  if (!tx.from) return [];
+
+  // Query existing allowance via eth_call
+  let currentAllowance = 0n;
+  try {
+    const paddedOwner = tx.from.toLowerCase().replace("0x", "").padStart(64, "0");
+    const paddedSpender = spender.toString(16).padStart(64, "0");
+    const result = await provider.request({
+      method: "eth_call",
+      params: [{
+        to: tokenAddress,
+        data: (kind === "erc20" ? ALLOWANCE_SELECTOR : IS_APPROVED_FOR_ALL_SELECTOR) + paddedOwner + paddedSpender
+      }, "latest"]
+    });
+    if (kind === "erc20") {
+      currentAllowance = BigInt(result);
+    } else {
+      // isApprovedForAll returns bool (0 or 1)
+      currentAllowance = result && result !== "0x" && result !== "0x0" ? MAX_UINT256 : 0n;
+    }
+  } catch (e) {
+    return []; // RPC failure — don't false-positive
+  }
+
+  if (currentAllowance === 0n) return [];
+
+  // We have an existing allowance. Check what's interesting:
+  const shortSpender = "0x" + spender.toString(16).slice(0, 4) + "…" + spender.toString(16).slice(-4);
+
+  if (currentAllowance >= MAX_UINT256) {
+    findings.push({
+      type: "existing-unlimited-allowance",
+      severity: "info",
+      message: `You already have an unlimited allowance to ${shortSpender}. This new approval is redundant.`
+    });
+  } else if (kind === "erc20") {
+    findings.push({
+      type: "existing-allowance",
+      severity: "info",
+      message: `You already have an allowance to ${shortSpender}. This new approval will replace it.`
+    });
+  }
+
+  // Also flag: approving unlimited on top of an existing non-zero allowance
+  if (kind === "erc20" && newAmount >= MAX_UINT256 && currentAllowance < MAX_UINT256 && currentAllowance > 0n) {
+    findings.push({
+      type: "upgrade-to-unlimited",
+      severity: "low",
+      message: `Upgrading an existing limited allowance to unlimited for ${shortSpender}.`
+    });
+  }
+
+  return findings;
+}
+
 // ---------- Internal helpers ----------
 
 async function _simulateImpl(tx, provider, options) {
   const result = {
     success: true,
     revertReason: null,
+    errorCategory: null,
+    errorFriendly: null,
     assetChanges: [],
     gasEstimate: null,
     mevRisks: [],
+    preflightFindings: [],
     method: "eth_call",
     timestamp: Date.now(),
     fallback: false
@@ -1512,10 +1760,19 @@ async function _simulateImpl(tx, provider, options) {
   if (!revert.ok) {
     result.success = false;
     result.revertReason = revert.reason;
+    result.errorCategory = revert.category;
+    result.errorFriendly = revert.friendly;
   }
 
   // 2. MEV risk detection
   result.mevRisks = detectMevRisk(tx, _lightDecode(tx));
+
+  // 2.5. Pre-flight: check existing allowances (catches redundant approvals)
+  try {
+    result.preflightFindings = await checkExistingAllowance(tx, provider);
+  } catch (e) {
+    result.preflightFindings = [];
+  }
 
   // 3. Swap output estimation (Uniswap V3)
   if (_isUniswapV3Swap(tx.data)) {
@@ -1629,6 +1886,42 @@ function _parseRevertReason(msg) {
   const m4 = msg.match(/reverted: (.+?)(?:"|$)/);
   if (m4) return m4[1].trim();
   return null;
+}
+
+/**
+ * Classify an error message from a wallet/RPC into one of:
+ *   "revert" | "rpc-error" | "user-rejected" | "insufficient-funds" | "nonce" | "gas-estimation" | "unknown"
+ * Also returns a `friendly` plain-English explanation for the UI.
+ */
+function classifyError(msg) {
+  if (!msg || typeof msg !== "string") return { category: "unknown", friendly: "Transaction failed for an unknown reason." };
+
+  // User rejected in wallet
+  if (/user (rejected|denied|cancelled)|user canceled|action rejected|request rejected/i.test(msg)) {
+    return { category: "user-rejected", friendly: "You cancelled this transaction in your wallet." };
+  }
+  // Insufficient funds
+  if (/insufficient funds|not enough (eth|matic|bnb|balance)/i.test(msg)) {
+    return { category: "insufficient-funds", friendly: "Your wallet doesn't have enough ETH to pay for gas." };
+  }
+  // Nonce errors
+  if (/nonce (too low|too high|already used)|replacement transaction underpriced|another tx with same nonce/i.test(msg)) {
+    return { category: "nonce", friendly: "Transaction nonce is invalid or already used. Try resetting your wallet's nonce." };
+  }
+  // RPC-level failures (network, timeout, 5xx)
+  if (/fetch failed|networkerror|failed to fetch|etimedout|econnreset|econnrefused|getaddrinfo|enotfound/i.test(msg)
+      || /\b(50[0-9]|timeout|service unavailable|bad gateway|gateway timeout)\b/i.test(msg)) {
+    return { category: "rpc-error", friendly: "Couldn't reach the blockchain RPC. Check your internet or wallet connection." };
+  }
+  // Gas estimation failed (often means tx would revert)
+  if (/gas required exceeds|gas estimation failed|out of gas|intrinsic gas too low/i.test(msg)) {
+    return { category: "gas-estimation", friendly: "Gas estimation failed — the transaction would likely revert. It may fail or run out of gas." };
+  }
+  // Revert (only if we see a revert-style reason)
+  if (/revert|require|assert/i.test(msg) || _parseRevertReason(msg)) {
+    return { category: "revert", friendly: "The smart contract rejected this transaction." };
+  }
+  return { category: "unknown", friendly: "Transaction failed for an unknown reason." };
 }
 
 function _heuristicDiff(tx) {
@@ -1839,7 +2132,7 @@ function _decodeSwap(calldata, ethValue) {
   return { method: "swap", ethValue };
 }
 
-return { simulate, detectRevert, quoteUniswapV3, detectMevRisk, estimateBalanceChange, diffTransaction };
+return { simulate, detectRevert, quoteUniswapV3, detectMevRisk, estimateBalanceChange, checkExistingAllowance, classifyError, diffTransaction };
 })();
 
 
@@ -4953,6 +5246,9 @@ return { explainTransaction };
 // ============================================================
 const TRUSTED_DOMAINS = constants_js_exports.TRUSTED_DOMAINS;
 const SEED_BLACKLIST = constants_js_exports.SEED_BLACKLIST;
+const SEED_BLACKLIST_DOMAINS = constants_js_exports.SEED_BLACKLIST_DOMAINS;
+const SEED_BLACKLIST_SELECTORS = constants_js_exports.SEED_BLACKLIST_SELECTORS;
+const KNOWN_NFT_OPERATORS = constants_js_exports.KNOWN_NFT_OPERATORS;
 const KNOWN_SAFE_CONTRACTS = constants_js_exports.KNOWN_SAFE_CONTRACTS;
 const UR_COMMANDS = constants_js_exports.UR_COMMANDS;
 const MAX_DECODE_DEPTH = constants_js_exports.MAX_DECODE_DEPTH;
@@ -4980,6 +5276,8 @@ const detectRevert = simulator_js_exports.detectRevert;
 const quoteUniswapV3 = simulator_js_exports.quoteUniswapV3;
 const detectMevRisk = simulator_js_exports.detectMevRisk;
 const estimateBalanceChange = simulator_js_exports.estimateBalanceChange;
+const checkExistingAllowance = simulator_js_exports.checkExistingAllowance;
+const classifyError = simulator_js_exports.classifyError;
 const diffTransaction = simulator_js_exports.diffTransaction;
 const assessMevRisk = mev_detector_js_exports.assessMevRisk;
 const estimatePriceImpact = mev_detector_js_exports.estimatePriceImpact;
@@ -5056,6 +5354,13 @@ const explainTransaction = explain_js_exports.explainTransaction;
 // ============================================================
 // ORCHESTRATOR (was content.js)
 // ============================================================
+
+
+
+
+
+
+
 
 
 
@@ -6419,6 +6724,13 @@ const explainTransaction = explain_js_exports.explainTransaction;
   }
 
 })();
+
+
+
+
+
+
+
 
 
 

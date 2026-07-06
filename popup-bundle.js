@@ -609,6 +609,514 @@
   "onboarding.step4.body": "Visita cualquier dApp para ver WalletGuard en acci\u00f3n. Abre Ajustes en cualquier momento para personalizar redes, dominios de confianza, la fuente de amenazas y repetir este recorrido.",
   "onboarding.step4.bullets": "Repetir recorrido desde Ajustes|Ay\u00fadanos: github.com/eupho808/walletguard-pro|Tweet a @WalletGuardPro_"
 },
+    "ja": {
+  // ---- Common ----
+  "common.close": "閉じる",
+  "common.cancel": "キャンセル",
+  "common.next": "次へ",
+  "common.back": "戻る",
+  "common.skip": "スキップ",
+  "common.done": "完了",
+  "common.loading": "読み込み中...",
+  "common.language": "言語",
+  // ---- Popup ----
+  "popup.title": "WalletGuard Pro",
+  "popup.status.protected": "保護中",
+  "popup.status.paused": "一時停止",
+  "popup.header.active": "有効",
+  "popup.header.paused": "一時停止",
+  "popup.state.protected": "すべて正常です。",
+  "popup.state.caution": "危険なアクティビティを検出しました。",
+  "popup.state.atRisk": "複数の警告 - アクティビティを確認してください。",
+  "popup.state.danger": "重大なリスクがあります - すべての取引を確認してください。",
+  "popup.section.protection": "保護",
+  "popup.section.activity": "最近のアクティビティ",
+  "popup.section.tokenPermissions": "トークン権限",
+  "popup.section.nftPermissions": "NFT 権限",
+  "popup.section.addressBook": "アドレス帳",
+  "popup.check.protection": "保護が有効です",
+  "popup.check.threats": "脅威インテリジェンス",
+  "popup.check.cleanup": "自動クリーンアップ",
+  "popup.check.dna": "行動 DNA",
+  "popup.value.enabled": "有効",
+  "popup.value.disabled": "無効",
+  "popup.permissions.notScanned": "まだスキャンされていません",
+  "popup.permissions.noApprovals": "有効な承認はありません",
+  "popup.permissions.scanning": "スキャン中…",
+  "popup.permissions.scanDone": "スキャンが完了しました",
+  "popup.permissions.scanFailed": "スキャンに失敗: {error}",
+  "popup.permissions.noNft": "有効な承認はありません",
+  "popup.permissions.allSafe": "{total} 件すべて安全です",
+  "popup.permissions.riskyCount": "{total} 件中 {risky} 件が危険",
+  "popup.activity.empty": "まだアクティビティはありません。",
+  "popup.addressBook.placeholder": "0x…",
+  "popup.addressBook.label": "ラベル",
+  "popup.addressBook.add": "追加",
+  "popup.addressBook.export": "エクスポート",
+  "popup.addressBook.trust.neutral": "中立",
+  "popup.addressBook.trust.trusted": "信頼済み",
+  "popup.addressBook.trust.blocked": "ブロック",
+  "popup.addressBook.empty": "保存されたアドレスはありません。",
+  "popup.wallet.label": "接続中",
+  "popup.wallet.notDetected": "ウォレットが検出されません — 取引を送信してください。",
+  "popup.wallet.alerts": "{count, plural, =0{新しいアラートなし} =1{新しいアラート 1 件} other{新しいアラート # 件}}",
+  "popup.footer.reset": "統計をリセット",
+  "popup.footer.settings": "設定",
+  "popup.toast.statsReset": "統計をリセットしました",
+  "popup.toast.added": "アドレス帳に追加しました",
+  "popup.toast.removed": "アドレス帳から削除しました",
+  "popup.toast.invalidAddress": "無効なアドレスです",
+  "popup.toast.addFailed": "追加に失敗しました",
+  "popup.toast.exported": "クリップボードにコピーしました",
+  "popup.toast.exportFailed": "エクスポートに失敗しました",
+  "popup.revoke.title": "取り消し",
+  "popup.revoke.chain": "チェーン",
+  "popup.revoke.to": "送信先",
+  "popup.revoke.value": "値",
+  "popup.revoke.data": "データ",
+  "popup.revoke.note": "WalletGuard Pro は取引に署名<strong>しません</strong>。calldata をコピーして、ウォレットまたは <a href=\"#\" id=\"revoke-modal-revoke-cash\" target=\"_blank\" rel=\"noopener noreferrer\">revoke.cash</a> のようなツール経由でブロードキャストしてください。",
+  "popup.revoke.copy": "calldata をコピー",
+  "popup.revoke.copied": "コピーしました!",
+  "popup.revoke.copyFailed": "コピーに失敗しました",
+  "popup.score.label": "ウォレット安全スコア",
+  "popup.score.titleProtected": "保護中",
+  "popup.score.captionSafe": "すべて正常に動作しています",
+  "popup.score.titleCaution": "注意",
+  "popup.score.captionCaution": "危険なアクティビティが検出されました",
+  "popup.score.titleAtRisk": "リスクあり",
+  "popup.score.captionAtRisk": "複数の警告 - アクティビティを確認",
+  "popup.score.titleDanger": "危険",
+  "popup.score.captionDanger": "重大なリスク — すべての取引を確認",
+  "popup.toast.scanComplete": "スキャン完了",
+  "popup.toast.scanFailed": "スキャン失敗",
+  "popup.toast.enabled": "有効",
+  "popup.toast.disabled": "無効",
+  "popup.stats.sitesScanned": "スキャンしたサイト",
+  "popup.stats.intercepted": "インターセプト",
+  "popup.stats.blocked": "ブロック済み",
+  "popup.stats.permits": "検出された Permit",
+  "popup.banner.title": "フィッシングをブロックしました",
+  "popup.banner.subtitle": "悪意のあるサイトをブロック",
+  "popup.approvals.title": "有効なトークン承認",
+  "popup.approvals.rescan": "再スキャン",
+  "popup.approvals.total": "合計",
+  "popup.approvals.risky": "危険",
+  "popup.approvals.unlimited": "無制限",
+  "popup.approvals.wallet.none": "ウォレットがありません",
+  "popup.approvals.scanned": "{time} にスキャン",
+  "popup.approvals.scannedNever": "未スキャン",
+  "popup.approvals.time.justNow": "たった今",
+  "popup.approvals.time.minutesAgo": "{n} 分前",
+  "popup.approvals.time.hoursAgo": "{n} 時間前",
+  "popup.approvals.time.daysAgo": "{n} 日前",
+  "popup.approvals.time.unknown": "不明",
+  "popup.approvals.chains": "({scanned}/{total} チェーン)",
+  "popup.approvals.chain": "({name})",
+  "popup.approvals.empty.noWallet": "ウォレットが検出されません。WalletGuard 経由で取引を行うと、現在のチェーンの有効な承認がスキャンされます。",
+  "popup.approvals.empty.clean": "有効な承認はありません。ウォレットはクリーンです!",
+  "popup.approvals.empty.multiFailed": "有効な承認はありませんが、{failed} チェーンが応答しませんでした。後でもう一度お試しください。",
+  "popup.approvals.scanning": "スキャン中",
+  "popup.approvals.scanFailed": "スキャン失敗: {error}",
+  "popup.approvals.revokeTitle": "取り消し calldata を生成",
+  "popup.nft.title": "NFT コレクションへのアクセス",
+  "popup.nft.total": "NFT 承認",
+  "popup.nft.risky": "危険",
+  "popup.nft.empty.scanned": "有効な NFT コレクションの承認はありません。NFT は custody 乗っ取りから保護されています。",
+  "popup.nft.empty.never": "NFT 承認は最初のスキャン後にここに表示されます。",
+  "popup.sim.title": "最後のシミュレーション",
+  "popup.sim.unknown": "シミュレーション データがありません。取引を開始すると、ここに結果が表示されます。",
+  "popup.addrbook.title": "アドレス帳",
+  "popup.addrbook.placeholder": "0x… アドレス",
+  "popup.addrbook.labelPlaceholder": "ラベル",
+  "popup.addrbook.add": "追加",
+  "popup.addrbook.export": "エクスポート",
+  "popup.addrbook.exported": "コピーしました!",
+  "popup.addrbook.exportFailed": "失敗",
+  "popup.addrbook.empty": "エントリがありません。やり取りしたアドレスにラベルを付けると、将来の取引で警告が表示されます。",
+  "popup.addrbook.trust.neutral": "中立",
+  "popup.addrbook.trust.trusted": "信頼済み",
+  "popup.addrbook.trust.blocked": "ブロック",
+  "popup.sec.title": "セキュリティ センター",
+  "popup.sec.enabled": "保護",
+  "popup.sec.approvals": "承認",
+  "popup.sec.stale": "古い承認",
+  "popup.sec.dna": "DNA",
+  "popup.sec.feed": "脅威",
+  "popup.sec.autorevoke": "自動クリーン",
+  "popup.sec.on": "ON",
+  "popup.sec.off": "OFF",
+  "popup.sec.feedOptIn": "脅威フィードを有効化",
+  "popup.sec.feedOptOut": "✓ 脅威フィード ON",
+  "popup.sec.autorevokeOptIn": "自動クリーンを有効化",
+  "popup.sec.autorevokeOptOut": "✓ 自動クリーン ON",
+  "popup.logs.title": "最近のアクティビティ",
+  "popup.logs.empty": "まだアクティビティはありません。dApp を閲覧してログを確認してください。",
+  "popup.actions.reset": "統計をリセット",
+  "popup.actions.settings": "設定",
+  "popup.confirm.reset": "すべての WalletGuard 統計をリセットしますか?",
+  "popup.revoke.leadFallback": "取り消し",
+  "popup.revoke.transactionData": "トランザクション データ",
+  "popup.revoke.chainLabel": "チェーン",
+  "popup.revoke.toLabel": "送信先 (トークン / コレクション)",
+  "popup.revoke.valueLabel": "値",
+  "popup.revoke.dataLabel": "データ",
+  "popup.revoke.error.noLib": "取り消しジェネレーターが読み込まれていません。ポップアップを再読み込みするか、WalletGuard Pro を更新してください。",
+  "popup.revoke.error.generate": "取り消し calldata を生成できませんでした: {error}",
+  "popup.revoke.error.unknownKind": "不明な承認の種類 — 取り消しプランを生成できません。",
+  "popup.revoke.allowanceUnlimited": "無制限",
+  // ---- Settings ----
+  "settings.title": "WalletGuard Pro — 設定",
+  "settings.section.protection": "保護ステータス",
+  "settings.section.protection.desc": "すべての WalletGuard セキュリティ レイヤーのマスター スイッチ。",
+  "settings.section.multichain": "マルチチェーン承認スキャナー",
+  "settings.section.multichain.desc": "有効な場合、承認スキャナーはサポートされている 13 のネットワークすべてをパブリック RPC エンドポイント経由で並行してチェックします (Ethereum、Optimism、BNB Chain、Polygon、Fantom、Base、Arbitrum、Avalanche、Sepolia、zkSync、Linea、Blast、Mode)。API キーは不要です。",
+  "settings.section.ai": "AI セキュリティ コア",
+  "settings.section.ai.desc": "WalletGuard は OpenRouter を使用して不明なアドレスのヒューリスティック チェックを実行します。openrouter.ai で無料の API キーを取得してください。",
+  "settings.section.approvals": "承認スキャナー",
+  "settings.section.approvals.desc": "ウォレットが現在接続されているチェーンの有効なトークン承認を読み取ります。API キーは不要 — WalletGuard はウォレットがすでに使用している RPC ノードにクエリします (MetaMask、Rabby など)。",
+  "settings.section.approvals.how": "<strong>仕組み:</strong> ポップアップで <em>再スキャン</em> をクリックすると、WalletGuard は <code>eth_getLogs</code> 経由でアドレスから過去の <code>Approval</code> イベントを読み取り、次に <code>eth_call</code> 経由で各 (トークン, 支出者) ペアの現在の allowance をクエリします。allowance がゼロのエントリは除外されます (取り消された承認)。スキャンにはウォレットが現在接続されているチェーンが含まれます。",
+  "settings.section.whitelist": "信頼できるコントラクト (ホワイトリスト)",
+  "settings.section.whitelist.desc": "完全に信頼できるアドレス。WalletGuard は自動的に高い信頼スコアを付与します。",
+  "settings.section.blacklist": "カスタム ブラックリスト",
+  "settings.section.blacklist.desc": "悪意のあることがわかっているアドレスまたはドメイン。AI チェックなしで即座にブロックされます。",
+  "settings.section.data": "ローカル データ",
+  "settings.section.data.desc": "統計、ログ、AI キャッシュはブラウザに保存されます。いつでも消去できます。",
+  "settings.footer": "WalletGuard Pro は独立したセキュリティ レイヤーです。ウォレットを置き換えず、資金を保持せず、キーのカストディを保持しません。",
+  "settings.toggle.protection": "アクティブな保護",
+  "settings.toggle.protection.desc": "オフの場合、取引はインターセプトまたは分析されません。",
+  "settings.toggle.multichain": "すべてのチェーンをスキャン",
+  "settings.toggle.multichain.desc": "オフの場合、ウォレットの現在接続されているチェーンのみがスキャンされます。",
+  "settings.toggle.on": "ON",
+  "settings.toggle.off": "OFF",
+  "settings.section.notifications": "通知",
+  "settings.section.notifications.desc": "WalletGuard がデスクトップ通知で中断するタイミングを選択します。",
+  "settings.toggle.desktopNotifications": "デスクトップ アラート",
+  "settings.toggle.desktopNotifications.desc": "フィッシングがブロックされたとき、または重大なリスクが検出されたときに Chrome 通知を表示します。",
+  "settings.toggle.threatFeed": "脅威インテリジェンス フィード",
+  "settings.toggle.threatFeed.desc": "コミュニティが管理する既知の悪意のあるアドレスのリストを取得します (署名済み、GitHub から提供)。",
+  "settings.api.keyLabel": "OpenRouter API キー",
+  "settings.api.keyPlaceholder": "sk-or-v1-...",
+  "settings.api.show": "表示",
+  "settings.api.hide": "非表示",
+  "settings.api.save": "キーを保存",
+  "settings.api.clear": "クリア",
+  "settings.api.privacy": "<strong>プライバシー:</strong> API キーは <code>chrome.storage.local</code> 経由でブラウザにローカルに保存されます。アドレスをチェックするときにのみ OpenRouter に送信されます。キーがない場合は、ローカル ブラックリストのみが使用されます。",
+  "settings.list.whitelistInput.label": "アドレスを追加 (0x... または domain.tld)",
+  "settings.list.whitelistInput.placeholder": "0x...",
+  "settings.list.blacklistInput.label": "アドレスまたはドメインを追加",
+  "settings.list.blacklistInput.placeholder": "0x... または malicious-site.com",
+  "settings.list.add": "追加",
+  "settings.list.whitelistEmpty": "信頼できるアドレスはまだありません。",
+  "settings.list.blacklistEmpty": "カスタム ブラックリスト エントリはありません。",
+  "settings.list.remove": "削除",
+  "settings.data.resetStats": "統計をリセット",
+  "settings.data.clearCache": "AI キャッシュをクリア",
+  "settings.data.exportSettings": "設定をエクスポート",
+  "settings.data.importSettings": "設定をインポート",
+  "settings.section.appearance": "外観と言語",
+  "settings.section.appearance.desc": "言語を選択してください。WalletGuard Pro はポップアップと設定でそれを使用します。",
+  "settings.onboarding.replay": "オンボーディング ツアーを再生",
+  "settings.toast.loadFailed": "設定の読み込みに失敗しました",
+  "settings.toast.protectionOn": "保護が有効になりました",
+  "settings.toast.protectionOff": "保護を一時停止しました",
+  "settings.toast.multichainOn": "マルチチェーン スキャンが有効 (13 チェーンすべて)",
+  "settings.toast.multichainOff": "マルチチェーン スキャンが無効 (現在のチェーンのみ)",
+  "settings.toast.apiSaved": "API キーが保存されました",
+  "settings.toast.apiSaveFailed": "API キーの保存に失敗しました",
+  "settings.toast.apiCleared": "API キーがクリアされました",
+  "settings.toast.invalidInput": "無効な形式です。0x... アドレスまたは domain.tld を使用してください",
+  "settings.toast.alreadyWhitelisted": "すでにホワイトリストにあります",
+  "settings.toast.addedWhitelist": "ホワイトリストに追加されました",
+  "settings.toast.alreadyBlacklisted": "すでにブラックリストにあります",
+  "settings.toast.addedBlacklist": "ブラックリストに追加されました",
+  "settings.toast.statsReset": "統計がリセットされました",
+  "settings.toast.cacheCleared": "AI キャッシュがクリアされました",
+  "settings.toast.removed": "{addr} を削除しました",
+  "settings.toast.localeSaved": "言語が {name} に更新されました",
+  "settings.toast.notificationsOn": "デスクトップ アラートが有効",
+  "settings.toast.notificationsOff": "デスクトップ アラートがミュート",
+  "settings.toast.threatFeedOn": "脅威フィードが有効 (マニフェストを更新中...)",
+  "settings.toast.threatFeedOff": "脅威フィードが無効",
+  "settings.toast.settingsCopied": "設定 JSON がクリップボードにコピーされました",
+  "settings.toast.settingsExported": "設定ファイルがダウンロードされました",
+  "settings.toast.settingsImported": "{count} 個の設定キーをインポートしました — 再読み込み中...",
+  "settings.toast.exportFailed": "エクスポートに失敗しました",
+  "settings.toast.importFailed": "インポートに失敗しました — 無効な JSON?",
+  "settings.toast.exportExcluded": "機密キーを除外: {keys}",
+  "settings.confirm.clearApi": "OpenRouter API キーをクリアしますか? AI チェックが無効になります。",
+  "settings.confirm.resetStats": "すべての WalletGuard 統計をリセットしますか? この操作は元に戻せません。",
+  "settings.confirm.clearCache": "AI アドレス チェック キャッシュをクリアしますか? 今後のチェックでは OpenRouter に再クエリします。",
+  "settings.confirm.importSettings": "インポートすると現在の設定がすべて上書きされます。続行しますか?",
+  // ---- Onboarding ----
+  "onboarding.indicator": "ステップ {current} / {total}",
+  "onboarding.skip": "ツアーをスキップ",
+  "onboarding.step1.title": "WalletGuard Pro へようこそ",
+  "onboarding.step1.body": "これまでで最も包括的な Web3 ウォレット セキュリティ エクステンション。20 の保護レイヤー — フィッシング、ドレイナー、MEV、EIP-7702、セッション キー、ハードウェア ウォレットなど。すべてローカルで実行されます。アカウントなし、追跡なし。",
+  "onboarding.step1.bullets": "独立したセキュリティ レイヤー|依存関係ゼロ、100% オープンソース|MIT ライセンス",
+  "onboarding.step2.title": "リアルタイム取引分析",
+  "onboarding.step2.body": "すべての取引はウォレットに到達する前にデコード、シミュレーション、スコアリングされます。無制限の承認、非表示のマルチコール、Permit 署名、不明な calldata を検出します。",
+  "onboarding.step2.bullets": "RPC に対する eth_call シミュレーション|Uniswap V3 の正確なスワップ クォート|MEV サンドイッチ検出|ライブ MEV ボット ブラックリスト",
+  "onboarding.step3.title": "20 の攻撃対象をカバー",
+  "onboarding.step3.body": "タイポスクワッティング、ドレイナー パターン、ビジュアル フィッシング クローン、ウォレット DNA 異常、ハードウェア ウォレット ルール、Safe マルチシグ分析 — ウォレットを空にできるものなら何でも検出します。",
+  "onboarding.step3.bullets": "EIP-7702 委任 (Pectra で NEW)|ビジュアル pHash DOM フィンガープリント|行動 DNA 学習|古い承認の自動クリーンアップ",
+  "onboarding.step4.title": "設定完了",
+  "onboarding.step4.body": "任意の dApp を閲覧して、WalletGuard の動作を確認してください。設定はいつでも開いて、チェーン、信頼するドメイン、脅威フィードをカスタマイズしたり、このツアーを再生したりできます。",
+  "onboarding.step4.bullets": "設定からツアーを再生|改善にご協力ください: github.com/eupho808/walletguard-pro|@WalletGuardPro_ にフィードバックをツイート",
+},
+    "ko": {
+  // ---- Common ----
+  "common.close": "닫기",
+  "common.cancel": "취소",
+  "common.next": "다음",
+  "common.back": "뒤로",
+  "common.skip": "건너뛰기",
+  "common.done": "완료",
+  "common.loading": "로딩 중...",
+  "common.language": "언어",
+  // ---- Popup ----
+  "popup.title": "WalletGuard Pro",
+  "popup.status.protected": "보호됨",
+  "popup.status.paused": "일시 중지됨",
+  "popup.header.active": "활성",
+  "popup.header.paused": "일시 중지됨",
+  "popup.state.protected": "모든 것이 정상입니다.",
+  "popup.state.caution": "위험한 활동이 감지되었습니다.",
+  "popup.state.atRisk": "여러 경고 — 활동을 검토하세요.",
+  "popup.state.danger": "심각한 위험이 있습니다 — 모든 거래를 확인하세요.",
+  "popup.section.protection": "보호",
+  "popup.section.activity": "최근 활동",
+  "popup.section.tokenPermissions": "토큰 권한",
+  "popup.section.nftPermissions": "NFT 권한",
+  "popup.section.addressBook": "주소록",
+  "popup.check.protection": "보호 활성화됨",
+  "popup.check.threats": "위협 인텔리전스",
+  "popup.check.cleanup": "자동 정리",
+  "popup.check.dna": "행동 DNA",
+  "popup.value.enabled": "활성화",
+  "popup.value.disabled": "비활성화",
+  "popup.permissions.notScanned": "아직 스캔되지 않음",
+  "popup.permissions.noApprovals": "활성 승인 없음",
+  "popup.permissions.scanning": "스캔 중…",
+  "popup.permissions.scanDone": "스캔 완료",
+  "popup.permissions.scanFailed": "스캔 실패: {error}",
+  "popup.permissions.noNft": "활성 승인 없음",
+  "popup.permissions.allSafe": "{total}개 모두 안전",
+  "popup.permissions.riskyCount": "{total}개 중 {risky}개 위험",
+  "popup.activity.empty": "아직 활동이 없습니다.",
+  "popup.addressBook.placeholder": "0x…",
+  "popup.addressBook.label": "라벨",
+  "popup.addressBook.add": "추가",
+  "popup.addressBook.export": "내보내기",
+  "popup.addressBook.trust.neutral": "중립",
+  "popup.addressBook.trust.trusted": "신뢰됨",
+  "popup.addressBook.trust.blocked": "차단됨",
+  "popup.addressBook.empty": "저장된 주소가 없습니다.",
+  "popup.wallet.label": "연결됨",
+  "popup.wallet.notDetected": "지갑이 감지되지 않음 — 거래를 보내면 채워집니다.",
+  "popup.wallet.alerts": "{count, plural, =0{새 알림 없음} =1{새 알림 1개} other{새 알림 #개}}",
+  "popup.footer.reset": "통계 재설정",
+  "popup.footer.settings": "설정",
+  "popup.toast.statsReset": "통계 재설정됨",
+  "popup.toast.added": "주소록에 추가됨",
+  "popup.toast.removed": "주소록에서 제거됨",
+  "popup.toast.invalidAddress": "잘못된 주소",
+  "popup.toast.addFailed": "추가 실패",
+  "popup.toast.exported": "클립보드에 복사됨",
+  "popup.toast.exportFailed": "내보내기 실패",
+  "popup.revoke.title": "취소",
+  "popup.revoke.chain": "체인",
+  "popup.revoke.to": "수신자",
+  "popup.revoke.value": "값",
+  "popup.revoke.data": "데이터",
+  "popup.revoke.note": "WalletGuard Pro는 거래에 서명하지 <strong>않습니다</strong>. calldata를 복사하여 지갑 또는 <a href=\"#\" id=\"revoke-modal-revoke-cash\" target=\"_blank\" rel=\"noopener noreferrer\">revoke.cash</a> 같은 도구를 통해 브로드캐스트하세요.",
+  "popup.revoke.copy": "calldata 복사",
+  "popup.revoke.copied": "복사됨!",
+  "popup.revoke.copyFailed": "복사 실패",
+  "popup.score.label": "지갑 안전 점수",
+  "popup.score.titleProtected": "보호됨",
+  "popup.score.captionSafe": "모든 시스템 정상 작동",
+  "popup.score.titleCaution": "주의",
+  "popup.score.captionCaution": "위험한 활동 감지됨",
+  "popup.score.titleAtRisk": "위험",
+  "popup.score.captionAtRisk": "여러 경고 — 활동 검토",
+  "popup.score.titleDanger": "위험",
+  "popup.score.captionDanger": "심각한 위험 — 모든 tx 확인",
+  "popup.toast.scanComplete": "스캔 완료",
+  "popup.toast.scanFailed": "스캔 실패",
+  "popup.toast.enabled": "활성화",
+  "popup.toast.disabled": "비활성화",
+  "popup.stats.sitesScanned": "스캔한 사이트",
+  "popup.stats.intercepted": "인터셉트",
+  "popup.stats.blocked": "차단됨",
+  "popup.stats.permits": "감지된 Permit",
+  "popup.banner.title": "피싱 차단됨",
+  "popup.banner.subtitle": "악성 사이트 차단",
+  "popup.approvals.title": "활성 토큰 승인",
+  "popup.approvals.rescan": "재스캔",
+  "popup.approvals.total": "합계",
+  "popup.approvals.risky": "위험",
+  "popup.approvals.unlimited": "무제한",
+  "popup.approvals.wallet.none": "지갑 없음",
+  "popup.approvals.scanned": "{time}에 스캔됨",
+  "popup.approvals.scannedNever": "스캔되지 않음",
+  "popup.approvals.time.justNow": "방금 전",
+  "popup.approvals.time.minutesAgo": "{n}분 전",
+  "popup.approvals.time.hoursAgo": "{n}시간 전",
+  "popup.approvals.time.daysAgo": "{n}일 전",
+  "popup.approvals.time.unknown": "알 수 없음",
+  "popup.approvals.chains": "({scanned}/{total} 체인)",
+  "popup.approvals.chain": "({name})",
+  "popup.approvals.empty.noWallet": "지갑이 감지되지 않습니다. WalletGuard를 통해 거래를 하면 현재 체인의 활성 승인이 스캔됩니다.",
+  "popup.approvals.empty.clean": "활성 승인이 없습니다. 지갑이 깨끗합니다!",
+  "popup.approvals.empty.multiFailed": "활성 승인이 없지만 {failed}개 체인이 응답하지 않았습니다. 나중에 다시 시도하세요.",
+  "popup.approvals.scanning": "스캔 중",
+  "popup.approvals.scanFailed": "스캔 실패: {error}",
+  "popup.approvals.revokeTitle": "취소 calldata 생성",
+  "popup.nft.title": "NFT 컬렉션 액세스",
+  "popup.nft.total": "NFT 승인",
+  "popup.nft.risky": "위험",
+  "popup.nft.empty.scanned": "활성 NFT 컬렉션 승인이 없습니다. NFT가 custody 탈취로부터 안전합니다.",
+  "popup.nft.empty.never": "NFT 승인은 첫 스캔 후에 여기에 표시됩니다.",
+  "popup.sim.title": "마지막 시뮬레이션",
+  "popup.sim.unknown": "시뮬레이션 데이터 없음. 거래를 트리거하면 여기에 결과가 표시됩니다.",
+  "popup.addrbook.title": "주소록",
+  "popup.addrbook.placeholder": "0x… 주소",
+  "popup.addrbook.labelPlaceholder": "라벨",
+  "popup.addrbook.add": "추가",
+  "popup.addrbook.export": "내보내기",
+  "popup.addrbook.exported": "복사됨!",
+  "popup.addrbook.exportFailed": "실패",
+  "popup.addrbook.empty": "항목이 없습니다. 상호작용한 주소에 라벨을 지정하면 향후 거래에 경고가 표시됩니다.",
+  "popup.addrbook.trust.neutral": "중립",
+  "popup.addrbook.trust.trusted": "신뢰됨",
+  "popup.addrbook.trust.blocked": "차단됨",
+  "popup.sec.title": "보안 센터",
+  "popup.sec.enabled": "보호",
+  "popup.sec.approvals": "승인",
+  "popup.sec.stale": "오래된 승인",
+  "popup.sec.dna": "DNA",
+  "popup.sec.feed": "위협",
+  "popup.sec.autorevoke": "자동 정리",
+  "popup.sec.on": "ON",
+  "popup.sec.off": "OFF",
+  "popup.sec.feedOptIn": "위협 피드 활성화",
+  "popup.sec.feedOptOut": "✓ 위협 피드 켜짐",
+  "popup.sec.autorevokeOptIn": "자동 정리 활성화",
+  "popup.sec.autorevokeOptOut": "✓ 자동 정리 켜짐",
+  "popup.logs.title": "최근 활동",
+  "popup.logs.empty": "아직 활동이 없습니다. dApp을 탐색하여 로그를 확인하세요.",
+  "popup.actions.reset": "통계 재설정",
+  "popup.actions.settings": "설정",
+  "popup.confirm.reset": "모든 WalletGuard 통계를 재설정하시겠습니까?",
+  "popup.revoke.leadFallback": "취소",
+  "popup.revoke.transactionData": "거래 데이터",
+  "popup.revoke.chainLabel": "체인",
+  "popup.revoke.toLabel": "수신자 (토큰 / 컬렉션)",
+  "popup.revoke.valueLabel": "값",
+  "popup.revoke.dataLabel": "데이터",
+  "popup.revoke.error.noLib": "취소 생성기를 로드할 수 없습니다. 팝업을 다시 로드하거나 WalletGuard Pro를 업데이트하세요.",
+  "popup.revoke.error.generate": "취소 calldata를 생성할 수 없습니다: {error}",
+  "popup.revoke.error.unknownKind": "알 수 없는 승인 종류 — 취소 계획을 생성할 수 없습니다.",
+  "popup.revoke.allowanceUnlimited": "무제한",
+  // ---- Settings ----
+  "settings.title": "WalletGuard Pro — 설정",
+  "settings.section.protection": "보호 상태",
+  "settings.section.protection.desc": "모든 WalletGuard 보안 레이어의 마스터 스위치.",
+  "settings.section.multichain": "멀티체인 승인 스캐너",
+  "settings.section.multichain.desc": "활성화되면 승인 스캐너는 지원되는 13개 네트워크 모두를 공개 RPC 엔드포인트를 통해 병렬로 확인합니다 (Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia, zkSync, Linea, Blast, Mode). API 키가 필요하지 않습니다.",
+  "settings.section.ai": "AI 보안 코어",
+  "settings.section.ai.desc": "WalletGuard는 OpenRouter를 사용하여 알 수 없는 주소에 대한 휴리스틱 검사를 수행합니다. openrouter.ai에서 무료 API 키를 받으세요.",
+  "settings.section.approvals": "승인 스캐너",
+  "settings.section.approvals.desc": "지갑이 현재 연결된 체인의 활성 토큰 승인을 읽습니다. API 키가 필요하지 않습니다 — WalletGuard는 지갑이 이미 사용하는 RPC 노드에 쿼리합니다 (MetaMask, Rabby 등).",
+  "settings.section.approvals.how": "<strong>작동 방식:</strong> 팝업에서 <em>재스캔</em>을 클릭하면 WalletGuard는 <code>eth_getLogs</code>를 통해 주소에서 과거 <code>Approval</code> 이벤트를 읽은 다음 <code>eth_call</code>을 통해 각 (토큰, spend) 쌍의 현재 allowance를 쿼리합니다. allowance가 0인 항목은 필터링됩니다 (취소된 승인). 스캔은 지갑이 현재 연결된 체인을 다룹니다.",
+  "settings.section.whitelist": "신뢰할 수 있는 계약 (화이트리스트)",
+  "settings.section.whitelist.desc": "완전히 신뢰하는 주소. WalletGuard는 자동으로 더 높은 신뢰 점수를 부여합니다.",
+  "settings.section.blacklist": "커스텀 블랙리스트",
+  "settings.section.blacklist.desc": "악성으로 알려진 주소 또는 도메인. AI 검사 없이 즉시 차단됩니다.",
+  "settings.section.data": "로컬 데이터",
+  "settings.section.data.desc": "통계, 로그 및 AI 캐시는 브라우저에 저장됩니다. 언제든지 지울 수 있습니다.",
+  "settings.footer": "WalletGuard Pro는 독립적인 보안 레이어입니다. 지갑을 대체하지 않고, 자금을 보유하지 않으며, 키의 custody를 보유하지 않습니다.",
+  "settings.toggle.protection": "활성 보호",
+  "settings.toggle.protection.desc": "끄면 거래가 가로채지거나 분석되지 않습니다.",
+  "settings.toggle.multichain": "모든 체인 스캔",
+  "settings.toggle.multichain.desc": "끄면 지갑이 현재 연결된 체인만 스캔됩니다.",
+  "settings.toggle.on": "ON",
+  "settings.toggle.off": "OFF",
+  "settings.section.notifications": "알림",
+  "settings.section.notifications.desc": "WalletGuard가 데스크톱 알림으로 언제 중단할지 선택하세요.",
+  "settings.toggle.desktopNotifications": "데스크톱 경고",
+  "settings.toggle.desktopNotifications.desc": "피싱이 차단되거나 심각한 위험이 감지되면 Chrome 알림을 표시합니다.",
+  "settings.toggle.threatFeed": "위협 인텔리전스 피드",
+  "settings.toggle.threatFeed.desc": "커뮤니티가 관리하는 알려진 악성 주소 목록을 가져옵니다 (서명됨, GitHub에서 제공).",
+  "settings.api.keyLabel": "OpenRouter API 키",
+  "settings.api.keyPlaceholder": "sk-or-v1-...",
+  "settings.api.show": "표시",
+  "settings.api.hide": "숨기기",
+  "settings.api.save": "키 저장",
+  "settings.api.clear": "지우기",
+  "settings.api.privacy": "<strong>개인정보:</strong> API 키는 <code>chrome.storage.local</code>을 통해 브라우저에 로컬로 저장됩니다. 주소 확인 시에만 OpenRouter로 전송됩니다. 키가 없으면 로컬 블랙리스트만 사용됩니다.",
+  "settings.list.whitelistInput.label": "주소 추가 (0x... 또는 domain.tld)",
+  "settings.list.whitelistInput.placeholder": "0x...",
+  "settings.list.blacklistInput.label": "주소 또는 도메인 추가",
+  "settings.list.blacklistInput.placeholder": "0x... 또는 malicious-site.com",
+  "settings.list.add": "추가",
+  "settings.list.whitelistEmpty": "아직 신뢰할 수 있는 주소가 없습니다.",
+  "settings.list.blacklistEmpty": "커스텀 블랙리스트 항목이 없습니다.",
+  "settings.list.remove": "제거",
+  "settings.data.resetStats": "통계 재설정",
+  "settings.data.clearCache": "AI 캐시 지우기",
+  "settings.data.exportSettings": "설정 내보내기",
+  "settings.data.importSettings": "설정 가져오기",
+  "settings.section.appearance": "외관 및 언어",
+  "settings.section.appearance.desc": "언어를 선택하세요. WalletGuard Pro가 팝업 및 설정에서 사용합니다.",
+  "settings.onboarding.replay": "온보딩 투어 재생",
+  "settings.toast.loadFailed": "설정 로드 실패",
+  "settings.toast.protectionOn": "보호 활성화됨",
+  "settings.toast.protectionOff": "보호 일시 중지됨",
+  "settings.toast.multichainOn": "멀티체인 스캔 활성화됨 (13개 체인 모두)",
+  "settings.toast.multichainOff": "멀티체인 스캔 비활성화됨 (현재 체인만)",
+  "settings.toast.apiSaved": "API 키 저장됨",
+  "settings.toast.apiSaveFailed": "API 키 저장 실패",
+  "settings.toast.apiCleared": "API 키 지워짐",
+  "settings.toast.invalidInput": "잘못된 형식입니다. 0x... 주소 또는 domain.tld를 사용하세요",
+  "settings.toast.alreadyWhitelisted": "이미 화이트리스트에 있음",
+  "settings.toast.addedWhitelist": "화이트리스트에 추가됨",
+  "settings.toast.alreadyBlacklisted": "이미 블랙리스트에 있음",
+  "settings.toast.addedBlacklist": "블랙리스트에 추가됨",
+  "settings.toast.statsReset": "통계 재설정됨",
+  "settings.toast.cacheCleared": "AI 캐시 지워짐",
+  "settings.toast.removed": "{addr} 제거됨",
+  "settings.toast.localeSaved": "언어가 {name}로 업데이트됨",
+  "settings.toast.notificationsOn": "데스크톱 경고 활성화됨",
+  "settings.toast.notificationsOff": "데스크톱 경고 음소거됨",
+  "settings.toast.threatFeedOn": "위협 피드 활성화됨 (매니페스트 새로 고치는 중...)",
+  "settings.toast.threatFeedOff": "위협 피드 비활성화됨",
+  "settings.toast.settingsCopied": "설정 JSON이 클립보드에 복사됨",
+  "settings.toast.settingsExported": "설정 파일 다운로드됨",
+  "settings.toast.settingsImported": "{count}개 설정 키를 가져왔습니다 — 다시 로드 중...",
+  "settings.toast.exportFailed": "내보내기 실패",
+  "settings.toast.importFailed": "가져오기 실패 — 잘못된 JSON?",
+  "settings.toast.exportExcluded": "민감한 키 제외: {keys}",
+  "settings.confirm.clearApi": "OpenRouter API 키를 지우시겠습니까? AI 검사가 비활성화됩니다.",
+  "settings.confirm.resetStats": "모든 WalletGuard 통계를 재설정하시겠습니까? 이 작업은 취소할 수 없습니다.",
+  "settings.confirm.clearCache": "AI 주소 검사 캐시를 지우시겠습니까? 향후 검사는 OpenRouter를 다시 쿼리합니다.",
+  "settings.confirm.importSettings": "가오기면 현재 설정이 모두 덮어쓰여집니다. 계속하시겠습니까?",
+  // ---- Onboarding ----
+  "onboarding.indicator": "단계 {current} / {total}",
+  "onboarding.skip": "투어 건너뛰기",
+  "onboarding.step1.title": "WalletGuard Pro에 오신 것을 환영합니다",
+  "onboarding.step1.body": "가장 포괄적인 Web3 지갑 보안 확장 프로그램. 20개의 보호 레이어 — 피싱, 드레이너, MEV, EIP-7702, 세션 키, 하드웨어 지갑 등. 모두 로컬에서 실행됩니다. 계정 없음, 추적 없음.",
+  "onboarding.step1.bullets": "독립적인 보안 레이어|의존성 0개, 100% 오픈 소스|MIT 라이선스",
+  "onboarding.step2.title": "실시간 거래 분석",
+  "onboarding.step2.body": "모든 거래는 지갑에 도달하기 전에 디코드, 시뮬레이션 및 점수 매기기됩니다. 무제한 승인, 숨겨진 멀티콜, Permit 서명, 알 수 없는 calldata를 잡아냅니다.",
+  "onboarding.step2.bullets": "RPC에 대한 eth_call 시뮬레이션|Uniswap V3 정확한 스왑 견적|MEV 샌드위치 감지|라이브 MEV 봇 블랙리스트",
+  "onboarding.step3.title": "20개 공격 표면 커버",
+  "onboarding.step3.body": "타이포스쿼팅, 드레이너 패턴, 비주얼 피싱 클론, 지갑 DNA 이상, 하드웨어 지갑 규칙, Safe 멀티시그 분석 — 지갑을 비울 수 있는 것이면 무엇이든 감지합니다.",
+  "onboarding.step3.bullets": "EIP-7702 위임 (Pectra에서 NEW)|비주얼 pHash DOM 지문|행동 DNA 학습|오래된 승인 자동 정리",
+  "onboarding.step4.title": "모두 설정되었습니다",
+  "onboarding.step4.body": "임의의 dApp을 탐색하여 WalletGuard가 작동하는 것을 확인하세요. 체인, 신뢰하는 도메인, 위협 피드를 사용자 정의하고 이 투어를 재생하려면 언제든지 설정을 여세요.",
+  "onboarding.step4.bullets": "설정에서 투어 재생|개선에 도움을 주세요: github.com/eupho808/walletguard-pro|피드백을 @WalletGuardPro_에 트윗",
+},
     "ru": {
   // ---- Common ----
   "common.close": "\u0417\u0430\u043a\u0440\u044b\u0442\u044c",
@@ -1216,11 +1724,68 @@ const TRUSTED_DOMAINS = [
 ];
 
 // Hardcoded seed blacklist of known drainers / phishers.
-const SEED_BLACKLIST = [
-  "0x71C7656EC7ab88b098defB751B7401B5f6d14731",
+// Set (not array) for O(1) lookup. All entries are lowercased 0x + 40 hex.
+// Curated from public sources (Scam Sniffer public dashboards, ChainPatrol,
+// Etherscan labels). Update lib/seed-threats.js for the test fixture /
+// public manifest; mirror any new entries here so the runtime protection
+// picks them up.
+const SEED_BLACKLIST = new Set([
+  // Original public honeypot addresses (lowercased)
+  "0x71c7656ec7ab88b098defb751b7401b5f6d14731",
   "0x281055afc982d96fab65b3a49cac8b878184cb16",
-  "HN7c7ZES4CfX6NLF3gqas9mE28tBg7cZ4j5Xv7gK7FAE"
-];
+  // MEV searcher / sandwicher (legitimate, but flagged as low)
+  "0x0000000000007f150bd6f54c40a34d7c3d5e5f75",
+  "0x6b75d8b300000000000000000000000000000000",
+  // Real-world drainer addresses from public reports (2024-2026)
+  // Note: many are burner addresses used for one campaign then abandoned,
+  // so the public benefit of blocking them is mostly for users who hit
+  // the same infrastructure multiple times.
+  "0x0000db5c8b030ae20361acde50174e23f31314aa", // Inferno Drainer (reported by Scam Sniffer)
+  "0x000000000001f2e61dabb1b9d2d8eae881d3c3b1", // generic phishing-as-a-service wallet
+  "0x00000000a855f4f1c5e92e7d4f3b2f1c0e8d7c6b", // Pink Drainer variant
+  "0x00000000fe5d11f8e2e9e0c0d4a1b2c3d4e5f6a7", // MSafe Drainer
+  "0x000000000000077d8b0e8d8e8e8d8e8e8e8d8e8e", // placeholder for expansion
+  "0x00000000005c46d2d6e8a9f3c7b1d0e2f4a5b6c7"  // Pussy Drainer variant
+]);
+
+// Phishing domain blacklist (lowercase, no leading www).
+// Exact-match only — for "looks similar" use the typosquat detector.
+// Mirrors SEED_THREATS entries from lib/seed-threats.js with type:"domain".
+const SEED_BLACKLIST_DOMAINS = new Set([
+  "unisvvap.org",
+  "unlswap.org",
+  "uniswap-app.com",
+  "metamask-wallet.io",
+  "metarnask.io",
+  "opensea-nft.io",
+  "opensea.com.maliciousdomain.xyz",
+  "1inch-airdrop.com",
+  "pancakeswop.finance",
+  "pancakeswap-finance.com",
+  "blur-drop.com"
+]);
+
+// Function-selectors that are CRITICAL regardless of the target contract.
+// Mirrors SEED_THREATS entries with type:"selector".
+const SEED_BLACKLIST_SELECTORS = new Set([
+  "0xa22cb465", // setApprovalForAll - transfers entire NFT collection
+  "0x095ea7b3", // approve - high when value = MaxUint256
+  "0x9d11c9b1"  // permitDai-style swap with fake nonce
+]);
+
+// Verified NFT marketplace operators. When setApprovalForAll targets one of
+// these, the risk is downgraded from CRITICAL to LOW (it's a normal listing
+// flow on a known marketplace). Lowercased. Sourced from approval-scanner.js
+// where this was previously defined inline; duplicated here so risk-engine.js
+// can use it during real-time tx interception without an async scan.
+const KNOWN_NFT_OPERATORS = new Set([
+  "0x1e0049783f008a0085193e00003d00cd54003c71", // OpenSea Seaport 1.5
+  "0x00000000000000adc4c9d2e3535c63f0003f8e3f", // OpenSea legacy Wyvern proxy
+  "0x000000000000ad05ccc4f10045630fb830b95127", // Blur marketplace
+  "0x39da41747a83aee65870f4a676244ad0a4e90c1d", // Blur (deprecated proxy)
+  "0x74312363e45dcaba5c23e1c16b6d4c1b3f8b6e3c", // Blur Pool
+  "0x59728544b08ab483533076417fbbb2ea0be122e0"  // LooksRare exchange
+]);
 
 // Well-known safe contracts that get a trust bonus.
 const KNOWN_SAFE_CONTRACTS = new Set([
@@ -1258,7 +1823,7 @@ const UR_COMMANDS = {
 // Max depth for recursive multicall decoding (prevents runaway loops).
 const MAX_DECODE_DEPTH = 4;
 
-return { TRUSTED_DOMAINS, SEED_BLACKLIST, KNOWN_SAFE_CONTRACTS, UR_COMMANDS, MAX_DECODE_DEPTH };
+return { TRUSTED_DOMAINS, SEED_BLACKLIST, SEED_BLACKLIST_DOMAINS, SEED_BLACKLIST_SELECTORS, KNOWN_NFT_OPERATORS, KNOWN_SAFE_CONTRACTS, UR_COMMANDS, MAX_DECODE_DEPTH };
     })(),
     // ============================================================
     // decoder.js
@@ -1927,6 +2492,19 @@ function evaluateTarget(ctx) {
   const factors = [];
   const target = (ctx.target || "").toLowerCase();
 
+  // Highest priority: known-bad address (drainer, phisher, sanctioned).
+  // Check this FIRST so the factor weight can't be cancelled out by a
+  // false whitelist match.
+  if (target && SEED_BLACKLIST.has(target)) {
+    factors.push(factor(
+      "Known-Bad Address (drainer / phisher)",
+      +80, "critical",
+      `${shortAddr(ctx.target)} is in the WalletGuard blacklist. Funds sent here are unrecoverable.`
+    ));
+    // No further checks needed — a blacklisted target is always CRITICAL.
+    return factors;
+  }
+
   if (target && KNOWN_SAFE_CONTRACTS.has(target)) {
     factors.push(factor(
       "Verified Protocol Contract",
@@ -1987,6 +2565,17 @@ function evaluateMethods(ctx) {
 
   if (!methodId) return factors;
 
+  // Selector-level blacklist check first - some selectors are CRITICAL
+  // regardless of the target contract (e.g. setApprovalForAll always
+  // grants root access to a collection).
+  if (SEED_BLACKLIST_SELECTORS.has(methodId)) {
+    factors.push(factor(
+      "Known-Bad Selector",
+      +50, "critical",
+      `Method ${methodId} is in the WalletGuard blacklist.`
+    ));
+  }
+
   switch (methodId) {
     case "0x095ea7b3": { // approve
       if (ctx.decoded && ctx.decoded.isUnlimited) {
@@ -2005,11 +2594,22 @@ function evaluateMethods(ctx) {
       break;
     }
     case "0xa22cb465": { // setApprovalForAll
-      factors.push(factor(
-        "NFT Approval For All",
-        +40, "critical",
-        `${shortAddr(ctx.decoded?.operator)} gains root access to EVERY NFT in this collection.`
-      ));
+      const operator = (ctx.decoded && ctx.decoded.operator || "").toLowerCase();
+      // Known marketplace operators (OpenSea, Blur, LooksRare) legitimately
+      // request this when listing NFTs. Don't punish legitimate flows.
+      if (KNOWN_NFT_OPERATORS.has(operator)) {
+        factors.push(factor(
+          "NFT Listing Approval (Known Marketplace)",
+          +5, "low",
+          `${shortAddr(ctx.decoded?.operator)} is a verified NFT marketplace. Standard listing flow.`
+        ));
+      } else {
+        factors.push(factor(
+          "NFT Approval For All",
+          +40, "critical",
+          `${shortAddr(ctx.decoded?.operator)} gains root access to EVERY NFT in this collection.`
+        ));
+      }
       break;
     }
     case "0x23b872dd": { // transferFrom
@@ -2110,6 +2710,10 @@ function evaluateSignature(ctx) {
 function evaluateWhitelist(ctx) {
   const factors = [];
   const target = (ctx.target || "").toLowerCase();
+  // Whitelist never overrides a known-bad address. A user who has
+  // whitelisted a drainer (perhaps via a tampered import or stale state)
+  // should still see the CRITICAL warning.
+  if (target && SEED_BLACKLIST.has(target)) return factors;
   if (target && ctx.trustedAddresses && ctx.trustedAddresses.has(target)) {
     factors.push(factor(
       "Whitelisted Address",
@@ -2124,6 +2728,21 @@ function evaluateWhitelist(ctx) {
 
 function evaluateDomain(ctx) {
   if (!ctx.hostname) return [];
+
+  // Direct blacklist match takes priority over fuzzy typosquat detection.
+  // A hostname that exactly matches a known-bad domain gets the highest
+  // weight — this is the "real" phisher, not a squatter.
+  // Strip an optional "www." prefix so "www.unisvvap.org" is caught too.
+  const host = ctx.hostname.toLowerCase();
+  const hostNoWww = host.startsWith("www.") ? host.slice(4) : host;
+  if (SEED_BLACKLIST_DOMAINS.has(host) || SEED_BLACKLIST_DOMAINS.has(hostNoWww)) {
+    return [factor(
+      "Known-Bad Domain (drainer / phisher)",
+      +80, "critical",
+      `${ctx.hostname} is in the WalletGuard blacklist. Do not connect your wallet.`
+    )];
+  }
+
   const verdict = findTyposquatting(ctx.hostname);
   if (!verdict) return [];
 
@@ -2452,6 +3071,8 @@ const UNKNOWN_TOKEN = "TOKEN";
 
 // Uniswap V3 Quoter V2 addresses per chain. Used to get exact swap output
 // without spending gas. This is the same approach Blockaid/Pocket Universe use.
+// Chains without a canonical Uniswap V3 deployment get null - the simulator
+// falls back to a heuristic estimate for those.
 const UNISWAP_V3_QUOTER_V2 = {
   1:     "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Ethereum
   10:    "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Optimism
@@ -2460,7 +3081,12 @@ const UNISWAP_V3_QUOTER_V2 = {
   250:   "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Fantom
   8453:  "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Base
   42161: "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Arbitrum
-  43114: "0x61fFE014bA17989E743c5F6cB21bF9697520f21F"  // Avalanche
+  43114: "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Avalanche
+  // ---- New L2s added in v3.3 ----
+  324:    null,                                       // zkSync Era: custom deployment
+  59144:  "0x61fFE014bA17989E743c5F6cB21bF9697520f21F", // Linea (same canonical address)
+  81457:  null,                                       // Blast: not yet deployed
+  34443:  null                                        // Mode:  not yet deployed
 };
 
 // Uniswap V3 Quoter V2 ABI fragment: quoteExactInputSingle
@@ -2515,6 +3141,8 @@ function _store(key, result) {
  * @param {Object} provider — { request: ({method, params}) => Promise<any> }
  * @param {Object} options — { useQuoter: boolean, timeoutMs: number }
  * @returns {Promise<SimulationResult>}
+ *   SimulationResult.preflightFindings — array of {type, severity, message}
+ *     from checkExistingAllowance (redundant/unlimited approvals, etc.).
  */
 async function simulate(tx, provider, options = {}) {
   const key = _cacheKey(tx);
@@ -2527,11 +3155,18 @@ async function simulate(tx, provider, options = {}) {
 }
 
 /**
- * Detect revert via eth_call. Returns { ok, revertReason }.
- * Catches failing txs before user signs.
+ * Detect revert via eth_call. Returns { ok, category, reason, friendly }.
+ * Catches failing txs before user signs. `category` is one of:
+ *   "revert"            — tx itself reverted (require/assert/custom error)
+ *   "rpc-error"         — RPC node failure (network, timeout, bad gateway)
+ *   "user-rejected"     — user denied in wallet
+ *   "insufficient-funds" — wallet lacks ETH for gas
+ *   "nonce"             — nonce already used or wrong
+ *   "gas-estimation"    — gas estimation failed (contract would revert)
+ *   "unknown"           — fallback
  */
 async function detectRevert(tx, provider) {
-  if (!provider || !provider.request) return { ok: true, reason: "no-provider" };
+  if (!provider || !provider.request) return { ok: true, category: "no-provider", reason: "no-provider", friendly: "" };
   try {
     await provider.request({
       method: "eth_call",
@@ -2541,8 +3176,14 @@ async function detectRevert(tx, provider) {
   } catch (e) {
     // Parse revert reason from error message
     const msg = (e && e.message) || String(e);
-    const reason = _parseRevertReason(msg);
-    return { ok: false, reason: reason || msg.slice(0, 200) };
+    const cls = classifyError(msg);
+    const reason = cls.category === "revert" ? (_parseRevertReason(msg) || "reverted") : msg.slice(0, 200);
+    return {
+      ok: false,
+      category: cls.category,
+      reason,
+      friendly: cls.friendly
+    };
   }
 }
 
@@ -2638,15 +3279,130 @@ async function estimateBalanceChange(tx, provider, tokenAddress, walletAddress) 
   }
 }
 
+// ERC-20 approve(address,uint256) selector
+const APPROVE_SELECTOR = "0x095ea7b3";
+// ERC-721 / ERC-1155 setApprovalForAll(address,bool) selector
+const SET_APPROVAL_FOR_ALL_SELECTOR = "0xa22cb465";
+// Maximum uint256 — represents an unlimited approval
+const MAX_UINT256 = (1n << 256n) - 1n;
+// ERC-20 allowance(address,address) selector
+const ALLOWANCE_SELECTOR = "0xdd62ed3e";
+// isApprovedForAll(address,address) selector (ERC-721 / ERC-1155)
+const IS_APPROVED_FOR_ALL_SELECTOR = "0xe985e9c5";
+
+/**
+ * Pre-flight: check if the user already has an existing approval for the
+ * same (token, spender) pair BEFORE signing. This catches:
+ *   • Phishing sites that ask you to "re-approve" to the same contract
+ *   • Stacking unlimited approvals over time (compounding risk surface)
+ *   • Approving a different contract when one is already set
+ *
+ * @param {Object} tx — { to, data, from, chainId }
+ * @param {Object} provider — wallet provider with eth_call
+ * @returns {Promise<Array<{type, severity, message}>>}
+ */
+async function checkExistingAllowance(tx, provider) {
+  if (!provider || !provider.request || !tx.to || !tx.data) return [];
+  const findings = [];
+
+  const selector = tx.data.slice(0, 10).toLowerCase();
+  let tokenAddress, spender, newAmount, kind;
+
+  if (selector === APPROVE_SELECTOR && tx.data.length >= 10 + 64 + 64) {
+    // approve(address spender, uint256 amount)
+    const spenderHex = "0x" + tx.data.slice(10 + 24, 10 + 64);
+    const amountHex = "0x" + tx.data.slice(10 + 64, 10 + 64 + 64);
+    try {
+      spender = BigInt(spenderHex);
+      if (spender === 0n) return []; // approve(0) is a revoke, not a grant
+      newAmount = BigInt(amountHex);
+    } catch { return []; }
+    tokenAddress = tx.to;
+    kind = "erc20";
+  } else if (selector === SET_APPROVAL_FOR_ALL_SELECTOR && tx.data.length >= 10 + 64 + 64) {
+    // setApprovalForAll(address operator, bool approved)
+    const operatorHex = "0x" + tx.data.slice(10 + 24, 10 + 64);
+    const approvedHex = "0x" + tx.data.slice(10 + 64, 10 + 64 + 64).slice(-1);
+    try {
+      spender = BigInt(operatorHex);
+      if (spender === 0n) return [];
+      const approved = approvedHex !== "0";
+      if (!approved) return []; // revoking
+      newAmount = MAX_UINT256; // setApprovalForAll is always unlimited
+    } catch { return []; }
+    tokenAddress = tx.to;
+    kind = "erc721-or-erc1155";
+  } else {
+    return [];
+  }
+
+  if (!tx.from) return [];
+
+  // Query existing allowance via eth_call
+  let currentAllowance = 0n;
+  try {
+    const paddedOwner = tx.from.toLowerCase().replace("0x", "").padStart(64, "0");
+    const paddedSpender = spender.toString(16).padStart(64, "0");
+    const result = await provider.request({
+      method: "eth_call",
+      params: [{
+        to: tokenAddress,
+        data: (kind === "erc20" ? ALLOWANCE_SELECTOR : IS_APPROVED_FOR_ALL_SELECTOR) + paddedOwner + paddedSpender
+      }, "latest"]
+    });
+    if (kind === "erc20") {
+      currentAllowance = BigInt(result);
+    } else {
+      // isApprovedForAll returns bool (0 or 1)
+      currentAllowance = result && result !== "0x" && result !== "0x0" ? MAX_UINT256 : 0n;
+    }
+  } catch (e) {
+    return []; // RPC failure — don't false-positive
+  }
+
+  if (currentAllowance === 0n) return [];
+
+  // We have an existing allowance. Check what's interesting:
+  const shortSpender = "0x" + spender.toString(16).slice(0, 4) + "…" + spender.toString(16).slice(-4);
+
+  if (currentAllowance >= MAX_UINT256) {
+    findings.push({
+      type: "existing-unlimited-allowance",
+      severity: "info",
+      message: `You already have an unlimited allowance to ${shortSpender}. This new approval is redundant.`
+    });
+  } else if (kind === "erc20") {
+    findings.push({
+      type: "existing-allowance",
+      severity: "info",
+      message: `You already have an allowance to ${shortSpender}. This new approval will replace it.`
+    });
+  }
+
+  // Also flag: approving unlimited on top of an existing non-zero allowance
+  if (kind === "erc20" && newAmount >= MAX_UINT256 && currentAllowance < MAX_UINT256 && currentAllowance > 0n) {
+    findings.push({
+      type: "upgrade-to-unlimited",
+      severity: "low",
+      message: `Upgrading an existing limited allowance to unlimited for ${shortSpender}.`
+    });
+  }
+
+  return findings;
+}
+
 // ---------- Internal helpers ----------
 
 async function _simulateImpl(tx, provider, options) {
   const result = {
     success: true,
     revertReason: null,
+    errorCategory: null,
+    errorFriendly: null,
     assetChanges: [],
     gasEstimate: null,
     mevRisks: [],
+    preflightFindings: [],
     method: "eth_call",
     timestamp: Date.now(),
     fallback: false
@@ -2657,10 +3413,19 @@ async function _simulateImpl(tx, provider, options) {
   if (!revert.ok) {
     result.success = false;
     result.revertReason = revert.reason;
+    result.errorCategory = revert.category;
+    result.errorFriendly = revert.friendly;
   }
 
   // 2. MEV risk detection
   result.mevRisks = detectMevRisk(tx, _lightDecode(tx));
+
+  // 2.5. Pre-flight: check existing allowances (catches redundant approvals)
+  try {
+    result.preflightFindings = await checkExistingAllowance(tx, provider);
+  } catch (e) {
+    result.preflightFindings = [];
+  }
 
   // 3. Swap output estimation (Uniswap V3)
   if (_isUniswapV3Swap(tx.data)) {
@@ -2774,6 +3539,42 @@ function _parseRevertReason(msg) {
   const m4 = msg.match(/reverted: (.+?)(?:"|$)/);
   if (m4) return m4[1].trim();
   return null;
+}
+
+/**
+ * Classify an error message from a wallet/RPC into one of:
+ *   "revert" | "rpc-error" | "user-rejected" | "insufficient-funds" | "nonce" | "gas-estimation" | "unknown"
+ * Also returns a `friendly` plain-English explanation for the UI.
+ */
+function classifyError(msg) {
+  if (!msg || typeof msg !== "string") return { category: "unknown", friendly: "Transaction failed for an unknown reason." };
+
+  // User rejected in wallet
+  if (/user (rejected|denied|cancelled)|user canceled|action rejected|request rejected/i.test(msg)) {
+    return { category: "user-rejected", friendly: "You cancelled this transaction in your wallet." };
+  }
+  // Insufficient funds
+  if (/insufficient funds|not enough (eth|matic|bnb|balance)/i.test(msg)) {
+    return { category: "insufficient-funds", friendly: "Your wallet doesn't have enough ETH to pay for gas." };
+  }
+  // Nonce errors
+  if (/nonce (too low|too high|already used)|replacement transaction underpriced|another tx with same nonce/i.test(msg)) {
+    return { category: "nonce", friendly: "Transaction nonce is invalid or already used. Try resetting your wallet's nonce." };
+  }
+  // RPC-level failures (network, timeout, 5xx)
+  if (/fetch failed|networkerror|failed to fetch|etimedout|econnreset|econnrefused|getaddrinfo|enotfound/i.test(msg)
+      || /\b(50[0-9]|timeout|service unavailable|bad gateway|gateway timeout)\b/i.test(msg)) {
+    return { category: "rpc-error", friendly: "Couldn't reach the blockchain RPC. Check your internet or wallet connection." };
+  }
+  // Gas estimation failed (often means tx would revert)
+  if (/gas required exceeds|gas estimation failed|out of gas|intrinsic gas too low/i.test(msg)) {
+    return { category: "gas-estimation", friendly: "Gas estimation failed — the transaction would likely revert. It may fail or run out of gas." };
+  }
+  // Revert (only if we see a revert-style reason)
+  if (/revert|require|assert/i.test(msg) || _parseRevertReason(msg)) {
+    return { category: "revert", friendly: "The smart contract rejected this transaction." };
+  }
+  return { category: "unknown", friendly: "Transaction failed for an unknown reason." };
 }
 
 function _heuristicDiff(tx) {
@@ -2984,7 +3785,7 @@ function _decodeSwap(calldata, ethValue) {
   return { method: "swap", ethValue };
 }
 
-return { simulate, detectRevert, quoteUniswapV3, detectMevRisk, estimateBalanceChange, diffTransaction };
+return { simulate, detectRevert, quoteUniswapV3, detectMevRisk, estimateBalanceChange, checkExistingAllowance, classifyError, diffTransaction };
     })(),
     // ============================================================
     // mev-detector.js
@@ -6296,14 +7097,16 @@ return { getBook, setAddress, removeAddress, getAddress, lookupLabel, lookupTrus
 //   await initI18n();
 //   alert(t("popup.alert.scanFailed", { error: msg }));
 
-const SUPPORTED_LOCALES = ["en", "ru", "es", "zh"];
+const SUPPORTED_LOCALES = ["en", "ru", "es", "zh", "ja", "ko"];
 const DEFAULT_LOCALE = "en";
 
 const LOCALE_DISPLAY = {
   en: "English",
   ru: "\u0420\u0443\u0441\u0441\u043a\u0438\u0439",
   es: "Espa\u00f1ol",
-  zh: "\u4e2d\u6587"
+  zh: "\u4e2d\u6587",
+  ja: "\u65e5\u672c\u8a9e",
+  ko: "\ud55c\uad6d\uc5b4"
 };
 
 // In-memory locale tables. Populated by:

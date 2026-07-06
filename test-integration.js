@@ -51,13 +51,13 @@ const typoAttackCtx = {
   isLegacySign: false,
   permitDetails: null,
   trustedAddresses: new Set(),
-  hostname: "unisvvap.org"
+  hostname: "unisvap.org"
 };
 
 const typoRisk = computeRisk(typoAttackCtx);
 check("typosquat -> Possible Typosquatting factor",  hasFactor(typoRisk, "Possible Typosquatting"));
 check("typosquat -> domainVerdict present",          typoRisk.domainVerdict && typoRisk.domainVerdict.type === "typosquat");
-check("typosquat -> distance reported",              typoRisk.domainVerdict && typoRisk.domainVerdict.distance === 2);
+  check("typosquat -> distance reported",              typoRisk.domainVerdict && typoRisk.domainVerdict.distance === 1);
 check("typosquat -> risk is CRITICAL/HIGH",          ["CRITICAL RISK", "HIGH RISK"].includes(typoRisk.riskLevel));
 
 // ---------- End-to-end: subdomain attack ----------

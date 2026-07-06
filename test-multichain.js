@@ -105,7 +105,7 @@ check("rpcAdapter exported",                typeof scanner.rpcAdapter === "funct
 console.log("\n[static: chain coverage]");
 
 const chains = scanner.MULTICHAIN_RPCS;
-check("9 chains configured",                Object.keys(chains).length === 9,
+check("13 chains configured (9 + 4 L2s)",   Object.keys(chains).length === 13,
                                             "got " + Object.keys(chains).length);
 check("Ethereum mainnet (1)",               typeof chains[1] === "string" && chains[1].startsWith("https://"));
 check("Optimism (10)",                      typeof chains[10] === "string");
@@ -118,7 +118,7 @@ check("Avalanche (43114)",                  typeof chains[43114] === "string");
 check("Sepolia (11155111)",                 typeof chains[11155111] === "string");
 
 const lookback = scanner.CHAIN_LOOKBACK;
-check("Lookback cap for all chains",        Object.keys(lookback).length === 9);
+check("Lookback cap for all 13 chains",     Object.keys(lookback).length === 13);
 check("Polygon lookback > Ethereum (faster blocks)",
                                             lookback[137] > lookback[1]);
 check("Arbitrum lookback > Ethereum (very fast blocks)",
@@ -232,8 +232,8 @@ function defaultHandlerForChain(unlimitedSpender) {
   const s = makeMethodAwareScanner(behaviour);
   const result = await s.scanApprovalsMultiChain(TEST_ADDR, new Set());
   check("multiChain flag set",                  result.multiChain === true);
-  check("9 chain results returned",             result.chains.length === 9);
-  check("chainsScanned == 9 (no failures)",     result.summary.chainsScanned === 9);
+  check("13 chain results returned",            result.chains.length === 13);
+  check("chainsScanned == 13 (no failures)",    result.summary.chainsScanned === 13);
   check("chainsFailed == 0",                    result.summary.chainsFailed === 0);
   check("summary.total > 0",                    result.summary.total > 0);
   check("summary.unlimited > 0",                result.summary.unlimited > 0);
@@ -257,13 +257,13 @@ function defaultHandlerForChain(unlimitedSpender) {
   }
   const s = makeMethodAwareScanner(behaviour);
   const result = await s.scanApprovalsMultiChain(TEST_ADDR, new Set());
-  check("chainsScanned == 8 (Arbitrum failed)", result.summary.chainsScanned === 8);
-  check("chainsFailed == 1",                    result.summary.chainsFailed === 1);
+  check("chainsScanned == 12 (Arbitrum failed)", result.summary.chainsScanned === 12);
+  check("chainsFailed == 1",                     result.summary.chainsFailed === 1);
   const arb = result.chains.find((c) => c.chainId === 42161);
-  check("Arbitrum result has error",            !!arb && typeof arb.error === "string");
-  check("Arbitrum result has empty approvals",  !!arb && Array.isArray(arb.approvals) && arb.approvals.length === 0);
-  check("Other 8 chains have approvals",        result.chains
-                                                  .filter((c) => c.chainId !== 42161)
+  check("Arbitrum result has error",             !!arb && typeof arb.error === "string");
+  check("Arbitrum result has empty approvals",   !!arb && Array.isArray(arb.approvals) && arb.approvals.length === 0);
+  check("Other 12 chains have approvals",        result.chains
+                                                   .filter((c) => c.chainId !== 42161)
                                                   .every((c) => Array.isArray(c.approvals) && c.approvals.length > 0));
 }
 

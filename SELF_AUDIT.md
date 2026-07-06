@@ -367,3 +367,83 @@ Full list in [`THREAT_MODEL.md`](./THREAT_MODEL.md).
 
 - Anything in the threat model's "Out of scope" section — those
   are explicitly accepted risks, not bugs.
+
+---
+
+## v3.2.1 — v3.3.0 Audit Cycle (HARDENED → ROBUST+THREAT-FEED)
+
+> Second-pass audit covering v3.0 STELLAR → v3.3.0 ROBUST+THREAT-FEED.
+> 13 bugs found and fixed (v3.2.1), 2 more (v3.2.2), 3 features added
+> (v3.3.0: threat feed population, L2 chain expansion, NFT marketplace
+> softening). Tests: 794 passing across 21 suites (was 273 across 9).
+
+### Bugs fixed in v3.2.1 "HARDENED"
+
+| # | Sev | Area | Finding | Fix |
+|---|-----|------|---------|-----|
+| 1 | Med | UI | `.activity__item` grid had 3 columns but only 2 children → layout collapsed | Changed to `52px 1fr` + `white-space: nowrap` on `.activity__time` |
+| 2 | Med | Data | Activity log time truncated to "Xd" for >9 days; never showed hours | Use `Math.floor(hours)` and `days()` separately |
+| 3 | Med | UX | Rescan button did nothing (handler reference lost on re-render) | Re-bind handler via closure each render |
+| 4 | Med | Safety | Missing null-safety on `walletAddress` in approval scanner | Add `if (!walletAddress) return []` |
+| 5 | High | Privacy | Export included `wg_apiKey` — leaked user credentials | Added `SENSITIVE_KEYS` set, excluded from export, populated `excludedKeys` in payload |
+| 6 | Med | Race | `setCachedAi` read-modify-write could overwrite concurrent writes | See v3.2.2 #15 fix |
+| 7 | Med | UX | Language selector did not refresh labels on locale change | Call `refreshDynamicUI()` after `setLocale()` |
+| 8 | High | Safety | AI input not validated — malicious content could pollute prompt | Validate `/^0x[a-fA-F0-9]{40}$/` before sending |
+| 9 | Med | Safety | Import accepted arbitrary shape — could overwrite wg_apiKey with empty | `validateStorageShape` rejects null/wrong type |
+| 10 | Med | Memory | Log array could grow unbounded (>10k entries) | Cap at 200 entries (FIFO), clamp message to 240 chars |
+| 11 | Low | UX | `classifyLog()` regex too narrow — missed `[approve]` style | Extended pattern |
+| 12 | Med | Safety | UI timeout 5s — could lock user's wallet if popup hung | Increased to 90s + fail-open (resolve false) |
+| 13 | Med | Correct | `installProxy` created a mock provider when real one missing | Removed — `provider.request` falls through to real wallet |
+
+### Bugs fixed in v3.2.2 "ROBUST"
+
+| # | Sev | Area | Finding | Fix |
+|---|-----|------|---------|-----|
+| 14 | Med | Compatibility | Wallets injecting AFTER `DOMContentLoaded` (Brave, OKX, some Rabby) never wrapped | `watchForLateProvider()` IIFE polls 1s for 30s; RPC bridge re-attempts `installProxy()` on every call |
+| 15 | Med | Concurrency | `appendLog`/`bumpStat`/`setCachedAi` read-modify-write races; concurrent writes dropped | `serialized(key, fn)` per-key write mutex chains promises. Verified: 50 concurrent `++` → exactly 50 |
+
+### Bugs found in v3.3.0 audit cycle (fixed before release)
+
+| # | Sev | Area | Finding | Fix |
+|---|-----|------|---------|-----|
+| 16 | High | Safety | `SEED_BLACKLIST` was exported but **never checked** by risk engine — known-bad addresses bypassed local blacklist | Wired `evaluateTarget` to check Set → CRITICAL (+80), short-circuits other rules. Whitelist explicitly skips blacklisted targets |
+| 17 | Med | Compat | `evaluateDomain` did `host === BLACKLIST_DOMAIN` — bypassed for `www.phishing.com` | Strip leading `www.` before comparison |
+| 18 | Low | Coverage | Only 9 chains supported; missing major L2s (zkSync, Linea, Blast, Mode) | Added 4 chains (324, 59144, 81457, 34443) → 13 total. Updated CHAIN_NAMES, MULTICHAIN_RPCS, CHAIN_LOOKBACK, UNISWAP_V3_QUOTER_V2 |
+| 19 | Low | UX | `setApprovalForAll` to OpenSea/Blur/LooksRare flagged CRITICAL — false positive | Added `KNOWN_NFT_OPERATORS` set; known marketplace → LOW (+5), unknown operator → CRITICAL (+40) |
+
+### New defenses added in v3.3.0
+
+| Defense | File | Description |
+|---------|------|-------------|
+| **Threat feed** (seed) | `lib/seed-threats.js` | 24 curated threats: 10 drainer addresses, 11 typosquat domains, 3 critical selectors, 4 patterns, 3 MEV bots, 1 honeypot |
+| **Seed blacklist wired** | `lib/risk-engine.js` | `evaluateTarget`/`evaluateDomain`/`evaluateMethods` now consult `SEED_BLACKLIST*` constants. Whitelist cannot cancel blacklisted |
+| **L2 chain coverage** | `approval-scanner.js` | zkSync Era (324), Linea (59144), Blast (81457), Mode (34443) — Uniswap V3 quoter on Linea only |
+| **NFT softening** | `lib/constants.js` | `KNOWN_NFT_OPERATORS` (OpenSea Seaport, Blur, LooksRare) → LOW risk |
+| **Error categorization** | `lib/simulator.js` | `classifyError()` returns `category` (revert/rpc/user-rejected/insufficient-funds/nonce/gas-estimation/unknown) + `friendly` plain-English message. UI can now say "Couldn't reach the blockchain RPC" instead of dumping `Error: fetch failed` |
+| **Japanese locale** | `lib/locales/ja.js` | 248 keys translated |
+| **Korean locale** | `lib/locales/ko.js` | 248 keys translated |
+| **Chrome MV3 locales** | `_locales/ja/`, `_locales/ko/` | Store-compliant `messages.json` for both new locales |
+
+### Build & test improvements
+
+- `build.js` switched to per-file `BUNDLED_LIB_FILES` set + `^test-.*\.js$` regex (was: wholesale `lib/` exclusion that accidentally excluded testable lib code)
+- Pack script switched from `Compress-Archive` to `System.IO.Compression.ZipFile.CreateFromDirectory` (recurses subdirectories)
+- CI made version-agnostic: `test.yml` reads version from `package.json` (was: hard-coded `3.1.0` regex)
+- New test suites: `test-bugfixes.js` (38 tests), `test-seed-threats.js` (13 tests), `test-new-features.js` (19 tests)
+
+### Residual risks (v3.3.0)
+
+- **No third-party audit.** This self-audit catches first-order bugs; external firms catch second-order issues. Mitigation: README and SECURITY.md clearly state "Tier 1-2 safety, not yet for $1M+ wallets without external audit".
+- **Threat feed is opt-in by default.** Users must enable to get community updates. Mitigations: seed blacklist is always-on (24 curated threats hard-coded).
+- **ENS resolution not implemented.** Requires keccak256 (no native browser API) or 100-line pure-JS impl. Pivot: address-book labels + shortened hex + `KNOWN_SAFE_CONTRACTS` lookup.
+- **EIP-7702 detection has limited coverage** (11 known-safe delegations, ~20 risk patterns). Will expand as mainnet adoption grows.
+- **Visual phishing detection uses DOM fingerprint** — sophisticated adversaries can defeat with dynamic CSS. Mitigated by combining with typosquat check + known-good list (17 sites).
+
+### Recommendations (next audit cycle)
+
+- **Commission external audit** (Trail of Bits / OpenZeppelin / Code4rena) — $5-15k, 4-6 weeks
+- **Add opengrep SAST** to CI (already in skill inventory, not yet wired)
+- **Formal selector dispatch** — register all selectors in a single registry
+- **ENS support** via pure-JS keccak256 (or vendor `@noble/hashes`)
+- **Bulk approval revoke UX** — currently one-at-a-time, could be batched with explicit user confirmation
+- **Hardware wallet rule expansion** — currently 7 vendors, 5 strict rules; add more (Trezor Safe 3, Ledger Stax, Keystone 3 Pro)

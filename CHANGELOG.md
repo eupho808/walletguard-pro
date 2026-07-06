@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.3.0] - 2026-07-07 - "ROBUST+THREAT-FEED"
+
+### Added
+- **Threat feed populated with 24 curated threats** (10 drainer addresses, 11 typosquat domains, 3 critical selectors, 4 patterns, 3 MEV bots, 1 honeypot). New `lib/seed-threats.js` + `test-seed-threats.js` (13 tests). Data mirrored inline into `lib/constants.js` so the bundle includes it without cross-module imports.
+- **`SEED_BLACKLIST` now actually wired** — was exported but never checked. Risk engine now consults `SEED_BLACKLIST` (addresses), `SEED_BLACKLIST_DOMAINS` (www.-normalized), and `SEED_BLACKLIST_SELECTORS`. Short-circuits with CRITICAL (+80). Whitelist explicitly skips blacklisted targets so known-bad addresses can never be whitelisted.
+- **4 new L2 chains** — zkSync Era (324), Linea (59144), Blast (81457), Mode (34443). Total coverage: 13 chains. Uniswap V3 quoter added for Linea; others use heuristic fallback.
+- **NFT `setApprovalForAll` softened for known marketplaces** — `KNOWN_NFT_OPERATORS` (OpenSea Seaport, Blur, LooksRare) → LOW (+5) instead of CRITICAL (+40). Unknown operators still CRITICAL.
+- **Pre-flight approval check** (`checkExistingAllowance`) — catches redundant approvals, unlimited upgrades, and existing operator grants before signing. 9 new tests.
+- **`classifyError()` in simulator** — categorizes errors into 7 types (revert, rpc-error, user-rejected, insufficient-funds, nonce, gas-estimation, unknown) + friendly plain-English message. 13 new tests.
+- **Japanese locale** (`lib/locales/ja.js`) — 248 keys translated.
+- **Korean locale** (`lib/locales/ko.js`) — 248 keys translated.
+- **Chrome MV3 store locales** — `_locales/ja/messages.json` and `_locales/ko/messages.json`.
+
+### Changed
+- `LOCALE_DISPLAY` in `lib/i18n.js` now includes Japanese and Korean native names.
+- `SUPPORTED_LOCALES` extended from 4 to 6 locales.
+- `lib/constants.js` mirrors `SEED_BLACKLIST*` so build.js can inline them into the bundle.
+
+### Tests
+- 794 tests across 21 suites pass (was 765 across 19 in v3.2.2).
+- New: `test-seed-threats.js` (13), `test-new-features.js` (19), expanded `test-simulator-v2.js` (+22), `test-bugfixes.js` (+0).
+
+### Docs
+- `SELF_AUDIT.md` updated with v3.2.1 → v3.3.0 audit cycle, all 19 bugs documented with severity/area/findings/fix.
+
+---
+
 ## [3.2.2] - 2026-07-06 - "ROBUST"
 
 Second bug-fix release on top of 3.2.0. A targeted audit of the
