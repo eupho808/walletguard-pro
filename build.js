@@ -26,7 +26,11 @@ const ORDER = [
   "capabilities.js",
   "simulator.js",
   "mev-detector.js",
-  "revoke-generator.js"
+  "revoke-generator.js",
+  "eip7702-detector.js",
+  "session-key-analyzer.js",
+  "threat-feed.js",
+  "wallet-dna.js"
 ];
 
 // Popup bundle gets all the modules PLUS the i18n system AND popup-only

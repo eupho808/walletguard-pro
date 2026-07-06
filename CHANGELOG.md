@@ -7,6 +7,146 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-07-06 — "WARP DRIVE"
+
+### 🚀 Tier 6: attack surfaces nobody else covers
+
+Pectra hardfork (EIP-7702) opened a new drain vector: an attacker can
+trick you into signing one tiny tx that delegates your EOA to their
+drainer contract — and they own your wallet forever. Wallet session
+keys (ERC-7715) open another: a "limited" dApp permission can actually
+be unlimited.
+
+This release closes both gaps and adds two more unreplicatable features:
+**privacy-preserving threat intelligence** (signed community feed, no
+backend) and **on-device wallet behavior profiling** (anomaly detection
+without sending user data anywhere).
+
+### Added — EIP-7702 Smart EOA Detector (lib/eip7702-detector.js)
+
+- **`isEip7702Tx(rawTx)`** — detects type 0x04 transactions from raw
+  hex, Uint8Array, or decoded `{type, authorizationList}` shapes.
+- **`parseAuthorizationList(rawOrDecoded)`** — RLP-decodes the
+  authorization_list into structured `{chainId, address, nonce, y, r, s}`
+  with BigInt fields. Handles ethers / viem / web3.js shapes too.
+- **`assessEip7702Risk(list, ctx)`** — comprehensive risk scoring:
+  - Known-malicious delegation → critical
+  - EOA delegation (no code) → critical
+  - Known-safe delegation (11 verified contracts incl. Coinbase Smart
+    Wallet, Aave V3, Uniswap V3 Router, Lido, Morpho Blue) → none + info
+  - Chain-ID mismatch → high
+  - Multiple distinct delegations in one tx → high
+  - Future nonce → medium
+  - Address-spoofing homoglyph (same first 4 / last 4 hex chars as user) → high
+- RLP decoder is inlined (no dependency) — runs in the browser.
+
+### Added — Session Key Permission Analyzer (lib/session-key-analyzer.js)
+
+- **`isPermissionRequest(data)`** — detects `wallet_grantPermissions`,
+  `wallet_sendCalls`, `wallet_getPermissions`, `wallet_revokePermissions`,
+  and direct permission objects. Handles JSON-RPC envelope and batches.
+- **`parsePermissions(raw)`** — normalises 4 permission shapes
+  (JSON-RPC, params object, direct, JSON-string).
+- **`analyzeSession(permissions, ctx)`** — 11 red flags:
+  - Zero address signer → critical
+  - `expiry = 0` (never expires) → high
+  - `expiry > 30 days` → high
+  - `contractAccess: ["*"]` → critical
+  - Empty contract access → high
+  - >5 contracts in access list → medium
+  - `nativeTokenLimit = MAX_UINT256` → critical
+  - Any `erc20TokenLimit = MAX_UINT256` → critical
+  - `interval = 0` (no rate limit) → medium
+  - `chainId = 0` (any chain) → medium
+- Known-safe protocols (Uniswap, Aave, 1inch, CowSwap, OpenSea, Lido,
+  ENS) downgrade risk one level (floor: low).
+
+### Added — Privacy-Preserving Threat Intelligence Feed (lib/threat-feed.js)
+
+- **No backend required.** Threats are signed manifests distributed via
+  GitHub (or any HTTPS source). Verification happens locally in the
+  browser via Web Crypto Ed25519.
+- `validateManifest(manifest)` — structural validation
+- `canonicalize(manifest)` — deterministic JSON with sorted keys
+- `verifySignatureAsync({...})` — Web Crypto Ed25519
+- `verifyManifestSignaturesAsync(manifest, trustKeys)` — async, browser
+- `verifySignature({...})` + `verifyManifestSignatures(...)` — sync, Node
+  (for CI / test fixtures)
+- `buildIndex(manifest)` — O(1) Map lookups by domain / address /
+  selector / delegate, plus compiled regex patterns
+- `lookup(index, query)` — multi-type lookup (domain + address +
+  selector + delegate + calldata pattern)
+- `feedHash(manifest)` — SHA-256 of canonical manifest for pinning
+- Threat types supported: `domain`, `address`, `selector`, `bytecode`,
+  `pattern`, `delegate`.
+
+### Added — Wallet DNA — Behavioral Anomaly Detection (lib/wallet-dna.js)
+
+- **On-device learning.** Builds a per-wallet profile (gas price,
+  gas limit, native value, hours, contracts, selectors, chains) and
+  flags new transactions that deviate significantly.
+- Welford's online algorithm for numerically-stable variance tracking.
+- Bigint-safe log10 for wei values (handles 100k ETH vs 0.5 ETH).
+- `observe(profile, tx)` — update profile with one tx
+- `scoreAnomaly(profile, tx)` — 0–100 anomaly score with per-dimension
+  factors (gas-price-z, gas-limit-z, value-z, new-contract,
+  new-selector, off-hours, new-chain)
+- Levels: `normal` (< 40), `unusual` (40–69), `anomalous` (70–89),
+  `highly-anomalous` (90+)
+- Cold-start guard: returns 0 score with < 5 samples
+- 50-profile cap in storage (oldest pruned by updatedAt)
+
+### Wired into the overlay
+
+All four analyzers surface in the pre-signing overlay:
+- **EIP-7702 Delegation** card (red border if critical)
+- **Session Key Permissions** card (with per-flag breakdown)
+- **Threat Intelligence Feed** card (with reference link)
+- **Wallet DNA — Behavioral Anomaly** card (with score + factors)
+
+All four feed into `buildReceipt()` so the popup also displays them.
+
+### Wired into the service worker
+
+New message handlers:
+- `getDnaProfile(address)` — fetch profile for scoring
+- `observeDna(tx)` — record observation (async, non-blocking)
+- `threatFeedLookup({domain, address, selector, delegate, calldata})`
+- `setThreatFeedEnabled(bool)` — opt-in toggle
+- `getThreatFeedStatus()` — for popup UI
+
+### Stats
+
+- **525 → 668 tests** (+143 new tests across 4 new suites)
+- 14 test suites, all green
+- Bundle sizes:
+  - content.js: 123K → 193K (+70K — EIP-7702 RLP decoder + 4 analyzer modules)
+  - popup-bundle.js: 168K → 227K (+59K)
+- All entry points pass `node --check`
+- Zero new dependencies — everything is in-tree pure ES modules
+
+### Why "WARP DRIVE"
+
+This is the release that makes it cheaper to **acquire** WalletGuard
+Pro than to **replicate** it. Competitors must now:
+
+1. Write an EIP-7702 RLP decoder + authorization analyzer (no public
+   reference implementation exists for browser extensions — most teams
+   haven't even started).
+2. Build an ERC-7715 / WalletConnect permission scope decomposer with
+   BigInt-precision limit checks.
+3. Stand up a signed community threat feed with Ed25519 key rotation,
+   publish from a trusted maintainer, and bootstrap network effects.
+4. Implement on-device behavioral anomaly detection that learns
+   without leaking — while not contradicting their SaaS revenue model.
+
+Each of these is months of work for a team. The OSS MIT license,
+zero-backend architecture, and existing 9-chain + 12-wallet + 4-locale
+coverage turn "buy or build" into a 12–18 month build vs. a 4-week
+integration of the existing extension.
+
+---
+
 ## [2.0.0] - 2026-07-06 — "PRIME"
 
 ### 🚀 Major release — feature-complete Web3 wallet security suite

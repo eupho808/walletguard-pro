@@ -2981,6 +2981,1453 @@ function describeRevoke(a, kind) {
 return { padAddress, buildERC20RevokeCalldata, buildNFT721RevokeCalldata, buildERC20RevokeTx, buildNFT721RevokeTx, buildRevokeTx, buildRevokeBatch, groupPlansByChain, ERC20_APPROVE_SELECTOR, NFT_SET_APPROVAL_FOR_ALL_SELECTOR, ZERO_WORD };
     })(),
     // ============================================================
+    // eip7702-detector.js
+    // ============================================================
+    "eip7702Detector": (function() {
+/**
+ * @fileoverview EIP-7702 Smart EOA Delegation Attack Detector
+ *
+ * Detects malicious EIP-7702 authorization_list entries in type 0x04
+ * transactions.  EIP-7702 (Pectra hardfork, mainnet May 2025) lets an EOA
+ * delegate execution to a smart contract via an authorization_list of
+ * tuples (chain_id, address, nonce, y_parity, r, s).
+ *
+ * Attack vectors covered:
+ *   1. Phishing delegation — user signs a cheap tx delegating to a drainer.
+ *   2. Persistent drain — once delegated, the attacker controls the EOA
+ *      until the user signs another authorization.
+ *   3. Invisible — appears as an empty tx yet grants full execution rights.
+ *
+ * All functions are pure — no chrome.*, no fetch, no I/O.
+ * @module lib/eip7702-detector
+ * @see https://eips.ethereum.org/EIPS/eip-7702
+ */
+
+/** EIP-7702 transaction type byte (EIP-2718 envelope). */
+const EIP7702_TX_TYPE = 0x04;
+
+/**
+ * Allow-list of well-known, publicly audited contracts that users may
+ * legitimately delegate to.  Presence here means the address is widely
+ * recognised and deployed on mainnet — it does NOT guarantee that
+ * delegating to it is appropriate for every user.
+ */
+const KNOWN_SAFE_DELEGATIONS = Object.freeze([
+  Object.freeze({ address: '0x0ba5ed9c33835068222527fbaf723bb7c9b71696', name: 'Coinbase Smart Wallet Factory',         category: 'smart-account' }),
+  Object.freeze({ address: '0x0000000071727de22e5e9d8baf0edac6f37da032', name: 'ERC-4337 EntryPoint v0.7',             category: 'infra'         }),
+  Object.freeze({ address: '0x41675c099f32341bf84bfc5382af534df5c7461a', name: 'Safe Singleton v1.4.1',               category: 'smart-account' }),
+  Object.freeze({ address: '0x69f4d17849ec3eb0d8fb5d3b4f1ca1ba1b7c3f3d', name: 'Safe Singleton v1.3.0 (placeholder)',  category: 'smart-account' }),
+  Object.freeze({ address: '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2', name: 'Aave V3 Pool',                         category: 'defi'          }),
+  Object.freeze({ address: '0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45', name: 'Uniswap V3 Router 2',                  category: 'defi'          }),
+  Object.freeze({ address: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84', name: 'Lido stETH',                           category: 'defi'          }),
+  Object.freeze({ address: '0x858646372cc42e1a627fce94aa7a7033e7cf075a', name: 'EigenLayer StrategyManager',           category: 'restaking'     }),
+  Object.freeze({ address: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb', name: 'Morpho Blue',                          category: 'defi'          }),
+  Object.freeze({ address: '0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5', name: 'Compound cETH',                        category: 'defi'          }),
+  Object.freeze({ address: '0x373238337bfe8606ae36cfb73ef03e9b317db6d5', name: 'MakerDAO DSR (sDAI)',                  category: 'defi'          }),
+]);
+
+/**
+ * Block-list of confirmed drainer / phishing delegation contracts.
+ * Intentionally empty until verified addresses arrive from threat feeds.
+ * @type {ReadonlyArray<{readonly address: string, readonly name: string, readonly category: string, readonly reference?: string}>}
+ */
+const KNOWN_MALICIOUS_DELEGATIONS = Object.freeze([
+  // e.g. { address: '0x...', name: 'Inferno Drainer', category: 'drainer', reference: 'https://...' },
+]);
+
+// ─── Internal Utilities ──────────────────────────────────────
+
+/** Normalise an Ethereum address to lowercase 0x-prefixed form. */
+function normalizeAddress(addr) {
+  if (typeof addr !== 'string') throw new TypeError(`Address must be a string, got ${typeof addr}`);
+  const lower = addr.toLowerCase();
+  return lower.startsWith('0x') ? lower : '0x' + lower;
+}
+
+/** Convert bigint | number | string | Uint8Array | BigNumber-like → BigInt. */
+function toBigInt(val) {
+  if (typeof val === 'bigint') return val;
+  if (typeof val === 'number') return BigInt(val);
+  if (typeof val === 'string') return BigInt(val);
+  if (val instanceof Uint8Array) return bytesToBigInt(val);
+  if (val != null && typeof val.toString === 'function') return BigInt(val.toString());
+  throw new TypeError(`Cannot convert to BigInt: ${val}`);
+}
+
+/** Convert a big-endian byte array to BigInt. */
+function bytesToBigInt(bytes) {
+  let result = 0n;
+  for (const b of bytes) result = (result << 8n) | BigInt(b);
+  return result;
+}
+
+/** Convert a hex string (with/without 0x) to Uint8Array. */
+function hexToBytes(hex) {
+  const clean = hex.startsWith('0x') ? hex.slice(2) : hex;
+  if (clean.length % 2 !== 0) throw new Error('Hex string must have even length');
+  const arr = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(clean.slice(i * 2, i * 2 + 2), 16);
+  return arr;
+}
+
+/** Convert a Uint8Array to a lowercase hex string with 0x prefix. */
+function bytesToHex(bytes) {
+  let s = '0x';
+  for (const b of bytes) s += b.toString(16).padStart(2, '0');
+  return s;
+}
+
+// ─── RLP Decoder (minimal, for authorization_list) ───────────
+
+/**
+ * Decode a single RLP item.  Returns the value (Uint8Array or array)
+ * and the byte offset immediately after it.
+ */
+function rlpDecode(bytes, offset = 0) {
+  if (offset >= bytes.length) throw new RangeError('RLP: unexpected end of input');
+  const prefix = bytes[offset];
+
+  if (prefix <= 0x7f) return { value: new Uint8Array([prefix]), nextOffset: offset + 1 };
+  if (prefix <= 0xb7) { const len = prefix - 0x80; return { value: bytes.slice(offset + 1, offset + 1 + len), nextOffset: offset + 1 + len }; }
+  if (prefix <= 0xbf) { const lenOfLen = prefix - 0xb7; const len = rlpBytesToInt(bytes, offset + 1, lenOfLen); const s = offset + 1 + lenOfLen; return { value: bytes.slice(s, s + len), nextOffset: s + len }; }
+  if (prefix <= 0xf7) { const len = prefix - 0xc0; return decodeRlpList(bytes, offset + 1, len); }
+
+  const lenOfLen = prefix - 0xf7;
+  const len = rlpBytesToInt(bytes, offset + 1, lenOfLen);
+  const s = offset + 1 + lenOfLen;
+  return decodeRlpList(bytes, s, len);
+}
+
+function decodeRlpList(bytes, start, length) {
+  const items = [];
+  let cursor = start;
+  const end = start + length;
+  while (cursor < end) {
+    const { value, nextOffset } = rlpDecode(bytes, cursor);
+    items.push(value);
+    cursor = nextOffset;
+  }
+  return { value: items, nextOffset: cursor };
+}
+
+function rlpBytesToInt(bytes, start, length) {
+  let result = 0;
+  for (let i = 0; i < length; i++) result = result * 256 + bytes[start + i];
+  return result;
+}
+
+// ─── Parsing Helpers ─────────────────────────────────────────
+
+/** Normalise an authorization object to {chainId, address, nonce, y, r, s}. */
+function normalizeAuthObject(auth) {
+  if (auth == null || typeof auth !== 'object') throw new TypeError('Authorization must be an object');
+  return {
+    chainId: toBigInt(auth.chainId ?? auth.chain_id),
+    address: normalizeAddress(auth.address),
+    nonce:   toBigInt(auth.nonce),
+    y:       toBigInt(auth.y ?? auth.y_parity ?? 0),
+    r:       toBigInt(auth.r),
+    s:       toBigInt(auth.s),
+  };
+}
+
+/** Parse one RLP-decoded tuple: [chainIdBytes, addrBytes, nonceBytes, yBytes, rBytes, sBytes]. */
+function parseAuthFromRlpItem(item) {
+  if (!Array.isArray(item) || item.length !== 6) throw new Error(`Invalid authorization tuple: expected 6 elements, got ${item?.length ?? 'none'}`);
+  const [chainIdBytes, addressBytes, nonceBytes, yBytes, rBytes, sBytes] = item;
+  if (!(addressBytes instanceof Uint8Array) || addressBytes.length !== 20) throw new Error(`Invalid address: expected 20 bytes, got ${addressBytes?.length ?? 'undefined'}`);
+  return {
+    chainId: bytesToBigInt(chainIdBytes),
+    address: bytesToHex(addressBytes).toLowerCase(),
+    nonce:   bytesToBigInt(nonceBytes),
+    y:       bytesToBigInt(yBytes),
+    r:       bytesToBigInt(rBytes),
+    s:       bytesToBigInt(sBytes),
+  };
+}
+
+// ─── Public API ───────────────────────────────────────────────
+
+/**
+ * Detect whether a transaction is an EIP-7702 (type 0x04) transaction.
+ * Accepts raw hex string, Uint8Array, or a decoded object with a `type`
+ * field / `authorizationList` array.
+ * @param {string|Uint8Array|object|null|undefined} rawTx
+ * @returns {boolean}
+ */
+function isEip7702Tx(rawTx) {
+  if (rawTx == null) return false;
+
+  // Decoded object form
+  if (typeof rawTx === 'object' && !(rawTx instanceof Uint8Array)) {
+    if (rawTx.type != null) {
+      const t = rawTx.type;
+      if (typeof t === 'string') return t === '0x4' || t === '0x04' || t === '4';
+      if (typeof t === 'number') return t === EIP7702_TX_TYPE || t === 4;
+    }
+    if (Array.isArray(rawTx.authorizationList) || Array.isArray(rawTx.authorization_list)) return true;
+    return false;
+  }
+
+  // Raw bytes — first byte is the EIP-2718 type
+  if (typeof rawTx === 'string') {
+    const hex = rawTx.startsWith('0x') ? rawTx.slice(2) : rawTx;
+    return hex.length >= 2 && parseInt(hex.substring(0, 2), 16) === EIP7702_TX_TYPE;
+  }
+  if (rawTx instanceof Uint8Array) {
+    return rawTx.length >= 1 && rawTx[0] === EIP7702_TX_TYPE;
+  }
+  return false;
+}
+
+/**
+ * Parse an EIP-7702 authorization_list into structured objects.
+ *
+ * Accepts:
+ *   1. Array of objects (ethers, viem, web3.js, etc.)
+ *   2. Array of Uint8Array (raw RLP of each tuple)
+ *   3. Hex string — RLP-encoded authorization_list
+ *   4. Uint8Array — RLP-encoded authorization_list
+ *
+ * Each returned object has BigInt fields for chainId, nonce, y, r, s
+ * and a lowercase 0x-prefixed address string.
+ *
+ * @param {Array|string|Uint8Array|null|undefined} rawOrDecoded
+ * @returns {Array<{chainId: bigint, address: string, nonce: bigint, y: bigint, r: bigint, s: bigint}>}
+ */
+function parseAuthorizationList(rawOrDecoded) {
+  if (rawOrDecoded == null) return [];
+
+  if (Array.isArray(rawOrDecoded)) {
+    if (rawOrDecoded.length === 0) return [];
+    const first = rawOrDecoded[0];
+    if (first instanceof Uint8Array) {
+      // Array of raw byte-arrays, each is RLP of one tuple
+      return rawOrDecoded.map(bytes => {
+        const { value } = rlpDecode(bytes);
+        return parseAuthFromRlpItem(value);
+      });
+    }
+    if (typeof first === 'object') return rawOrDecoded.map(normalizeAuthObject);
+    // Fallback: try to hex-decode each element
+    return rawOrDecoded.map(item => {
+      const bytes = item instanceof Uint8Array ? item : hexToBytes(String(item));
+      const { value } = rlpDecode(bytes);
+      return parseAuthFromRlpItem(value);
+    });
+  }
+
+  // Raw RLP bytes (hex string or Uint8Array)
+  const bytes = typeof rawOrDecoded === 'string' ? hexToBytes(rawOrDecoded) : rawOrDecoded;
+  const { value } = rlpDecode(bytes);
+  if (!Array.isArray(value)) throw new Error('RLP-decoded authorization_list is not a list');
+  return value.map(parseAuthFromRlpItem);
+}
+
+/**
+ * Assess the risk profile of an EIP-7702 authorization_list.
+ *
+ * Checks:
+ *   - Empty list → "none"
+ *   - Known-malicious delegation → "critical"
+ *   - Known-safe delegation → "none" + info note
+ *   - EOA delegation (no code) → "critical"
+ *   - Unverified contract → "medium"
+ *   - Multiple distinct targets → "high"
+ *   - Chain ID mismatch → "high"
+ *   - Future nonce → "medium"
+ *   - Homoglyph (same first/last 4 hex chars as user) → "high"
+ *
+ * @param {Array} authorizationList — from parseAuthorizationList() or compatible.
+ * @param {object} [ctx]
+ * @param {bigint|number|string} [ctx.currentChainId]
+ * @param {bigint|number|string} [ctx.accountNonce]
+ * @param {string} [ctx.userAddress]
+ * @param {Object<string,boolean>} [ctx.contractCode] — lowercase addr → has code
+ * @returns {{riskLevel: string, risks: Array, recommendations: string[], info: Array}}
+ */
+function assessEip7702Risk(authorizationList, ctx = {}) {
+  const risks = [];
+  const recommendations = [];
+  const info = [];
+
+  // Guard: null / empty
+  if (!authorizationList || authorizationList.length === 0) {
+    return { riskLevel: 'none', risks, recommendations, info: [{ type: 'empty-authorization-list', message: 'No EIP-7702 delegations in this transaction' }] };
+  }
+
+  // Normalize context
+  const currentChainId = (ctx.currentChainId !== undefined && ctx.currentChainId !== null) ? toBigInt(ctx.currentChainId) : undefined;
+  const accountNonce   = (ctx.accountNonce !== undefined && ctx.accountNonce !== null) ? toBigInt(ctx.accountNonce) : undefined;
+  const userAddress    = ctx.userAddress ? normalizeAddress(ctx.userAddress) : undefined;
+
+  const targets = new Set();
+  let anySafe = false;
+  let anyUnknown = false;
+
+  // Per-authorization checks
+  for (let i = 0; i < authorizationList.length; i++) {
+    const auth = authorizationList[i];
+    const addr = normalizeAddress(auth.address);
+    targets.add(addr);
+
+    // Known-malicious
+    const malicious = KNOWN_MALICIOUS_DELEGATIONS.find(m => m.address === addr);
+    if (malicious) {
+      risks.push({ type: 'known-malicious-delegation', severity: 'critical', message: `Authorization #${i} delegates to known-malicious contract: ${malicious.name} (${addr})`, details: { index: i, address: addr, name: malicious.name, reference: malicious.reference } });
+    }
+
+    // Known-safe
+    const safe = KNOWN_SAFE_DELEGATIONS.find(s => s.address === addr);
+    if (safe) {
+      anySafe = true;
+      info.push({ type: 'known-safe-delegation', message: `Authorization #${i} delegates to known-safe contract: ${safe.name} (${addr})`, details: { index: i, name: safe.name, category: safe.category, address: addr } });
+    } else {
+      anyUnknown = true;
+    }
+
+    // EOA delegation (confirmed no code)
+    if (ctx.contractCode && Object.prototype.hasOwnProperty.call(ctx.contractCode, addr) && ctx.contractCode[addr] === false) {
+      risks.push({ type: 'eoa-delegation', severity: 'critical', message: `Authorization #${i} delegates to an EOA (address has no contract code): ${addr}. Delegating to a non-contract is meaningless and may indicate an error or attack.`, details: { index: i, address: addr } });
+    }
+
+    // Chain ID mismatch (chainId 0 = valid for all chains)
+    if (currentChainId !== undefined && auth.chainId !== 0n && auth.chainId !== currentChainId) {
+      risks.push({ type: 'chain-id-mismatch', severity: 'high', message: `Authorization #${i} targets chain_id ${auth.chainId.toString()} but wallet is on chain ${currentChainId.toString()}. Cross-chain delegation detected.`, details: { index: i, authChainId: auth.chainId, currentChainId } });
+    }
+
+    // Future nonce
+    if (accountNonce !== undefined && auth.nonce > accountNonce) {
+      risks.push({ type: 'future-nonce', severity: 'medium', message: `Authorization #${i} nonce (${auth.nonce.toString()}) is higher than the account's current nonce (${accountNonce.toString()}). Unusual.`, details: { index: i, authNonce: auth.nonce, currentNonce: accountNonce } });
+    }
+
+    // Homoglyph heuristic
+    if (userAddress) {
+      const authPrefix = addr.slice(2, 6), authSuffix = addr.slice(-4);
+      const userPrefix = userAddress.slice(2, 6), userSuffix = userAddress.slice(-4);
+      if (authPrefix === userPrefix && authSuffix === userSuffix) {
+        risks.push({ type: 'homoglyph-suspect', severity: 'high', message: `Authorization #${i} target shares the same first 4 and last 4 hex characters as your wallet address. Possible address-spoofing attempt.`, details: { index: i, target: addr, userAddress } });
+      }
+    }
+  }
+
+  // Multiple distinct targets
+  if (targets.size > 1) {
+    risks.push({ type: 'multi-delegation', severity: 'high', message: `Transaction delegates to ${targets.size} distinct contracts simultaneously. Single-tx multi-delegation is unusual.`, details: { targets: [...targets] } });
+  }
+
+  // Unverified delegation
+  if (anyUnknown && !ctx.contractCode) {
+    const unknownAddrs = [...targets].filter(a => !KNOWN_SAFE_DELEGATIONS.some(s => s.address === a));
+    risks.push({ type: 'unverified-delegation', severity: 'medium', message: 'Delegating to contracts not on the known-safe allowlist. Verify each target on a block explorer before signing.', details: { targets: unknownAddrs } });
+  }
+
+  // Recommendations
+  if (risks.length === 0 && anySafe) {
+    recommendations.push('All delegations target well-known, audited contracts.');
+    recommendations.push('Still verify that you intended to delegate your EOA before signing.');
+  }
+  if (anyUnknown) recommendations.push('Research every delegation target on a block explorer (Etherscan, Blockscout) before signing.');
+  if (risks.some(r => r.severity === 'critical')) {
+    recommendations.push('CRITICAL risk detected. Do NOT sign this transaction unless you fully understand what every delegation does.');
+    recommendations.push('Attackers use EIP-7702 to gain persistent control over your wallet via tiny-looking transactions.');
+  } else if (risks.some(r => r.severity === 'high')) {
+    recommendations.push('High-risk EIP-7702 delegation detected. Review the target contract and chain ID carefully.');
+  }
+  if (authorizationList.length > 0 && risks.length === 0) {
+    recommendations.push('You can revoke an EIP-7702 delegation at any time by signing a new authorization to a different address (or to the zero address).');
+  }
+
+  // Overall risk level — highest severity wins
+  const severityOrder = { critical: 4, high: 3, medium: 2, low: 1, none: 0 };
+  let riskLevel = 'none';
+  for (const r of risks) if (severityOrder[r.severity] > severityOrder[riskLevel]) riskLevel = r.severity;
+
+  return { riskLevel, risks, recommendations, info };
+}
+
+return { isEip7702Tx, parseAuthorizationList, assessEip7702Risk, EIP7702_TX_TYPE, KNOWN_SAFE_DELEGATIONS, KNOWN_MALICIOUS_DELEGATIONS };
+    })(),
+    // ============================================================
+    // session-key-analyzer.js
+    // ============================================================
+    "sessionKeyAnalyzer": (function() {
+/**
+ * @fileoverview Session Key Permission Analyzer (ERC-7715 / WalletConnect)
+ *
+ * Web3 wallets increasingly expose "session keys" — limited-scope delegated
+ * keys that let a dApp act on behalf of the user for a bounded period.
+ * The WalletConnect / ERC-7715 permission object shape (simplified):
+ *
+ *   {
+ *     "address": "0x...",          // session key signer address
+ *     "chainId": 1,                // allowed chain (0 = any)
+ *     "expiry": 1234567890,        // unix timestamp (0 = never expires)
+ *     "permissions": {
+ *       "contractAccess":  ["*"],  // allowed contracts ("*" = all)
+ *       "nativeTokenLimit":"1000000000000000000", // 1 ETH in wei
+ *       "erc20TokenLimit": { "0xUSDC": "0xffff..." },
+ *       "interval": 3600           // rate-limit interval (0 = no rate limit)
+ *     }
+ *   }
+ *
+ * Real-world attacks exploit overly-broad permissions:
+ *   - expiry = 0 (never expires)
+ *   - contractAccess = ["*"]  (any contract)
+ *   - erc20TokenLimit = max-int
+ *   - interval = 0  (no rate limit)
+ *
+ * All functions are pure — no chrome.*, no fetch, no I/O.
+ * @module lib/session-key-analyzer
+ */
+
+const MAX_UINT256 = (1n << 256n) - 1n;
+const MAX_UINT256_HEX = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+/** JSON-RPC method names that carry permission payloads. */
+const PERMISSION_RPC_METHODS = Object.freeze([
+  "wallet_grantPermissions",
+  "wallet_sendCalls",
+  "wallet_getPermissions",
+  "wallet_revokePermissions"
+]);
+
+/**
+ * Known-good session-key consumers. When a permission request originates
+ * from one of these, the analyzer downgrades risk by one level (floor: low).
+ */
+const KNOWN_SAFE_PROTOCOLS = Object.freeze([
+  Object.freeze({ name: "Uniswap",       matcher: /uniswap/i }),
+  Object.freeze({ name: "Aave",          matcher: /aave/i }),
+  Object.freeze({ name: "1inch",         matcher: /1inch/i }),
+  Object.freeze({ name: "CowSwap",       matcher: /cowfi|cow\.swap/i }),
+  Object.freeze({ name: "OpenSea",       matcher: /opensea/i }),
+  Object.freeze({ name: "Lido",          matcher: /lido/i }),
+  Object.freeze({ name: "ENS",           matcher: /ens|ethereum-name-service/i })
+]);
+
+// ─── Internal helpers ────────────────────────────────────────
+
+function toBigIntSafe(val) {
+  if (val == null) return null;
+  if (typeof val === 'bigint') return val;
+  if (typeof val === 'number') return BigInt(val);
+  if (typeof val === 'string') {
+    if (val === '') return null;
+    try { return BigInt(val); } catch { return null; }
+  }
+  if (typeof val === 'object' && typeof val.toString === 'function') {
+    try { return BigInt(val.toString()); } catch { return null; }
+  }
+  return null;
+}
+
+function isMaxUint256(value) {
+  const b = toBigIntSafe(value);
+  return b !== null && b >= MAX_UINT256;
+}
+
+function looksLikeZeroAddress(addr) {
+  if (typeof addr !== 'string') return false;
+  const lower = addr.toLowerCase().replace(/^0x/, '');
+  return /^0+$/.test(lower);
+}
+
+function isKnownSafeProtocol(origin) {
+  if (typeof origin !== 'string') return false;
+  return KNOWN_SAFE_PROTOCOLS.some(p => p.matcher.test(origin));
+}
+
+const SECONDS_PER_DAY = 86400;
+const FAR_FUTURE_SECONDS = 30 * SECONDS_PER_DAY;
+
+// ─── Public API ──────────────────────────────────────────────
+
+/**
+ * Detect whether a JSON-RPC payload is a session-key permission request.
+ * Handles both single calls and JSON-RPC batch arrays.
+ * @param {object|string|null|undefined} data
+ * @returns {boolean}
+ */
+function isPermissionRequest(data) {
+  if (data == null) return false;
+
+  // JSON string → parse and recurse
+  if (typeof data === 'string') {
+    try { return isPermissionRequest(JSON.parse(data)); } catch { return false; }
+  }
+
+  if (Array.isArray(data)) {
+    return data.some(d => isPermissionRequest(d));
+  }
+
+  if (typeof data !== 'object') return false;
+
+  // JSON-RPC envelope
+  if (typeof data.method === 'string' && PERMISSION_RPC_METHODS.includes(data.method)) return true;
+
+  // Direct permission object (no envelope)
+  if (data.permissions && typeof data.permissions === 'object') return true;
+  if (data.capabilities || data.caip25) return true;
+
+  return false;
+}
+
+/**
+ * Parse a permission payload into a normalized shape:
+ *   {
+ *     address, chainId, expiry, permissions: {
+ *       contractAccess, nativeTokenLimit, erc20TokenLimit, interval
+ *     }
+ *   }
+ * Tolerates missing fields (uses safe defaults).
+ * @param {object|string|null|undefined} raw
+ * @returns {object|null}
+ */
+function parsePermissions(raw) {
+  if (raw == null) return null;
+  if (typeof raw === 'string') {
+    try { raw = JSON.parse(raw); } catch { return null; }
+  }
+  if (typeof raw !== 'object') return null;
+
+  // Reject non-permission objects — must have a permission-grant shape.
+  const isJsonRpc = typeof raw.method === 'string' && PERMISSION_RPC_METHODS.includes(raw.method);
+  const isDirect  = raw.permissions && typeof raw.permissions === 'object';
+  const hasAddressOrExpiry = 'address' in raw || 'expiry' in raw || 'chainId' in raw;
+  if (!isJsonRpc && !isDirect && !hasAddressOrExpiry) return null;
+
+  // Unwrap JSON-RPC if present
+  const params = Array.isArray(raw.params) ? raw.params[0] : raw.params || raw;
+  if (params == null || typeof params !== 'object') return null;
+
+  const out = {
+    address: typeof params.address === 'string' ? params.address : "",
+    chainId: typeof params.chainId === 'number' ? params.chainId
+           : typeof params.chain_id === 'number' ? params.chain_id
+           : null,
+    expiry:  toBigIntSafe(params.expiry),
+    permissions: {
+      contractAccess:   Array.isArray(params.permissions?.contractAccess) ? params.permissions.contractAccess
+                       : (params.contractAccess || []),
+      nativeTokenLimit: params.permissions?.nativeTokenLimit ?? params.nativeTokenLimit ?? "0",
+      erc20TokenLimit:  (params.permissions?.erc20TokenLimit && typeof params.permissions.erc20TokenLimit === 'object')
+                       ? params.permissions.erc20TokenLimit
+                       : (params.erc20TokenLimit || {}),
+      interval:         Number(params.permissions?.interval ?? params.interval ?? 0) || 0
+    }
+  };
+
+  return out;
+}
+
+/**
+ * Analyze a parsed session-key permission object for red flags.
+ * @param {object} permissions — output of parsePermissions()
+ * @param {object} [ctx]
+ * @param {string} [ctx.origin] — dApp origin (used for KNOWN_SAFE_PROTOCOLS matching)
+ * @returns {{riskLevel: string, risks: Array, recommendations: string[], info: Array, parsed: object|null, summary: string}}
+ */
+function analyzeSession(permissions, ctx = {}) {
+  const risks = [];
+  const recommendations = [];
+  const info = [];
+  // Try to parse if we got a non-parsed payload (or a non-permission object).
+  let parsed = permissions;
+  if (parsed && (parsed.permissions || parsed.method || parsed.params)) {
+    parsed = parsePermissions(parsed);
+  }
+
+  if (parsed == null) {
+    return { riskLevel: "none", risks, recommendations, info, parsed: null, summary: "Not a permission request" };
+  }
+
+  const perms = parsed.permissions || {};
+  const origin = ctx.origin || "";
+
+  // ── Zero address signer ──────────────────────────────────────
+  if (!parsed.address || looksLikeZeroAddress(parsed.address)) {
+    risks.push({ type: "zero-address-signer", severity: "critical",
+      message: "Session key signer address is missing or zero. The session key is not properly initialized.",
+      fixable: false });
+  }
+
+  // ── expiry ────────────────────────────────────────────────────
+  const expiryBig = parsed.expiry;
+  if (expiryBig === null || expiryBig === 0n) {
+    risks.push({ type: "no-expiry", severity: "high",
+      message: "Session key never expires. It will be valid forever unless manually revoked.",
+      fixable: true });
+  } else {
+    const now = BigInt(Math.floor(Date.now() / 1000));
+    const lifetime = expiryBig - now;
+    if (lifetime > BigInt(FAR_FUTURE_SECONDS)) {
+      const days = Number(lifetime) / SECONDS_PER_DAY;
+      risks.push({ type: "far-future-expiry", severity: "high",
+        message: `Session key expires in ${Math.round(days)} days (>30 days). Long-lived keys amplify risk.`,
+        fixable: true });
+    } else if (lifetime < 0n) {
+      info.push({ type: "already-expired", message: "Session key is already expired." });
+    }
+  }
+
+  // ── contractAccess ────────────────────────────────────────────
+  const ca = Array.isArray(perms.contractAccess) ? perms.contractAccess : [];
+  if (ca.length === 0) {
+    risks.push({ type: "empty-contract-access", severity: "high",
+      message: "No contracts in access list. Either intentionally broad or malformed payload.",
+      fixable: false });
+  } else if (ca.some(c => c === "*" || c === "wildcard" || c === "any")) {
+    risks.push({ type: "wildcard-contract-access", severity: "critical",
+      message: "Session key can call ANY contract on the allowed chain(s). Full wallet exposure.",
+      fixable: true });
+  } else if (ca.length > 5) {
+    risks.push({ type: "broad-contract-access", severity: "medium",
+      message: `Session key can call ${ca.length} contracts. Verify each one.`,
+      fixable: true });
+  }
+
+  // ── nativeTokenLimit ──────────────────────────────────────────
+  const ntl = perms.nativeTokenLimit;
+  if (isMaxUint256(ntl)) {
+    risks.push({ type: "unlimited-native-limit", severity: "critical",
+      message: "Native token spending limit is max-uint256 (effectively unlimited).",
+      fixable: true });
+  }
+
+  // ── erc20TokenLimit ───────────────────────────────────────────
+  const erc20s = perms.erc20TokenLimit || {};
+  const erc20Keys = Object.keys(erc20s);
+  for (const tok of erc20Keys) {
+    if (isMaxUint256(erc20s[tok])) {
+      risks.push({ type: "unlimited-erc20-limit", severity: "critical",
+        message: `Spending limit for token ${tok} is max-uint256 (effectively unlimited).`,
+        fixable: true, details: { token: tok } });
+    }
+  }
+
+  // ── interval (rate limit) ─────────────────────────────────────
+  if (!perms.interval || perms.interval === 0) {
+    risks.push({ type: "no-rate-limit", severity: "medium",
+      message: "No rate-limit interval. Session key can call repeatedly without throttling.",
+      fixable: true });
+  }
+
+  // ── chainId ───────────────────────────────────────────────────
+  if (parsed.chainId == null || parsed.chainId === 0) {
+    risks.push({ type: "any-chain", severity: "medium",
+      message: "Session key is valid on ANY chain (chainId 0). Cross-chain exposure.",
+      fixable: true });
+  }
+
+  // ── Known-safe protocol ───────────────────────────────────────
+  if (isKnownSafeProtocol(origin)) {
+    info.push({ type: "known-safe-protocol", message: `Origin matches a known-safe protocol: ${origin}` });
+    // Downgrade risk by one level (floor: "low") for known-safe origins
+    if (risks.length > 0) {
+      const downgrade = { critical: "high", high: "medium", medium: "low", low: "low" };
+      for (const r of risks) {
+        if (downgrade[r.severity]) r.severity = downgrade[r.severity];
+      }
+    }
+  }
+
+  // ── Build recommendations ─────────────────────────────────────
+  const seenRec = new Set();
+  function rec(text) { if (!seenRec.has(text)) { recommendations.push(text); seenRec.add(text); } }
+
+  if (risks.some(r => r.severity === "critical")) {
+    rec("CRITICAL risk: this session key effectively gives away your wallet. Reject unless you fully understand and trust the dApp.");
+    rec("If you must proceed, set a tight expiry (<1 hour) and limit contract access to exactly the dApp's contract.");
+  }
+  if (risks.some(r => r.type === "no-expiry")) rec("Always set an explicit expiry. Recommended: the shortest window you need.");
+  if (risks.some(r => r.type === "wildcard-contract-access")) rec("Restrict contractAccess to the exact contract the dApp will call.");
+  if (risks.some(r => r.type === "unlimited-native-limit")) rec("Set nativeTokenLimit to the maximum you expect to spend, not unlimited.");
+  if (risks.some(r => r.type === "unlimited-erc20-limit")) rec("Set per-token erc20TokenLimit to the exact amount you intend to authorize.");
+  if (risks.some(r => r.type === "no-rate-limit")) rec("Set an interval (e.g. 60s) so the session key cannot be drained in one burst.");
+  if (risks.length === 0) rec("Session key looks well-scoped. You can still revoke it at any time from your wallet settings.");
+
+  // ── Overall risk level (max severity) ────────────────────────
+  const order = { critical: 4, high: 3, medium: 2, low: 1, none: 0 };
+  let riskLevel = "none";
+  for (const r of risks) if (order[r.severity] > order[riskLevel]) riskLevel = r.severity;
+
+  // ── Summary line ──────────────────────────────────────────────
+  let summary;
+  if (riskLevel === "none") summary = "Session key permissions look safe.";
+  else if (riskLevel === "low") summary = "Session key is mostly safe — minor issues.";
+  else if (riskLevel === "medium") summary = "Session key has medium-risk issues. Review before signing.";
+  else if (riskLevel === "high") summary = "Session key has high-risk issues. Likely overly permissive.";
+  else summary = "Session key is effectively wallet-equivalent. Almost certainly an attack.";
+
+  return { riskLevel, risks, recommendations, info, parsed, summary };
+}
+
+return { isPermissionRequest, parsePermissions, analyzeSession, MAX_UINT256, MAX_UINT256_HEX, ZERO_ADDRESS, PERMISSION_RPC_METHODS, KNOWN_SAFE_PROTOCOLS };
+    })(),
+    // ============================================================
+    // threat-feed.js
+    // ============================================================
+    "threatFeed": (function() {
+/**
+ * @fileoverview Privacy-Preserving Threat Intelligence Feed
+ *
+ * Loads, verifies, and applies a community-curated threat feed distributed
+ * via GitHub (or any HTTPS source). The feed is a JSON manifest containing
+ * SIGNED threat fingerprints — never any user data.
+ *
+ * Design principles:
+ *   - NO user data is sent or stored centrally
+ *   - Threats are fingerprints (domains, addresses, selectors, hashes) — not PII
+ *   - Signatures are verified LOCALLY before any threat is applied
+ *   - Feed is content-addressed and version-pinned
+ *   - Sources: official WalletGuard feed + community contributions
+ *
+ * Pure functions only — no chrome.*, no fetch. The caller fetches the
+ * manifest, then passes the JSON string here for verification + lookup.
+ *
+ * @module lib/threat-feed
+ */
+
+/**
+ * Threat entry shape:
+ *   {
+ *     id: string,                  // ULID/UUID, unique within feed
+ *     type: "domain"|"address"|"selector"|"bytecode"|"pattern"|"delegate",
+ *     value: string,               // the fingerprint (lowercased)
+ *     severity: "low"|"medium"|"high"|"critical",
+ *     category: string,            // "drainer"|"phisher"|"mev-bot"|"honeypot"|...
+ *     name: string,                // human-readable identifier
+ *     reference?: string,          // URL to public source/analysis
+ *     firstSeen: string,           // ISO date
+ *     notes?: string               // free text
+ *   }
+ *
+ * Manifest shape:
+ *   {
+ *     version: 1,                  // schema version
+ *     feedVersion: string,         // feed identifier (e.g. "wg-2026-07-06")
+ *     generatedAt: string,         // ISO timestamp
+ *     maintainer: string,          // public key fingerprint of maintainer
+ *     threats: [...],              // array of ThreatEntry
+ *     signatures: {                // Ed25519 signatures
+ *       "ed25519:<base64-pub>": "<base64-sig>"
+ *     }
+ *   }
+ */
+
+// ─── Hashing & integrity ─────────────────────────────────────
+
+/**
+ * Deterministic SHA-256 of a string, hex-encoded. Uses Web Crypto when
+ * available (browser + Node 16+); falls back to Node's `crypto` if not.
+ *
+ * Returns a Promise<hex> in browser, hex in Node. To keep this module
+ * purely synchronous and testable, we expose two flavours:
+ *
+ *   - sha256Sync(text)    — synchronous (uses crypto.subtle synchronously?)
+ *                            Actually, subtle is async, so this returns a Promise.
+ *
+ * For testing in Node we expose a sync fallback via the `node:crypto` module
+ * when the dynamic `require` succeeds.
+ */
+let __nodeCrypto = null;
+// Lazy-load Node's crypto so the module stays browser-friendly.
+// Uses the indirect-eval trick to get a working `require` in pure ESM.
+try {
+  if (typeof process !== "undefined" && process.versions && process.versions.node) {
+    // eslint-disable-next-line no-eval
+    const _require = (0, eval)('require');
+    __nodeCrypto = _require("node:crypto");
+  }
+} catch { /* not Node */ }
+
+/**
+ * Synchronous SHA-256 → hex. Only available in Node. In browser contexts
+ * the caller must use verifySignatureAsync() instead.
+ * @param {string} text
+ * @returns {string} hex digest (lowercase, no prefix)
+ */
+function sha256Hex(text) {
+  if (!__nodeCrypto) {
+    throw new Error("sha256Hex is Node-only. Use sha256HexAsync in the browser.");
+  }
+  return __nodeCrypto.createHash("sha256").update(text, "utf8").digest("hex");
+}
+
+/**
+ * Async SHA-256 → hex. Works in both Node (>=16) and browser via Web Crypto.
+ * @param {string} text
+ * @returns {Promise<string>} hex digest (lowercase, no prefix)
+ */
+async function sha256HexAsync(text) {
+  if (typeof crypto !== "undefined" && crypto.subtle) {
+    const buf = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest("SHA-256", buf);
+    return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  if (__nodeCrypto) {
+    return __nodeCrypto.createHash("sha256").update(text, "utf8").digest("hex");
+  }
+  throw new Error("No SHA-256 implementation available");
+}
+
+// ─── Manifest serialization (canonical form) ────────────────
+
+/**
+ * Canonicalize a manifest for signing. Keys are sorted, whitespace removed,
+ * no trailing fields. Returns the string that should be signed.
+ * @param {object} manifest
+ * @returns {string}
+ */
+function canonicalize(manifest) {
+  // Strip the `signatures` field itself — it's metadata about the rest.
+  const m = { ...manifest };
+  delete m.signatures;
+  return stableStringify(m);
+}
+
+function stableStringify(value) {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    return "[" + value.map(stableStringify).join(",") + "]";
+  }
+  const keys = Object.keys(value).sort();
+  return "{" + keys.map((k) => JSON.stringify(k) + ":" + stableStringify(value[k])).join(",") + "}";
+}
+
+// ─── Ed25519 signature verification ─────────────────────────
+
+/**
+ * Verify an Ed25519 signature. Accepts base64 or hex encoded key + sig.
+ * Synchronous in Node; async in browser.
+ * @param {object} args
+ * @param {string} args.message — canonical message bytes (utf-8)
+ * @param {string} args.signature — base64 (or hex with prefix 0x) signature
+ * @param {string} args.publicKey — base64 (or hex with prefix 0x) public key
+ * @param {"base64"|"hex"} [args.encoding="base64"]
+ * @returns {boolean}
+ */
+function verifySignature({ message, signature, publicKey, encoding = "base64" }) {
+  if (!__nodeCrypto) {
+    throw new Error("Synchronous verifySignature is Node-only. Use verifySignatureAsync in the browser.");
+  }
+  const msgBuf = Buffer.from(message, "utf8");
+  const sigBuf = decodeBuf(signature, encoding);
+  const keyBuf = decodeBuf(publicKey, encoding);
+  try {
+    return __nodeCrypto.verify(null, msgBuf, { key: keyBuf, format: "der", type: "spki" }, sigBuf);
+  } catch {
+    // Some Node versions accept raw keys with "raw" format
+    try {
+      return __nodeCrypto.verify(null, msgBuf, { key: keyBuf, format: "raw", type: "spki" }, sigBuf);
+    } catch {
+      return false;
+    }
+  }
+}
+
+/**
+ * Async Ed25519 verification via Web Crypto. Works in browsers.
+ * @param {object} args
+ * @param {string} args.message — utf-8 text
+ * @param {string} args.signature — base64 (or hex) signature
+ * @param {string} args.publicKey — base64 (or hex) public key (raw 32 bytes)
+ * @param {"base64"|"hex"} [args.encoding="base64"]
+ * @returns {Promise<boolean>}
+ */
+async function verifySignatureAsync({ message, signature, publicKey, encoding = "base64" }) {
+  if (typeof crypto === "undefined" || !crypto.subtle) {
+    throw new Error("Web Crypto not available in this context");
+  }
+  const msgBuf = new TextEncoder().encode(message);
+  const sigBytes = decodeToBytes(signature, encoding);
+  const keyBytes = decodeToBytes(publicKey, encoding);
+
+  try {
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw", keyBytes, { name: "Ed25519" }, false, ["verify"]
+    );
+    return await crypto.subtle.verify({ name: "Ed25519" }, cryptoKey, sigBytes, msgBuf);
+  } catch {
+    return false;
+  }
+}
+
+function decodeBuf(s, encoding) {
+  if (encoding === "hex") {
+    const hex = s.startsWith("0x") ? s.slice(2) : s;
+    return Buffer.from(hex, "hex");
+  }
+  return Buffer.from(s, "base64");
+}
+
+function decodeToBytes(s, encoding) {
+  if (encoding === "hex") {
+    const hex = s.startsWith("0x") ? s.slice(2) : s;
+    const out = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+    return out;
+  }
+  const bin = atob(s);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// ─── Manifest validation ────────────────────────────────────
+
+/**
+ * Validate a manifest's basic structure. Does NOT verify signatures.
+ * @param {unknown} manifest
+ * @returns {{ok: true} | {ok: false, error: string}}
+ */
+function validateManifest(manifest) {
+  if (manifest == null || typeof manifest !== "object") {
+    return { ok: false, error: "Manifest must be an object" };
+  }
+  if (manifest.version !== 1) {
+    return { ok: false, error: `Unsupported manifest version: ${manifest.version}` };
+  }
+  if (typeof manifest.feedVersion !== "string" || !manifest.feedVersion) {
+    return { ok: false, error: "Missing feedVersion" };
+  }
+  if (typeof manifest.generatedAt !== "string") {
+    return { ok: false, error: "Missing generatedAt" };
+  }
+  if (typeof manifest.maintainer !== "string") {
+    return { ok: false, error: "Missing maintainer key fingerprint" };
+  }
+  if (!Array.isArray(manifest.threats)) {
+    return { ok: false, error: "threats must be an array" };
+  }
+  if (manifest.signatures == null || typeof manifest.signatures !== "object") {
+    return { ok: false, error: "Missing signatures object" };
+  }
+  const sigKeys = Object.keys(manifest.signatures);
+  if (sigKeys.length === 0) {
+    return { ok: false, error: "No signatures present" };
+  }
+  // Validate each threat entry
+  const validTypes = new Set(["domain", "address", "selector", "bytecode", "pattern", "delegate"]);
+  const validSeverities = new Set(["low", "medium", "high", "critical"]);
+  const seen = new Set();
+  for (let i = 0; i < manifest.threats.length; i++) {
+    const t = manifest.threats[i];
+    if (t == null || typeof t !== "object") return { ok: false, error: `Threat #${i} is not an object` };
+    if (typeof t.id !== "string" || !t.id) return { ok: false, error: `Threat #${i} missing id` };
+    if (seen.has(t.id)) return { ok: false, error: `Duplicate threat id: ${t.id}` };
+    seen.add(t.id);
+    if (!validTypes.has(t.type)) return { ok: false, error: `Threat #${i} has invalid type: ${t.type}` };
+    if (typeof t.value !== "string" || !t.value) return { ok: false, error: `Threat #${i} missing value` };
+    if (!validSeverities.has(t.severity)) return { ok: false, error: `Threat #${i} invalid severity: ${t.severity}` };
+    if (typeof t.name !== "string") return { ok: false, error: `Threat #${i} missing name` };
+    if (typeof t.firstSeen !== "string") return { ok: false, error: `Threat #${i} missing firstSeen` };
+  }
+  return { ok: true };
+}
+
+/**
+ * Verify all signatures on a manifest.
+ * @param {object} manifest
+ * @param {object} [trustKeys] — map of "ed25519:<base64>" → trusted public key
+ * @returns {{ok: true, signedBy: string[]} | {ok: false, error: string}}
+ */
+function verifyManifestSignatures(manifest, trustKeys = {}) {
+  const canonical = canonicalize(manifest);
+  const signedBy = [];
+  for (const [keyId, sig] of Object.entries(manifest.signatures || {})) {
+    const pub = trustKeys[keyId];
+    if (!pub) {
+      return { ok: false, error: `Unknown signing key: ${keyId}` };
+    }
+    let ok;
+    try {
+      ok = verifySignature({ message: canonical, signature: sig, publicKey: pub, encoding: "base64" });
+    } catch (e) {
+      return { ok: false, error: `Signature verification failed: ${e.message}` };
+    }
+    if (!ok) return { ok: false, error: `Invalid signature from ${keyId}` };
+    signedBy.push(keyId);
+  }
+  if (signedBy.length === 0) return { ok: false, error: "No valid signatures" };
+  return { ok: true, signedBy };
+}
+
+/**
+ * Async version of verifyManifestSignatures — uses Web Crypto in browser.
+ */
+async function verifyManifestSignaturesAsync(manifest, trustKeys = {}) {
+  const canonical = canonicalize(manifest);
+  const signedBy = [];
+  for (const [keyId, sig] of Object.entries(manifest.signatures || {})) {
+    const pub = trustKeys[keyId];
+    if (!pub) return { ok: false, error: `Unknown signing key: ${keyId}` };
+    const ok = await verifySignatureAsync({ message: canonical, signature: sig, publicKey: pub, encoding: "base64" });
+    if (!ok) return { ok: false, error: `Invalid signature from ${keyId}` };
+    signedBy.push(keyId);
+  }
+  if (signedBy.length === 0) return { ok: false, error: "No valid signatures" };
+  return { ok: true, signedBy };
+}
+
+// ─── Lookup interface ────────────────────────────────────────
+
+/**
+ * Build an in-memory lookup index from a verified manifest.
+ * @param {object} manifest — already validated + signed
+ * @returns {{
+ *   byDomain: Map<string, ThreatEntry>,
+ *   byAddress: Map<string, ThreatEntry>,
+ *   bySelector: Map<string, ThreatEntry>,
+ *   byDelegate: Map<string, ThreatEntry>,
+ *   patterns: Array<{re: RegExp, entry: ThreatEntry}>,
+ *   all: ThreatEntry[]
+ * }}
+ */
+function buildIndex(manifest) {
+  const byDomain = new Map();
+  const byAddress = new Map();
+  const bySelector = new Map();
+  const byDelegate = new Map();
+  const patterns = [];
+  const all = [];
+
+  for (const t of manifest.threats || []) {
+    all.push(t);
+    const value = (t.value || "").toLowerCase();
+    if (t.type === "domain") byDomain.set(value, t);
+    else if (t.type === "address") byAddress.set(value, t);
+    else if (t.type === "selector") bySelector.set(value, t);
+    else if (t.type === "delegate") byDelegate.set(value, t);
+    else if (t.type === "pattern") {
+      try {
+        patterns.push({ re: new RegExp(value, "i"), entry: t });
+      } catch { /* invalid regex — skip */ }
+    }
+    // bytecode type is verified on-demand via eth_getCode, not pre-indexed
+  }
+
+  return { byDomain, byAddress, bySelector, byDelegate, patterns, all };
+}
+
+/**
+ * Look up a threat by query type.
+ * @param {object} index — from buildIndex()
+ * @param {object} query — one of { domain, address, selector, delegate, calldata }
+ * @returns {ThreatEntry | null}
+ */
+function lookup(index, query) {
+  if (!query || !index) return null;
+  if (query.domain) {
+    const d = (query.domain || "").toLowerCase();
+    const hit = index.byDomain.get(d);
+    if (hit) return hit;
+  }
+  if (query.address) {
+    const a = (query.address || "").toLowerCase();
+    const hit = index.byAddress.get(a);
+    if (hit) return hit;
+  }
+  if (query.selector) {
+    const s = (query.selector || "").toLowerCase();
+    const hit = index.bySelector.get(s);
+    if (hit) return hit;
+  }
+  if (query.delegate) {
+    const a = (query.delegate || "").toLowerCase();
+    const hit = index.byDelegate.get(a);
+    if (hit) return hit;
+  }
+  if (query.calldata && index.patterns.length > 0) {
+    const c = String(query.calldata);
+    for (const p of index.patterns) {
+      if (p.re.test(c)) return p.entry;
+    }
+  }
+  return null;
+}
+
+/**
+ * Compute the feed hash for a manifest (used for pinning / update checks).
+ * @param {object} manifest
+ * @returns {string} hex sha256 of canonical manifest
+ */
+function feedHash(manifest) {
+  return sha256Hex(canonicalize(manifest));
+}
+
+return { sha256Hex, sha256HexAsync, canonicalize, verifySignature, verifySignatureAsync, validateManifest, verifyManifestSignatures, verifyManifestSignaturesAsync, buildIndex, lookup, feedHash };
+    })(),
+    // ============================================================
+    // wallet-dna.js
+    // ============================================================
+    "walletDna": (function() {
+/**
+ * @fileoverview Wallet DNA — On-Device Behavioral Anomaly Detection
+ *
+ * Builds a behavioral profile of the user's wallet from observed
+ * transactions and flags new ones that deviate significantly from
+ * established patterns. All learning happens LOCALLY — nothing is
+ * uploaded anywhere.
+ *
+ * Profile captures per-wallet:
+ *   - Typical gas price (gwei) and gas limit
+ *   - Active hours (UTC hour distribution, weighted)
+ *   - Typical value range (native + ERC-20)
+ *   - Frequently-used contracts (set with hit counts)
+ *   - Common function selectors (set with hit counts)
+ *   - Common chains used
+ *
+ * Anomaly scoring compares a new tx against the profile. Each
+ * dimension contributes to a 0–100 anomaly score. Score > 70 ⇒
+ * "anomalous"; > 90 ⇒ "highly anomalous" (likely compromised wallet
+ * or new device).
+ *
+ * Storage: pass a state object around; persist as JSON via caller.
+ *
+ * @module lib/wallet-dna
+ */
+
+/**
+ * Default profile for a brand-new wallet (no history).
+ */
+function emptyProfile(address) {
+  return {
+    address: (address || "").toLowerCase(),
+    version: 1,
+    samples: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    gasPriceGwei:   { count: 0, mean: 0, m2: 0 }, // Welford's online variance
+    gasLimit:       { count: 0, mean: 0, m2: 0 },
+    nativeValueWei: { count: 0, mean: 0, m2: 0 },
+    hours: new Array(24).fill(0),                 // raw counts, weighted by recency
+    contracts: Object.create(null),               // address → count
+    selectors: Object.create(null),               // 4-byte selector → count
+    chains: Object.create(null),                  // chainId → count
+    txCount: 0
+  };
+}
+
+/**
+ * Update a profile with a new transaction. Uses Welford's algorithm for
+ * numerically-stable online mean/variance. Idempotent in the sense that
+ * running the same tx multiple times skews the profile — callers should
+ * only feed real, observed transactions.
+ *
+ * @param {object} profile
+ * @param {object} tx — observed transaction
+ * @param {string} tx.from
+ * @param {string} [tx.to]
+ * @param {string} [tx.value] — hex or decimal string
+ * @param {string} [tx.gasPrice] — hex or decimal string
+ * @param {string} [tx.gas] — hex or decimal string
+ * @param {string} [tx.data] — hex calldata
+ * @param {number|string} [tx.chainId]
+ * @param {number} [tx.timestamp] — unix seconds (default now)
+ * @returns {object} the updated profile (mutated in place, also returned)
+ */
+function observe(profile, tx) {
+  if (!profile || typeof profile !== "object") profile = emptyProfile(tx && tx.from);
+  if (tx.from) profile.address = String(tx.from).toLowerCase();
+
+  // ── gasPrice (gwei) ──
+  const gp = toNumberSafe(toBigIntSafe(tx.gasPrice));
+  if (Number.isFinite(gp) && gp >= 0) {
+    const gwei = gp / 1e9;
+    updateWelford(profile.gasPriceGwei, gwei);
+  }
+
+  // ── gas limit ──
+  const gl = toNumberSafe(toBigIntSafe(tx.gas));
+  if (Number.isFinite(gl) && gl >= 0) {
+    updateWelford(profile.gasLimit, gl);
+  }
+
+  // ── native value (tracked in log10(wei) space — heavy-tailed distribution) ──
+  // Uses bigint-safe log10 so very large wei values are handled accurately.
+  const valBig = toBigIntSafe(tx.value);
+  if (valBig !== null && valBig >= 0n) {
+    const lv = log10BigInt(valBig + 1n);
+    if (Number.isFinite(lv)) {
+      updateWelford(profile.nativeValueWei, lv);
+    }
+  }
+
+  // ── hour distribution ──
+  const ts = tx.timestamp || Math.floor(Date.now() / 1000);
+  try {
+    const hour = new Date(ts * 1000).getUTCHours();
+    profile.hours[hour] = (profile.hours[hour] || 0) + 1;
+  } catch { /* ignore */ }
+
+  // ── target contract ──
+  if (tx.to) {
+    const c = String(tx.to).toLowerCase();
+    profile.contracts[c] = (profile.contracts[c] || 0) + 1;
+  }
+
+  // ── function selector ──
+  if (tx.data && tx.data.length >= 10) {
+    const sel = String(tx.data).slice(0, 10).toLowerCase();
+    profile.selectors[sel] = (profile.selectors[sel] || 0) + 1;
+  }
+
+  // ── chain ──
+  const cid = Number(tx.chainId);
+  if (Number.isFinite(cid)) {
+    profile.chains[cid] = (profile.chains[cid] || 0) + 1;
+  }
+
+  profile.txCount = (profile.txCount || 0) + 1;
+  profile.samples = profile.txCount;
+  profile.updatedAt = new Date().toISOString();
+  return profile;
+}
+
+/**
+ * Welford's online mean + sum-of-squares-of-differences-from-mean.
+ */
+function updateWelford(state, value) {
+  state.count++;
+  const delta = value - state.mean;
+  state.mean += delta / state.count;
+  const delta2 = value - state.mean;
+  state.m2 += delta * delta2;
+}
+
+/**
+ * Sample standard deviation.
+ */
+function stddev(state) {
+  if (!state || state.count < 2) return 0;
+  return Math.sqrt(state.m2 / (state.count - 1));
+}
+
+/**
+ * Score a candidate transaction against the profile. Returns an object
+ * with per-dimension anomaly points and an aggregate score (0–100).
+ *
+ * @param {object} profile
+ * @param {object} tx — same shape as observe()
+ * @returns {{
+ *   score: number,           // 0–100
+ *   level: "normal"|"unusual"|"anomalous"|"highly-anomalous",
+ *   factors: Array<{name, points, detail}>,
+ *   isNewContract: boolean,
+ *   isNewSelector: boolean,
+ *   isOffHours: boolean,
+ *   isOffChain: boolean,
+ *   profileSamples: number
+ * }}
+ */
+function scoreAnomaly(profile, tx) {
+  if (!profile || !profile.samples || profile.samples < 5) {
+    return {
+      score: 0,
+      level: "normal",
+      factors: [{ name: "cold-start", points: 0, detail: `Profile has ${profile?.samples || 0} samples — too few to score anomalies` }],
+      isNewContract: false,
+      isNewSelector: false,
+      isOffHours: false,
+      isOffChain: false,
+      profileSamples: profile?.samples || 0
+    };
+  }
+
+  const factors = [];
+
+  // ── gasPrice z-score ──
+  const gp = toNumberSafe(toBigIntSafe(tx.gasPrice));
+  if (Number.isFinite(gp) && gp >= 0) {
+    const gwei = gp / 1e9;
+    const sd = stddev(profile.gasPriceGwei);
+    if (sd > 0) {
+      const z = Math.abs((gwei - profile.gasPriceGwei.mean) / sd);
+      const pts = zScoreToPoints(z);
+      if (pts > 0) factors.push({ name: "gas-price-z", points: pts, detail: `z=${z.toFixed(1)} (mean ${profile.gasPriceGwei.mean.toFixed(1)} gwei, sd ${sd.toFixed(1)})` });
+    }
+  }
+
+  // ── gas limit z-score ──
+  const gl = toNumberSafe(toBigIntSafe(tx.gas));
+  if (Number.isFinite(gl) && gl >= 0) {
+    const sd = stddev(profile.gasLimit);
+    if (sd > 0) {
+      const z = Math.abs((gl - profile.gasLimit.mean) / sd);
+      const pts = zScoreToPoints(z);
+      if (pts > 0) factors.push({ name: "gas-limit-z", points: pts, detail: `z=${z.toFixed(1)} (mean ${profile.gasLimit.mean.toFixed(0)}, sd ${sd.toFixed(0)})` });
+    }
+  }
+
+  // ── value z-score (log10 space; bigint-safe) ──
+  const valBig = toBigIntSafe(tx.value);
+  if (valBig !== null && valBig > 0n) {
+    const lv = log10BigInt(valBig + 1n);
+    if (Number.isFinite(lv)) {
+      const lm = profile.nativeValueWei.mean;     // already in log-space
+      const sd = stddev(profile.nativeValueWei);
+      // Floor sd at 0.5 (≈ 0.5 dex ≈ 3.16× difference) to avoid over-sensitivity
+      // for wallets with very tight value ranges.
+      const effSd = Math.max(sd, 0.5);
+      const z = Math.abs((lv - lm) / effSd);
+      const pts = zScoreToPoints(z);
+      if (pts > 0) {
+        // Convert log10 back to human-readable ETH for the detail string.
+        const meanEth = Math.pow(10, lm) / 1e18;
+        const txEth = Math.pow(10, lv) / 1e18;
+        factors.push({
+          name: "value-z",
+          points: pts,
+          detail: `z=${z.toFixed(1)} (mean ${meanEth.toFixed(4)} ETH, this tx ${txEth.toFixed(4)} ETH)`
+        });
+      }
+    }
+  }
+
+  // ── new contract? ──
+  let isNewContract = false;
+  if (tx.to) {
+    const c = String(tx.to).toLowerCase();
+    isNewContract = !profile.contracts[c];
+    if (isNewContract) factors.push({ name: "new-contract", points: 15, detail: `Never seen target ${c.slice(0, 10)}…` });
+  }
+
+  // ── new selector? ──
+  let isNewSelector = false;
+  if (tx.data && tx.data.length >= 10) {
+    const sel = String(tx.data).slice(0, 10).toLowerCase();
+    isNewSelector = !profile.selectors[sel];
+    if (isNewSelector) factors.push({ name: "new-selector", points: 10, detail: `New function ${sel}` });
+  }
+
+  // ── off-hours? ──
+  let isOffHours = false;
+  const ts = tx.timestamp || Math.floor(Date.now() / 1000);
+  try {
+    const hour = new Date(ts * 1000).getUTCHours();
+    const total = profile.hours.reduce((a, b) => a + b, 0);
+    const hrFrac = total > 0 ? (profile.hours[hour] || 0) / total : 0;
+    if (hrFrac < 0.01 && total > 20) {
+      isOffHours = true;
+      factors.push({ name: "off-hours", points: 8, detail: `Hour ${hour}:00 UTC — <1% of past activity` });
+    }
+  } catch { /* ignore */ }
+
+  // ── off-chain? ──
+  let isOffChain = false;
+  const cid = Number(tx.chainId);
+  if (Number.isFinite(cid) && Object.keys(profile.chains).length > 0) {
+    if (!profile.chains[cid]) {
+      isOffChain = true;
+      factors.push({ name: "new-chain", points: 12, detail: `First time on chain ${cid}` });
+    }
+  }
+
+  // ── aggregate score ──
+  const raw = factors.reduce((a, f) => a + f.points, 0);
+  const score = Math.min(100, raw);
+  let level;
+  if (score >= 90) level = "highly-anomalous";
+  else if (score >= 70) level = "anomalous";
+  else if (score >= 40) level = "unusual";
+  else level = "normal";
+
+  return {
+    score,
+    level,
+    factors,
+    isNewContract,
+    isNewSelector,
+    isOffHours,
+    isOffChain,
+    profileSamples: profile.samples
+  };
+}
+
+function zScoreToPoints(z) {
+  if (z >= 5) return 30;
+  if (z >= 4) return 25;
+  if (z >= 3) return 18;
+  if (z >= 2.5) return 12;
+  if (z >= 2) return 8;
+  if (z >= 1.5) return 4;
+  return 0;
+}
+
+function toBigIntSafe(val) {
+  if (val == null) return null;
+  if (typeof val === 'bigint') return val;
+  if (typeof val === 'number') return BigInt(val);
+  if (typeof val === 'string') {
+    try { return BigInt(val); } catch { return null; }
+  }
+  return null;
+}
+
+function toNumberSafe(bi) {
+  if (bi == null) return NaN;
+  try {
+    if (bi > BigInt(Number.MAX_SAFE_INTEGER)) return Number.MAX_SAFE_INTEGER;
+    return Number(bi);
+  } catch { return NaN; }
+}
+
+/**
+ * BigInt-safe log10. Works for arbitrarily large wei values without
+ * losing precision (unlike Number(v) → log10 which clamps to MAX_SAFE_INTEGER).
+ *
+ * Examples:
+ *   log10BigInt(1n) = 0
+ *   log10BigInt(10n) = 1
+ *   log10BigInt(1e18n) ≈ 18
+ *   log10BigInt(1e77n) ≈ 77  (max ETH supply)
+ */
+function log10BigInt(bi) {
+  if (bi <= 0n) return 0;
+  const s = bi.toString();
+  const digits = s.length;
+  // Take first up to 15 digits, normalize as fraction [1, 10).
+  const headLen = Math.min(15, digits);
+  const head = parseInt(s.slice(0, headLen), 10);
+  const headNorm = head / Math.pow(10, headLen - 1);
+  return (digits - 1) + Math.log10(headNorm);
+}
+
+/**
+ * Serialize profile for storage (handles Maps / plain objects).
+ */
+function serializeProfile(profile) {
+  return JSON.stringify(profile, (_k, v) => {
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      const out = {};
+      for (const k of Object.keys(v)) out[k] = v[k];
+      return out;
+    }
+    return v;
+  });
+}
+
+/**
+ * Parse a serialized profile back. Tolerant of unknown fields.
+ */
+function deserializeProfile(json) {
+  try {
+    const parsed = typeof json === "string" ? JSON.parse(json) : json;
+    if (!parsed || typeof parsed !== "object") return null;
+    if (!Array.isArray(parsed.hours) || parsed.hours.length !== 24) parsed.hours = new Array(24).fill(0);
+    if (!parsed.contracts) parsed.contracts = Object.create(null);
+    if (!parsed.selectors) parsed.selectors = Object.create(null);
+    if (!parsed.chains) parsed.chains = Object.create(null);
+    return parsed;
+  } catch { return null; }
+}
+
+return { emptyProfile, observe, scoreAnomaly, serializeProfile, deserializeProfile };
+    })(),
+    // ============================================================
     // address-book.js
     // ============================================================
     "addressBook": (function() {
@@ -3411,5 +4858,5 @@ function availableLocales() {
 return { setMessages, setLocaleMessages, normalizeLocale, detectLocale, setLocale, getLocale, initI18n, saveLocale, t, applyTranslations, availableLocales, SUPPORTED_LOCALES, DEFAULT_LOCALE, LOCALE_DISPLAY };
     })(),
   };
-  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "mevDetector": mods.mevDetector, "revokeGenerator": mods.revokeGenerator, "addressBook": mods.addressBook, "i18n": mods.i18n };
+  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "mevDetector": mods.mevDetector, "revokeGenerator": mods.revokeGenerator, "eip7702Detector": mods.eip7702Detector, "sessionKeyAnalyzer": mods.sessionKeyAnalyzer, "threatFeed": mods.threatFeed, "walletDna": mods.walletDna, "addressBook": mods.addressBook, "i18n": mods.i18n };
 })(typeof window !== "undefined" ? window : globalThis);

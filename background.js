@@ -25,7 +25,10 @@ const STORAGE_KEYS = {
   APPROVAL_SCAN: "wg_approvalScan",          // last scan result + summary
   LAST_WALLET: "wg_lastWalletAddress",       // most recent `from` we saw
   LAST_RECEIPT: "wg_lastReceipt",            // v2.0: last intercepted tx analysis (popup display)
-  ADDRESS_BOOK: "wg_addressBook"             // v2.0: local address labels { addr: { label, trust, tags } }
+  ADDRESS_BOOK: "wg_addressBook",            // v2.0: local address labels { addr: { label, trust, tags } }
+  DNA_PROFILES: "wg_dnaProfiles",            // v2.1: per-wallet behavioral profiles
+  THREAT_FEED: "wg_threatFeed",              // v2.1: cached threat feed manifest
+  THREAT_FEED_ENABLED: "wg_threatFeedEnabled" // v2.1: user opt-in to community feed
 };
 
 const MAX_LOGS = 50;
@@ -496,6 +499,99 @@ async function handleMessage(message, sender) {
       return { entry: book[key] || null };
     }
 
+    // --- v2.1: Wallet DNA — content script fetches profile for a wallet ---
+    case "getDnaProfile": {
+      const addr = (message.address || "").trim().toLowerCase();
+      if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) return { profile: null };
+      const profiles = await getStorage(STORAGE_KEYS.DNA_PROFILES, {});
+      return { profile: profiles[addr] || null };
+    }
+
+    // --- v2.1: Wallet DNA — content script records a new observation ---
+    case "observeDna": {
+      const tx = message.tx || {};
+      const addr = (tx.from || "").trim().toLowerCase();
+      if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) return { ok: false };
+      const profiles = await getStorage(STORAGE_KEYS.DNA_PROFILES, {});
+      // Lazy-load the wallet-dna module via dynamic import (only when needed).
+      // Falls back to a no-op if module fails to load.
+      try {
+        const mod = await import("./lib/wallet-dna.js");
+        let profile = profiles[addr] || mod.emptyProfile(addr);
+        mod.observe(profile, tx);
+        profiles[addr] = profile;
+        // Cap at 50 profiles to avoid storage bloat.
+        const keys = Object.keys(profiles);
+        if (keys.length > 50) {
+          // Drop the oldest (by updatedAt).
+          keys.sort((a, b) => (profiles[a].updatedAt || "").localeCompare(profiles[b].updatedAt || ""));
+          delete profiles[keys[0]];
+        }
+        await setStorage(STORAGE_KEYS.DNA_PROFILES, profiles);
+      } catch (e) {
+        console.warn("[WalletGuard] DNA observe failed:", e && e.message);
+      }
+      return { ok: true };
+    }
+
+    // --- v2.1: Threat feed lookup ---
+    case "threatFeedLookup": {
+      const enabled = await getStorage(STORAGE_KEYS.THREAT_FEED_ENABLED, false);
+      if (!enabled) return { hits: [], enabled: false };
+      const cached = await getStorage(STORAGE_KEYS.THREAT_FEED, null);
+      if (!cached || !cached.index) return { hits: [], enabled: true };
+      const index = cached.index;
+      const hits = [];
+      const query = message.query || {};
+      // Look up each kind separately so we can report all hits.
+      if (query.domain) {
+        const h = lookupOne(index, "domain", query.domain);
+        if (h) hits.push(h);
+      }
+      if (query.address) {
+        const h = lookupOne(index, "address", query.address);
+        if (h) hits.push(h);
+      }
+      if (query.selector) {
+        const h = lookupOne(index, "selector", query.selector);
+        if (h) hits.push(h);
+      }
+      if (Array.isArray(query.delegate)) {
+        for (const d of query.delegate) {
+          const h = lookupOne(index, "delegate", d);
+          if (h) hits.push(h);
+        }
+      }
+      if (query.calldata) {
+        const h = lookupOne(index, "pattern", null, query.calldata);
+        if (h) hits.push(h);
+      }
+      // Sort by severity desc.
+      const sevOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+      hits.sort((a, b) => (sevOrder[b.severity] || 0) - (sevOrder[a.severity] || 0));
+      return { hits, enabled: true };
+    }
+
+    // --- v2.1: Threat feed opt-in toggle ---
+    case "setThreatFeedEnabled": {
+      await setStorage(STORAGE_KEYS.THREAT_FEED_ENABLED, !!message.enabled);
+      await appendLog(`Threat intelligence feed ${message.enabled ? "enabled" : "disabled"}.`);
+      return { ok: true, enabled: !!message.enabled };
+    }
+
+    // --- v2.1: Threat feed status ---
+    case "getThreatFeedStatus": {
+      const enabled = await getStorage(STORAGE_KEYS.THREAT_FEED_ENABLED, false);
+      const cached = await getStorage(STORAGE_KEYS.THREAT_FEED, null);
+      return {
+        enabled,
+        loaded: !!cached,
+        feedVersion: cached && cached.feedVersion,
+        threatCount: cached && cached.index ? cached.index.all.length : 0,
+        updatedAt: cached && cached.updatedAt
+      };
+    }
+
     default:
       return { error: `unknown action: ${message.action}` };
   }
@@ -504,6 +600,34 @@ async function handleMessage(message, sender) {
 function shorten(addr) {
   if (!addr || addr.length < 10) return addr || "";
   return addr.slice(0, 6) + "..." + addr.slice(-4);
+}
+
+// Threat feed lookup helper. Uses the same lookup convention as lib/threat-feed.js.
+function lookupOne(index, type, value, calldata) {
+  if (!index) return null;
+  if (type === "domain" && value && index.byDomain) {
+    const hit = index.byDomain.get(String(value).toLowerCase());
+    if (hit) return hit;
+  }
+  if (type === "address" && value && index.byAddress) {
+    const hit = index.byAddress.get(String(value).toLowerCase());
+    if (hit) return hit;
+  }
+  if (type === "selector" && value && index.bySelector) {
+    const hit = index.bySelector.get(String(value).toLowerCase());
+    if (hit) return hit;
+  }
+  if (type === "delegate" && value && index.byDelegate) {
+    const hit = index.byDelegate.get(String(value).toLowerCase());
+    if (hit) return hit;
+  }
+  if (type === "pattern" && calldata && Array.isArray(index.patterns)) {
+    const c = String(calldata);
+    for (const p of index.patterns) {
+      if (p.re && p.re.test(c)) return p.entry;
+    }
+  }
+  return null;
 }
 
 // ---------- APPROVAL SCANNER HELPERS ----------
