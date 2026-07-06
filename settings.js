@@ -156,7 +156,8 @@
 
   /**
    * Render a whitelist or blacklist list. Empty state shows a translated
-   * placeholder.
+   * placeholder. Long addresses (40+ chars) are shortened to 0x6...4 form
+   * with the full value in the title attribute.
    * @param {string} elementId - UL container id.
    * @param {string[]} items   - List of addresses/domains.
    * @param {"whitelist"|"blacklist"} listType - Drives empty-state copy and
@@ -165,18 +166,23 @@
    */
   function renderList(elementId, items, listType) {
     const container = document.getElementById(elementId);
+    if (!container) return;
     const emptyKey = listType === "whitelist" ? "settings.list.whitelistEmpty" : "settings.list.blacklistEmpty";
     if (!items || items.length === 0) {
       container.innerHTML = `<div class="wg-list-empty">${escapeHtml(t(emptyKey))}</div>`;
       return;
     }
 
-    container.innerHTML = items.map((item, idx) => `
+    container.innerHTML = items.map((item, idx) => {
+      const display = isFullAddress(item) ? shortenAddr(item) : escapeHtml(item);
+      const fullTitle = escapeHtml(item);
+      return `
       <div class="wg-list-item">
-        <span class="wg-list-item__addr">${escapeHtml(item)}</span>
+        <span class="wg-list-item__addr" title="${fullTitle}">${display}</span>
         <button class="wg-list-item__remove" data-type="${listType}" data-index="${idx}" title="${escapeHtml(t("settings.list.remove"))}" aria-label="${escapeHtml(t("settings.list.remove"))}">\u00d7</button>
       </div>
-    `).join("");
+    `;
+    }).join("");
 
     container.querySelectorAll(".wg-list-item__remove").forEach((btn) => {
       btn.addEventListener("click", async () => {
@@ -187,8 +193,21 @@
     });
   }
 
+  /** Pure helpers — see lib/address-utils.js. Inlined here via the
+   *  WGAddressUtils global that lib/address-utils.js attaches to window. */
+  const isFullAddress = (typeof WGAddressUtils !== "undefined" && WGAddressUtils.isFullAddress)
+    || function isFullAddressFallback(s) { return typeof s === "string" && /^0x[a-fA-F0-9]{40}$/.test(s); };
+  const shortenAddrRaw = (typeof WGAddressUtils !== "undefined" && WGAddressUtils.shortenAddr)
+    || function shortenAddrFallback(a) { return (a && a.length === 42) ? a.slice(0, 6) + "\u2026" + a.slice(-4) : (a || ""); };
+  /** Escape + shorten: used in renderList so callers don't need to chain. */
+  function shortenAddr(a) {
+    return escapeHtml(shortenAddrRaw(a));
+  }
+
   /**
    * Wire up every settings-page control. Idempotent across navigations.
+   * Every listener is wrapped in a null-guard so a missing element (typo,
+   * partial DOM load) never breaks the whole page.
    * @returns {void}
    */
   function attachListeners() {
@@ -209,9 +228,7 @@
     }
 
     // ---- Protection toggle ----
-    document.getElementById("enabled-toggle").addEventListener("click", async () => {
-      const toggle = document.getElementById("enabled-toggle");
-      const newState = toggle.getAttribute("aria-checked") !== "true";
+    onToggleClick("enabled-toggle", async (newState) => {
       const res = await sendMessage({ action: "setEnabled", enabled: newState });
       if (res && !res.error) {
         applyEnabledUI(res.enabled);
@@ -220,9 +237,7 @@
     });
 
     // ---- Multi-chain toggle ----
-    document.getElementById("multichain-toggle").addEventListener("click", async () => {
-      const toggle = document.getElementById("multichain-toggle");
-      const newState = toggle.getAttribute("aria-checked") !== "true";
+    onToggleClick("multichain-toggle", async (newState) => {
       const res = await sendMessage({ action: "setMultiChain", enabled: newState });
       if (res && !res.error) {
         applyMultiChainUI(res.multiChain);
@@ -231,9 +246,7 @@
     });
 
     // ---- Notifications toggle ----
-    document.getElementById("notifications-toggle").addEventListener("click", async () => {
-      const toggle = document.getElementById("notifications-toggle");
-      const newState = toggle.getAttribute("aria-checked") !== "true";
+    onToggleClick("notifications-toggle", async (newState) => {
       const res = await sendMessage({ action: "saveSettings", notificationsEnabled: newState });
       if (res && !res.error) {
         applyToggleUI("notifications-toggle", "notifications-pill", newState, "settings.toggle.on", "settings.toggle.off");
@@ -242,9 +255,7 @@
     });
 
     // ---- Threat feed toggle ----
-    document.getElementById("threatfeed-toggle").addEventListener("click", async () => {
-      const toggle = document.getElementById("threatfeed-toggle");
-      const newState = toggle.getAttribute("aria-checked") !== "true";
+    onToggleClick("threatfeed-toggle", async (newState) => {
       const res = await sendMessage({ action: "saveSettings", threatFeedEnabled: newState });
       if (res && !res.error) {
         applyToggleUI("threatfeed-toggle", "threatfeed-pill", newState, "settings.toggle.on", "settings.toggle.off");
@@ -253,21 +264,25 @@
     });
 
     // ---- API key visibility toggle ----
-    document.getElementById("toggle-key-vis").addEventListener("click", () => {
-      const input = document.getElementById("api-key-input");
-      const btn = document.getElementById("toggle-key-vis");
-      if (input.type === "password") {
-        input.type = "text";
-        btn.textContent = t("settings.api.hide");
-      } else {
-        input.type = "password";
-        btn.textContent = t("settings.api.show");
-      }
-    });
+    const toggleKeyVis = document.getElementById("toggle-key-vis");
+    if (toggleKeyVis) {
+      toggleKeyVis.addEventListener("click", () => {
+        const input = document.getElementById("api-key-input");
+        if (!input) return;
+        if (input.type === "password") {
+          input.type = "text";
+          toggleKeyVis.textContent = t("settings.api.hide");
+        } else {
+          input.type = "password";
+          toggleKeyVis.textContent = t("settings.api.show");
+        }
+      });
+    }
 
     // ---- Save API key ----
-    document.getElementById("save-api-btn").addEventListener("click", async () => {
-      const apiKey = document.getElementById("api-key-input").value.trim();
+    onClick("save-api-btn", async () => {
+      const input = document.getElementById("api-key-input");
+      const apiKey = (input && input.value || "").trim();
       const res = await sendMessage({ action: "saveSettings", apiKey });
       if (res && !res.error) {
         showToast(t("settings.toast.apiSaved"), "success");
@@ -277,9 +292,10 @@
     });
 
     // ---- Clear API key ----
-    document.getElementById("clear-api-btn").addEventListener("click", async () => {
+    onClick("clear-api-btn", async () => {
       if (!confirm(t("settings.confirm.clearApi"))) return;
-      document.getElementById("api-key-input").value = "";
+      const input = document.getElementById("api-key-input");
+      if (input) input.value = "";
       const res = await sendMessage({ action: "saveSettings", apiKey: "" });
       if (res && !res.error) {
         showToast(t("settings.toast.apiCleared"), "success");
@@ -287,8 +303,9 @@
     });
 
     // ---- Whitelist add ----
-    document.getElementById("add-whitelist-btn").addEventListener("click", async () => {
+    onClick("add-whitelist-btn", async () => {
       const input = document.getElementById("whitelist-input");
+      if (!input) return;
       const value = input.value.trim();
       if (!value) return;
       if (!isValidInput(value)) {
@@ -309,13 +326,12 @@
       }
     });
 
-    document.getElementById("whitelist-input").addEventListener("keypress", (e) => {
-      if (e.key === "Enter") document.getElementById("add-whitelist-btn").click();
-    });
+    onEnterKey("whitelist-input", "add-whitelist-btn");
 
     // ---- Blacklist add ----
-    document.getElementById("add-blacklist-btn").addEventListener("click", async () => {
+    onClick("add-blacklist-btn", async () => {
       const input = document.getElementById("blacklist-input");
+      if (!input) return;
       const value = input.value.trim();
       if (!value) return;
       if (!isValidInput(value)) {
@@ -336,12 +352,10 @@
       }
     });
 
-    document.getElementById("blacklist-input").addEventListener("keypress", (e) => {
-      if (e.key === "Enter") document.getElementById("add-blacklist-btn").click();
-    });
+    onEnterKey("blacklist-input", "add-blacklist-btn");
 
     // ---- Reset stats ----
-    document.getElementById("reset-stats-btn").addEventListener("click", async () => {
+    onClick("reset-stats-btn", async () => {
       if (!confirm(t("settings.confirm.resetStats"))) return;
       const res = await sendMessage({ action: "resetStats" });
       if (res && !res.error) {
@@ -350,11 +364,17 @@
     });
 
     // ---- Export Settings ----
-    document.getElementById("export-settings-btn").addEventListener("click", async () => {
+    onClick("export-settings-btn", async () => {
       const res = await sendMessage({ action: "exportSettings" });
       if (!res || res.error) {
         showToast(t("settings.toast.exportFailed"), "error");
         return;
+      }
+      // The SW excludes sensitive keys (API key) automatically and reports
+      // them in `excludedKeys`. Surface that to the user so they know the
+      // file is shareable.
+      if (res.excludedKeys && res.excludedKeys.length > 0) {
+        showToast(t("settings.toast.exportExcluded", { keys: res.excludedKeys.join(", ") }), "success");
       }
       const json = JSON.stringify(res, null, 2);
       try {
@@ -392,7 +412,8 @@
         }
         try {
           const text = await file.text();
-          const payload = JSON.parse(text);
+          let payload;
+          try { payload = JSON.parse(text); } catch { throw new Error("invalid-json"); }
           const res = await sendMessage({ action: "importSettings", payload });
           if (res && !res.error) {
             showToast(t("settings.toast.settingsImported", { count: res.imported }), "success");
@@ -409,10 +430,57 @@
     }
 
     // ---- Clear AI cache ----
-    document.getElementById("clear-cache-btn").addEventListener("click", async () => {
+    onClick("clear-cache-btn", async () => {
       if (!confirm(t("settings.confirm.clearCache"))) return;
-      await chrome.storage.local.remove("wg_aiCache");
-      showToast(t("settings.toast.cacheCleared"), "success");
+      try {
+        await chrome.storage.local.remove("wg_aiCache");
+        showToast(t("settings.toast.cacheCleared"), "success");
+      } catch {
+        showToast(t("settings.toast.cacheCleared"), "success"); // optimistic
+      }
+    });
+  }
+
+  /**
+   * Safe click listener helper. Attaches the handler only if the element
+   * exists. Returns the element (or null) so callers can chain if needed.
+   * @param {string} id
+   * @param {(ev: Event) => any} handler
+   * @returns {HTMLElement|null}
+   */
+  function onClick(id, handler) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("click", handler);
+    return el || null;
+  }
+
+  /**
+   * Safe toggle-button listener. Reads aria-checked, toggles, calls handler.
+   * @param {string} id - Toggle element id.
+   * @param {(newState: boolean) => any} handler - Receives the new state.
+   * @returns {void}
+   */
+  function onToggleClick(id, handler) {
+    const toggle = document.getElementById(id);
+    if (!toggle) return;
+    toggle.addEventListener("click", async () => {
+      const newState = toggle.getAttribute("aria-checked") !== "true";
+      await handler(newState);
+    });
+  }
+
+  /**
+   * Safe keypress-to-click helper: Enter in inputId clicks buttonId.
+   * @param {string} inputId
+   * @param {string} buttonId
+   * @returns {void}
+   */
+  function onEnterKey(inputId, buttonId) {
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(buttonId);
+    if (!input || !btn) return;
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") btn.click();
     });
   }
 
@@ -421,17 +489,22 @@
   // values. Re-apply them so the UI stays consistent after a locale switch.
   /**
    * Re-apply the imperative UI bits (toggle pills, list items) after a
-   * locale switch so they pick up the new translations.
+   * locale switch or settings import so they pick up the new translations.
    * @returns {Promise<void>}
    */
   async function refreshDynamicUI() {
     const data = await sendMessage({ action: "getSettings" });
-    if (data && !data.error) {
-      applyEnabledUI(data.enabled !== false);
-      applyMultiChainUI(data.multiChain === true);
-      renderList("whitelist-list", data.whitelist || [], "whitelist");
-      renderList("blacklist-list", data.customBlacklist || [], "blacklist");
-    }
+    if (!data || data.error) return;
+    applyEnabledUI(data.enabled !== false);
+    applyMultiChainUI(data.multiChain === true);
+    applyToggleUI("notifications-toggle", "notifications-pill",
+      data.notificationsEnabled !== false,
+      "settings.toggle.on", "settings.toggle.off");
+    applyToggleUI("threatfeed-toggle", "threatfeed-pill",
+      data.threatFeedEnabled === true,
+      "settings.toggle.on", "settings.toggle.off");
+    renderList("whitelist-list", data.whitelist || [], "whitelist");
+    renderList("blacklist-list", data.customBlacklist || [], "blacklist");
   }
 
   async function getCurrentList(type) {

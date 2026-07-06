@@ -60,17 +60,17 @@
       if (list) list.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
-    // Section navigation — token/NFT/address rows
+    // Section navigation — Token/NFT permission rows trigger an approval
+    // rescan via the SW. The user sees a "Scanning..." toast; the count
+    // updates on next popup open (or auto-refresh after rescan completes).
     const approvalSection = document.getElementById("approval-section");
     if (approvalSection) approvalSection.addEventListener("click", async () => {
-      const btn = document.getElementById("rescan-btn");
-      if (btn) btn.click();
+      await triggerRescan("token");
     });
 
     const nftSection = document.getElementById("nft-section");
     if (nftSection) nftSection.addEventListener("click", async () => {
-      const btn = document.getElementById("rescan-btn");
-      if (btn) btn.click();
+      await triggerRescan("nft");
     });
 
     // Hidden revoke flow kept for compatibility
@@ -152,6 +152,33 @@
         else resolve(response);
       });
     });
+  }
+
+  /**
+   * Trigger an approval rescan via the SW. If no wallet has been seen yet,
+   * shows a hint toast pointing the user to send a transaction first.
+   * @param {"token"|"nft"} kind - Used for the toast label only.
+   * @returns {Promise<void>}
+   */
+  async function triggerRescan(kind) {
+    const metaEl = document.getElementById(kind === "token" ? "approval-meta-text" : "nft-meta-text");
+    const prevText = metaEl ? metaEl.textContent : "";
+    if (metaEl) metaEl.textContent = t("popup.permissions.scanning");
+    try {
+      const res = await sendMessage({ action: "rescanApprovals" });
+      if (res && res.error) {
+        toast(t("popup.permissions.scanFailed", { error: res.error }));
+        if (metaEl) metaEl.textContent = prevText;
+        return;
+      }
+      // Refresh just the approval rows so the count updates without a full reload.
+      const fresh = await sendMessage({ action: "getApprovalScan" });
+      applyApprovals(fresh || {});
+      toast(t("popup.permissions.scanDone"));
+    } catch {
+      toast(t("popup.permissions.scanFailed", { error: "network" }));
+      if (metaEl) metaEl.textContent = prevText;
+    }
   }
 
   // ============================================================
@@ -283,7 +310,11 @@
     if (startN === target) { el.textContent = target; return; }
     const dur = 500;
     const t0 = performance.now();
+    // Generation token — if a newer setScore call starts while we're animating,
+    // it bumps this counter and we abort to avoid two loops fighting.
+    const myToken = ++__scoreGen;
     function tick(now) {
+      if (myToken !== __scoreGen) return;
       const k = Math.min(1, (now - t0) / dur);
       const eased = 1 - Math.pow(1 - k, 3);
       el.textContent = Math.round(startN + (target - startN) * eased);
@@ -291,6 +322,9 @@
     }
     requestAnimationFrame(tick);
   }
+
+  /** Monotonic counter — see setScore() for usage. */
+  let __scoreGen = 0;
 
   // ============================================================
   // ACTIVITY
@@ -331,8 +365,9 @@
    */
   function classifyLog(message) {
     if (/BLOCKED|CRITICAL|Phishing|flagged/i.test(message)) return "danger";
-    if (/Permit|Warning|risk|MEV|sandwich/i.test(message)) return "warn";
-    if (/enabled|protected|installed|updated|reset/i.test(message)) return "good";
+    // "disabled" / "paused" / "stopped" — protection reduced → warn
+    if (/Permit|Warning|risk|MEV|sandwich|disabled|paused|stopped/i.test(message)) return "warn";
+    if (/enabled|protected|installed|updated|reset|saved|cleared/i.test(message)) return "good";
     return "info";
   }
 

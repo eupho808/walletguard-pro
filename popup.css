@@ -317,14 +317,12 @@ button { font: inherit; cursor: pointer; }
 
 .activity__item {
   display: grid;
-  grid-template-columns: 4px 56px 1fr;
+  grid-template-columns: 52px 1fr;
   gap: 12px;
   align-items: baseline;
-  padding: 8px 0 8px 4px;
+  padding: 8px 0 8px 10px;
   border-bottom: 1px solid var(--border);
   border-left: 2px solid transparent;
-  margin-left: -6px;
-  padding-left: 8px;
 }
 
 .activity__item:last-child { border-bottom: none; }
@@ -338,10 +336,15 @@ button { font: inherit; cursor: pointer; }
   font-family: var(--mono);
   font-size: 11px;
   color: var(--text-3);
-  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-.activity__text { color: var(--text-2); }
+.activity__text {
+  color: var(--text-2);
+  min-width: 0;
+  word-break: break-word;
+}
 .activity__item--danger .activity__text { color: var(--text); }
 .activity__item--warn  .activity__text { color: var(--text); }
 

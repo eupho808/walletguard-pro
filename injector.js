@@ -57,13 +57,30 @@
     window.dispatchEvent(new CustomEvent("WalletGuardShowUI", { detail: payload }));
   }
 
+  // UI response timeout. If the user closes the tab or the content script
+  // never responds, fail-open (let the original call through) so we never
+  // lock the user's wallet.
+  const UI_RESPONSE_TIMEOUT_MS = 90000;
+
   function awaitUIResponse() {
     return new Promise((resolve) => {
-      const handler = (e) => {
+      let resolved = false;
+      const finish = (approved) => {
+        if (resolved) return;
+        resolved = true;
         window.removeEventListener("WalletGuardUIResponse", handler);
-        resolve(!!(e && e.detail && e.detail.approved));
+        clearTimeout(timer);
+        resolve(!!approved);
+      };
+      const handler = (e) => {
+        finish(e && e.detail && e.detail.approved);
       };
       window.addEventListener("WalletGuardUIResponse", handler);
+      const timer = setTimeout(() => {
+        // Fail-open: if the UI didn't answer in time, let the call through.
+        console.warn("WalletGuard Pro: UI response timeout, passing through.");
+        finish(false);
+      }, UI_RESPONSE_TIMEOUT_MS);
     });
   }
 
@@ -292,16 +309,9 @@
 
   function installProxy() {
     if (!window.ethereum) {
-      const mockBase = {
-        request: async function() { return null; },
-        isMetaMask: false
-      };
-      try {
-        window.ethereum = new Proxy(mockBase, WalletGuardHandler);
-        window.ethereum.isWalletGuard = true;
-      } catch (e) {
-        console.warn("WalletGuard Pro: could not install mock provider:", e);
-      }
+      // No wallet at script load time. Don't install a mock (it would
+      // short-circuit the real one when it appears later). Just wait for
+      // DOMContentLoaded below.
       return;
     }
 

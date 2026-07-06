@@ -13,6 +13,25 @@ try {
   console.warn("[WalletGuard] approval-scanner.js failed to load:", e && e.message);
 }
 
+// Load storage-validators module. Used by exportSettings/importSettings to
+// type-check user-supplied data before writing to chrome.storage.
+let validateStorageShape = null;
+let clampString = (s, max) => String(s == null ? "" : s).slice(0, max);  // inline fallback
+try {
+  importScripts("lib/storage-validators.js");
+  if (typeof WGStorageValidators !== "undefined") {
+    const built = WGStorageValidators.makeValidators(STORAGE_KEYS);
+    validateStorageShape = built.validateStorageShape;
+    clampString = built.clampString;
+    // Re-key SENSITIVE_KEYS using the lib's source of truth.
+    SENSITIVE_KEYS = new Set(
+      Object.values(STORAGE_KEYS).filter((k) => built.isSensitiveKey(k))
+    );
+  }
+} catch (e) {
+  console.warn("[WalletGuard] storage-validators.js failed to load:", e && e.message);
+}
+
 const STORAGE_KEYS = {
   API_KEY: "wg_apiKey",
   STATS: "wg_stats",
@@ -36,11 +55,15 @@ const STORAGE_KEYS = {
 };
 
 const MAX_LOGS = 50;
+const MAX_LOG_MSG_LEN = 240;       // hard cap on a single log message
 const AI_CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 const APPROVAL_SCAN_TTL_MS = 1000 * 60 * 60 * 6; // 6h
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const APPROVAL_SCAN_ALARM = "wg_approvalScanAlarm";
 const AUTO_REVOKE_ALARM = "wg_autoRevokeAlarm";
+// Storage keys that must never leave the device. The settings export explicitly
+// omits these so users can share the file without leaking secrets.
+let SENSITIVE_KEYS = new Set([STORAGE_KEYS.API_KEY]);
 
 // ---------- DEFAULT STATE ----------
 
@@ -74,8 +97,11 @@ async function setStorage(key, value) {
 }
 
 async function appendLog(message) {
+  // Hard cap on message length so a single spam entry can't fill storage.
+  // clampString lives in lib/storage-validators.js so it can be unit-tested.
+  const safe = clampString(message, MAX_LOG_MSG_LEN);
   const logs = await getStorage(STORAGE_KEYS.LOGS, []);
-  const entry = { time: nowIso(), message };
+  const entry = { time: nowIso(), message: safe };
   logs.unshift(entry);
   if (logs.length > MAX_LOGS) logs.length = MAX_LOGS;
   await setStorage(STORAGE_KEYS.LOGS, logs);
@@ -209,6 +235,11 @@ async function runAutoRevokeScan() {
 // ---------- AI ADDRESS CHECK ----------
 
 async function aiCheckAddress(address) {
+  // v3.2: refuse to send arbitrary input to the API. Anything not matching
+  // a 40-hex address is treated as "not spam" without spending credits.
+  if (typeof address !== "string" || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    return { isSpam: false, source: "invalid-address", reason: "not a valid address" };
+  }
   const apiKey = await getStorage(STORAGE_KEYS.API_KEY, "");
   if (!apiKey) {
     return { isSpam: false, source: "no-api-key", reason: "OpenRouter API key not configured" };
@@ -434,15 +465,23 @@ async function handleMessage(message, sender) {
       return { status: "ok" };
     }
 
-    // --- Settings: export (returns JSON of all user data) ---
+    // --- Settings: export (returns JSON of all user data, EXCLUDING secrets) ---
     case "exportSettings": {
       const all = {};
+      const excluded = [];
       for (const [k, v] of Object.entries(STORAGE_KEYS)) {
+        if (SENSITIVE_KEYS.has(v)) {
+          // Don't leak the API key. The caller can still set it back via the
+          // settings UI; we just refuse to embed it in shareable files.
+          excluded.push(v);
+          continue;
+        }
         all[v] = await getStorage(v, null);
       }
       return {
         version: chrome.runtime.getManifest().version,
         exportedAt: nowIso(),
+        excludedKeys: excluded,
         data: all
       };
     }
@@ -453,15 +492,24 @@ async function handleMessage(message, sender) {
         return { error: "Invalid payload" };
       }
       const data = message.payload.data;
-      const imported = [];
-      for (const [k, v] of Object.entries(STORAGE_KEYS)) {
-        if (Object.prototype.hasOwnProperty.call(data, k) && data[k] !== null) {
-          await setStorage(k, data[k]);
-          imported.push(k);
-        }
+      if (typeof data !== "object" || data === null || Array.isArray(data)) {
+        return { error: "data must be an object" };
       }
-      await appendLog(`Imported settings: ${imported.length} keys.`);
-      return { status: "ok", imported: imported.length };
+      const imported = [];
+      const skipped = [];
+      for (const [k, v] of Object.entries(STORAGE_KEYS)) {
+        if (!Object.prototype.hasOwnProperty.call(data, k)) continue;
+        if (data[k] === null || data[k] === undefined) { skipped.push(k); continue; }
+        // Type-validate against the expected shape before writing.
+        if (validateStorageShape && !validateStorageShape(k, data[k])) {
+          skipped.push(k);
+          continue;
+        }
+        await setStorage(k, data[k]);
+        imported.push(k);
+      }
+      await appendLog(`Imported settings: ${imported.length} keys${skipped.length ? `, ${skipped.length} skipped (invalid shape)` : ""}.`);
+      return { status: "ok", imported: imported.length, skipped: skipped.length };
     }
 
     // --- Reset stats ---
