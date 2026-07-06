@@ -31,7 +31,8 @@ const STORAGE_KEYS = {
   THREAT_FEED_ENABLED: "wg_threatFeedEnabled", // v2.1: user opt-in to community feed
   AUTO_REVOKE_OPTED: "wg_autoRevokeOptedIn",  // v2.2: user opted into scheduled stale-approval alerts
   STALE_APPROVALS: "wg_staleApprovals",       // v2.2: detected stale approvals awaiting user action
-  LAST_AUTO_REVOKE: "wg_lastAutoRevokeCheck"  // v2.2: timestamp of last stale-approval scan
+  LAST_AUTO_REVOKE: "wg_lastAutoRevokeCheck",  // v2.2: timestamp of last stale-approval scan
+  NOTIFICATIONS_ENABLED: "wg_notificationsEnabled" // v3.1: master toggle for chrome.notifications
 };
 
 const MAX_LOGS = 50;
@@ -364,24 +365,60 @@ async function handleMessage(message, sender) {
 
     // --- Popup: get all data in one round-trip ---
     case "getPopupData": {
-      const [stats, logs, enabled] = await Promise.all([
+      const [stats, logs, enabled, wallet, lastReceipt] = await Promise.all([
         getStorage(STORAGE_KEYS.STATS, { ...DEFAULT_STATS }),
         getStorage(STORAGE_KEYS.LOGS, []),
-        getStorage(STORAGE_KEYS.ENABLED, true)
+        getStorage(STORAGE_KEYS.ENABLED, true),
+        getStorage(STORAGE_KEYS.LAST_WALLET, ""),
+        getStorage(STORAGE_KEYS.LAST_RECEIPT, null)
       ]);
-      return { stats, logs, enabled, version: chrome.runtime.getManifest().version };
+      // Count unread critical alerts: dangerous log entries from the last 24h.
+      const since = Date.now() - 24 * 60 * 60 * 1000;
+      const unread = (logs || []).filter((l) => {
+        if (!l || !l.time) return false;
+        if (new Date(l.time).getTime() < since) return false;
+        const m = String(l.message || "");
+        return /BLOCKED|CRITICAL|Phishing|danger|Danger|flagged/i.test(m);
+      }).length;
+      return {
+        stats,
+        logs,
+        enabled,
+        version: chrome.runtime.getManifest().version,
+        wallet: wallet || "",
+        chainId: (lastReceipt && lastReceipt.chainId) || null,
+        chainName: (lastReceipt && lastReceipt.chainName) || null
+      };
+    }
+
+    // --- Clear unread alerts (called when popup opens) ---
+    case "markAlertsRead": {
+      // We don't store "unread" separately — it's derived from recent logs.
+      // But we return the count that would have been visible so caller can
+      // optimistically zero the badge after a successful call.
+      return { status: "ok" };
     }
 
     // --- Settings: get ---
     case "getSettings": {
-      const [apiKey, whitelist, customBl, enabled, multiChain] = await Promise.all([
+      const [apiKey, whitelist, customBl, enabled, multiChain, notificationsEnabled, threatFeedEnabled] = await Promise.all([
         getStorage(STORAGE_KEYS.API_KEY, ""),
         getStorage(STORAGE_KEYS.WHITELIST, []),
         getStorage(STORAGE_KEYS.CUSTOM_BLACKLIST, []),
         getStorage(STORAGE_KEYS.ENABLED, true),
-        getStorage(STORAGE_KEYS.MULTICHAIN, false)
+        getStorage(STORAGE_KEYS.MULTICHAIN, false),
+        getStorage(STORAGE_KEYS.NOTIFICATIONS_ENABLED, true),
+        getStorage(STORAGE_KEYS.THREAT_FEED_ENABLED, false)
       ]);
-      return { apiKey, whitelist, customBlacklist: customBl, enabled, multiChain };
+      return {
+        apiKey,
+        whitelist,
+        customBlacklist: customBl,
+        enabled,
+        multiChain,
+        notificationsEnabled,
+        threatFeedEnabled
+      };
     }
 
     // --- Settings: save ---
@@ -391,8 +428,40 @@ async function handleMessage(message, sender) {
       if (Array.isArray(message.customBlacklist)) await setStorage(STORAGE_KEYS.CUSTOM_BLACKLIST, message.customBlacklist);
       if (typeof message.enabled === "boolean") await setStorage(STORAGE_KEYS.ENABLED, message.enabled);
       if (typeof message.multiChain === "boolean") await setStorage(STORAGE_KEYS.MULTICHAIN, message.multiChain);
+      if (typeof message.notificationsEnabled === "boolean") await setStorage(STORAGE_KEYS.NOTIFICATIONS_ENABLED, message.notificationsEnabled);
+      if (typeof message.threatFeedEnabled === "boolean") await setStorage(STORAGE_KEYS.THREAT_FEED_ENABLED, message.threatFeedEnabled);
       await appendLog("Settings updated.");
       return { status: "ok" };
+    }
+
+    // --- Settings: export (returns JSON of all user data) ---
+    case "exportSettings": {
+      const all = {};
+      for (const [k, v] of Object.entries(STORAGE_KEYS)) {
+        all[v] = await getStorage(v, null);
+      }
+      return {
+        version: chrome.runtime.getManifest().version,
+        exportedAt: nowIso(),
+        data: all
+      };
+    }
+
+    // --- Settings: import (replaces user data from JSON) ---
+    case "importSettings": {
+      if (!message.payload || typeof message.payload !== "object" || !message.payload.data) {
+        return { error: "Invalid payload" };
+      }
+      const data = message.payload.data;
+      const imported = [];
+      for (const [k, v] of Object.entries(STORAGE_KEYS)) {
+        if (Object.prototype.hasOwnProperty.call(data, k) && data[k] !== null) {
+          await setStorage(k, data[k]);
+          imported.push(k);
+        }
+      }
+      await appendLog(`Imported settings: ${imported.length} keys.`);
+      return { status: "ok", imported: imported.length };
     }
 
     // --- Reset stats ---
@@ -851,6 +920,9 @@ async function setBadgeState(level, text) {
 async function notifyUser(opts) {
   // opts: { title, message, level: "warn"|"danger", id?, host? }
   if (!opts || !opts.title) return;
+  // Honor master toggle.
+  const enabled = await getStorage(STORAGE_KEYS.NOTIFICATIONS_ENABLED, true);
+  if (!enabled) return;
   try {
     const id = opts.id || ("wg-" + Date.now());
     await chrome.notifications.create(id, {

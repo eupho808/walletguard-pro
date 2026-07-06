@@ -1,6 +1,13 @@
 // popup.js — WalletGuard Pro v4 CALM
 // Minimal dashboard: hero score, protection checks, activity, permissions, addresses.
 
+/**
+ * @file Popup UI controller. Reads state from the background service worker
+ *       via chrome.runtime.sendMessage and renders it into popup.html.
+ *       All visual strings come from lib/i18n (window.WG_POPUP_LIB.i18n).
+ * @namespace PopupApp
+ */
+
 (function () {
   const i18n = (typeof window !== "undefined" && window.WG_POPUP_LIB && window.WG_POPUP_LIB.i18n) || null;
 
@@ -24,6 +31,12 @@
     await refresh();
   });
 
+  /**
+   * Wire up click / change handlers for the popup. Idempotent across popup
+   * reopens (event listeners attach once per page load, which is fine since
+   * the popup DOM is rebuilt each time the user opens it).
+   * @returns {void}
+   */
   function attachListeners() {
     const resetBtn = document.getElementById("reset-btn");
     if (resetBtn) resetBtn.addEventListener("click", async () => {
@@ -38,6 +51,13 @@
     const settingsBtn = document.getElementById("settings-btn");
     if (settingsBtn) settingsBtn.addEventListener("click", () => {
       chrome.runtime.openOptionsPage();
+    });
+
+    // Alerts badge — scroll to activity section
+    const alertsBadge = document.getElementById("alerts-badge");
+    if (alertsBadge) alertsBadge.addEventListener("click", () => {
+      const list = document.getElementById("logs-list");
+      if (list) list.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     // Section navigation — token/NFT/address rows
@@ -84,7 +104,14 @@
     });
   }
 
+  /**
+   * Fetch all popup data in parallel and render it. Each section runs in its
+   * own try/catch so a single failing source (e.g. approval scan cold cache)
+   * doesn't blank the rest of the UI.
+   * @returns {Promise<void>}
+   */
   async function refresh() {
+    setLoading(true);
     try {
       const data = await sendMessage({ action: "getPopupData" });
       if (data && !data.error) applyStats(data);
@@ -104,8 +131,20 @@
       const addrData = await sendMessage({ action: "getAddressBook" });
       applyAddressBook(addrData || {});
     } catch (e) { /* noop */ }
+    setLoading(false);
   }
 
+  function setLoading(on) {
+    const score = document.getElementById("wallet-score");
+    if (score) score.classList.toggle("is-loading", !!on);
+  }
+
+  /**
+   * Send a message to the background service worker. Resolves with the
+   * worker's response or { error } if the channel failed (e.g. SW asleep).
+   * @param {object} msg - Action payload understood by background.js handlers.
+   * @returns {Promise<object>}
+   */
   function sendMessage(msg) {
     return new Promise((resolve) => {
       chrome.runtime.sendMessage(msg, (response) => {
@@ -119,6 +158,13 @@
   // HERO SCORE
   // ============================================================
 
+  /**
+   * Render the hero Safety Score, status badge, connected wallet, unread
+   * alerts badge, and the activity timeline from a getPopupData response.
+   * @param {{stats?: object, logs?: Array, enabled?: boolean, wallet?: string,
+   *          chainId?: number|null, chainName?: string|null}} data
+   * @returns {void}
+   */
   function applyStats(data) {
     const stats = data.stats || {};
     const logs = data.logs || [];
@@ -132,9 +178,75 @@
       ? t("popup.status.protected")
       : t("popup.status.paused");
 
+    applyWallet(data);
+    applyAlertsBadge(data);
     renderActivity(logs);
   }
 
+  /**
+   * Show the connected wallet line above the hero score. Hidden until a
+   * real transaction has been intercepted (LAST_WALLET populated).
+   * @param {{wallet?: string, chainName?: string|null}} data
+   * @returns {void}
+   */
+  function applyWallet(data) {
+    const section = document.getElementById("wallet-section");
+    const addrEl = document.getElementById("wallet-addr");
+    const chainEl = document.getElementById("wallet-chain");
+    if (!section || !addrEl) return;
+
+    const addr = data.wallet || "";
+    const chain = data.chainName || "";
+
+    if (addr && /^0x[a-fA-F0-9]{40}$/.test(addr)) {
+      addrEl.textContent = shorten(addr);
+      addrEl.title = addr;
+      if (chainEl) chainEl.textContent = chain || "";
+      section.hidden = false;
+    } else {
+      section.hidden = true;
+    }
+  }
+
+  /**
+   * Show or hide the unread-alerts badge in the topbar. Counts critical
+   * log entries (BLOCKED / CRITICAL / Phishing / flagged / danger) from the
+   * last 24 hours. Capped at 9+ for visual stability.
+   * @param {{logs?: Array}} data
+   * @returns {void}
+   */
+  function applyAlertsBadge(data) {
+    const badge = document.getElementById("alerts-badge");
+    const countEl = document.getElementById("alerts-count");
+    if (!badge || !countEl) return;
+    const count = computeUnreadCount(data);
+    if (count > 0) {
+      countEl.textContent = count > 9 ? "9+" : String(count);
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  }
+
+  function computeUnreadCount(data) {
+    const logs = data.logs || [];
+    const since = Date.now() - 24 * 60 * 60 * 1000;
+    return logs.filter((l) => {
+      if (!l || !l.time) return false;
+      if (new Date(l.time).getTime() < since) return false;
+      const m = String(l.message || "");
+      return /BLOCKED|CRITICAL|Phishing|flagged|danger/i.test(m);
+    }).length;
+  }
+
+  /**
+   * Compute the 0-100 Safety Score from cumulative stats.
+   * Deductions: phishingBlocked (max 30), permitsDetected (max 20),
+   * warningsShown (max 15). Result is clamped and rounded.
+   * @param {{phishingBlocked?: number, permitsDetected?: number,
+   *          warningsShown?: number}} stats
+   * @returns {number}
+   */
   function computeSafetyScore(stats) {
     let score = 100;
     score -= Math.min((stats.phishingBlocked || 0) * 5, 30);
@@ -143,6 +255,13 @@
     return Math.max(0, Math.min(100, Math.round(score)));
   }
 
+  /**
+   * Animate the hero score to `target` over 500ms with ease-out cubic.
+   * Also updates the score colour (.warn / .danger) and the state caption
+   * (protected / caution / atRisk / danger) based on thresholds.
+   * @param {number} target - New score value 0-100.
+   * @returns {void}
+   */
   function setScore(target) {
     const el = document.getElementById("wallet-score");
     const stateEl = document.getElementById("score-state");
@@ -177,6 +296,13 @@
   // ACTIVITY
   // ============================================================
 
+  /**
+   * Render the recent activity timeline (last 12 entries). Each row is
+   * classified by `classifyLog()` into danger / warn / good / info which
+   * drives the left-border colour.
+   * @param {Array<{time: string, message: string}>} logs
+   * @returns {void}
+   */
   function renderActivity(logs) {
     const list = document.getElementById("logs-list");
     if (!list) return;
@@ -186,19 +312,36 @@
     }
     const items = logs.slice(0, 12).map((entry) => {
       const time = formatTime(entry.time);
-      const msg = escapeHtml(entry.message);
-      let cls = "";
-      if (msg.includes("BLOCKED") || msg.includes("CRITICAL") || msg.includes("flagged")) cls = "alert";
-      else if (msg.includes("Permit") || msg.includes("Warning")) cls = "warn";
-      else if (msg.includes("enabled") || msg.includes("Protected")) cls = "good";
-      return `<li class="activity__item">
+      const msg = escapeHtml(entry.message || "");
+      const level = classifyLog(entry.message || "");
+      return `<li class="activity__item activity__item--${level}">
         <span class="activity__time">${time}</span>
-        <span class="activity__text ${cls}">${msg}</span>
+        <span class="activity__text">${msg}</span>
       </li>`;
     }).join("");
     list.innerHTML = items;
   }
 
+  /**
+   * Classify a log message into a severity bucket for visual rendering.
+   * Pattern-matching is intentionally simple and tolerant (case-insensitive
+   * via the /i flag on substring regexes).
+   * @param {string} message - Raw log message text.
+   * @returns {"danger"|"warn"|"good"|"info"}
+   */
+  function classifyLog(message) {
+    if (/BLOCKED|CRITICAL|Phishing|flagged/i.test(message)) return "danger";
+    if (/Permit|Warning|risk|MEV|sandwich/i.test(message)) return "warn";
+    if (/enabled|protected|installed|updated|reset/i.test(message)) return "good";
+    return "info";
+  }
+
+  /**
+   * Format an ISO timestamp as HH:MM in the user's local timezone.
+   * Returns "--:--" if the input is malformed.
+   * @param {string} iso
+   * @returns {string}
+   */
   function formatTime(iso) {
     try {
       const d = new Date(iso);
@@ -210,6 +353,13 @@
   // PROTECTION CHECKS
   // ============================================================
 
+  /**
+   * Render the protection checks list. Each row gets .is-on / .is-warn /
+   * .is-off which drives its left-border and value colour.
+   * @param {{enabled?: boolean, threatFeedEnabled?: boolean,
+   *          autoRevokeOptedIn?: boolean, dnaWalletCount?: number}} sec
+   * @returns {void}
+   */
   function applySecurityCenter(sec) {
     const setCheck = (id, valueId, on, valueText, warn) => {
       const row = document.getElementById(id);
@@ -263,6 +413,14 @@
   // TOKEN + NFT PERMISSIONS (rows)
   // ============================================================
 
+  /**
+   * Render the token + NFT permission rows from the latest approval scan.
+   * If risky > 0 the row gets .has-risky which colours the count red.
+   * @param {{scan?: {summary?: {total?: number, risky?: number, unlimited?: number,
+   *                            nft?: {total?: number, risky?: number}},
+   *                  nftSummary?: {total?: number, risky?: number}}|null}} data
+   * @returns {void}
+   */
   function applyApprovals(data) {
     const scan = data.scan || null;
 
@@ -308,8 +466,14 @@
   // ADDRESS BOOK
   // ============================================================
 
+  /** Cached address-book state, keyed by lowercase address. */
   let __addressBook = {};
 
+  /**
+   * Replace the cached address book and re-render.
+   * @param {{book?: Record<string, {label?: string, trust?: string}>}} data
+   * @returns {void}
+   */
   function applyAddressBook(data) {
     __addressBook = (data && data.book) || {};
     renderAddressBook();
@@ -351,6 +515,11 @@
     }).join("");
   }
 
+  /**
+   * Validate the address-input row, send addAddress to the SW, then refresh
+   * the list. Shows a shake animation and error toast on invalid input.
+   * @returns {Promise<void>}
+   */
   async function handleAddrAdd() {
     const addrInput = document.getElementById("addr-input");
     const labelInput = document.getElementById("addr-label");

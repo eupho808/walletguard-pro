@@ -83,6 +83,36 @@
             </div>
         </section>
 
+        <!-- NOTIFICATIONS -->
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.notifications">Notifications</div>
+            <div class="wg-section__desc" data-i18n="settings.section.notifications.desc">
+                Choose when WalletGuard should interrupt you with a desktop notification.
+            </div>
+            <div class="wg-section__body">
+                <div class="wg-toggle-row">
+                    <div class="wg-toggle-info">
+                        <div class="wg-toggle-info__title">
+                            <span data-i18n="settings.toggle.desktopNotifications">Desktop alerts</span>
+                            <span class="wg-pill" id="notifications-pill" data-i18n="settings.toggle.on">ON</span>
+                        </div>
+                        <div class="wg-toggle-info__desc" data-i18n="settings.toggle.desktopNotifications.desc">Show a Chrome notification when phishing is blocked or a critical risk is detected.</div>
+                    </div>
+                    <button class="wg-toggle" id="notifications-toggle" role="switch" aria-checked="true"></button>
+                </div>
+                <div class="wg-toggle-row">
+                    <div class="wg-toggle-info">
+                        <div class="wg-toggle-info__title">
+                            <span data-i18n="settings.toggle.threatFeed">Threat intelligence feed</span>
+                            <span class="wg-pill wg-pill--off" id="threatfeed-pill" data-i18n="settings.toggle.off">OFF</span>
+                        </div>
+                        <div class="wg-toggle-info__desc" data-i18n="settings.toggle.threatFeed.desc">Pull a community-maintained list of known-malicious addresses (signed, served from GitHub).</div>
+                    </div>
+                    <button class="wg-toggle" id="threatfeed-toggle" role="switch" aria-checked="false"></button>
+                </div>
+            </div>
+        </section>
+
         <!-- OPENROUTER API KEY -->
         <section class="wg-section">
             <div class="wg-section__title" data-i18n="settings.section.ai">AI Security Core</div>
@@ -163,6 +193,11 @@
             <div class="wg-section__title" data-i18n="settings.section.data">Local Data</div>
             <div class="wg-section__desc" data-i18n="settings.section.data.desc">Statistics, logs, and the AI cache live in your browser. You can wipe them at any time.</div>
             <div class="wg-section__body">
+                <div class="wg-row-actions">
+                    <button class="wg-btn wg-btn--ghost" id="export-settings-btn" data-i18n="settings.data.exportSettings">Export Settings</button>
+                    <button class="wg-btn wg-btn--ghost" id="import-settings-btn" data-i18n="settings.data.importSettings">Import Settings</button>
+                    <input type="file" id="import-settings-file" accept="application/json" hidden>
+                </div>
                 <div class="wg-row-actions">
                     <button class="wg-btn wg-btn--danger" id="reset-stats-btn" data-i18n="settings.data.resetStats">Reset Statistics</button>
                     <button class="wg-btn wg-btn--danger" id="clear-cache-btn" data-i18n="settings.data.clearCache">Clear AI Cache</button>

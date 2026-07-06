@@ -10,13 +10,26 @@
 
     <main class="popup">
 
-        <!-- TOP BAR: identity + status -->
+        <!-- TOP BAR: identity + status + alerts -->
         <header class="topbar">
             <div class="topbar__brand">
                 <span class="topbar__name">WalletGuard Pro</span>
             </div>
-            <span class="topbar__status" id="status-badge" data-i18n="popup.status.protected">Protected</span>
+            <div class="topbar__right">
+                <span class="topbar__alerts" id="alerts-badge" hidden aria-label="Unread alerts">
+                    <span class="topbar__alerts-dot" aria-hidden="true"></span>
+                    <span class="topbar__alerts-count" id="alerts-count">0</span>
+                </span>
+                <span class="topbar__status" id="status-badge" data-i18n="popup.status.protected">Protected</span>
+            </div>
         </header>
+
+        <!-- CONNECTED WALLET -->
+        <section class="wallet" id="wallet-section" hidden>
+            <span class="wallet__label" data-i18n="popup.wallet.label">Connected</span>
+            <span class="wallet__addr mono" id="wallet-addr">0x…</span>
+            <span class="wallet__chain" id="wallet-chain"></span>
+        </section>
 
         <!-- HERO: score + state -->
         <section class="hero">

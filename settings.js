@@ -1,6 +1,12 @@
 // settings.js - WalletGuard Pro Settings Page Logic
 // All UI strings come from lib/i18n (via window.WG_POPUP_LIB.i18n).
 
+/**
+ * @file Settings page controller. Lists and edits all extension state via
+ *       chrome.runtime.sendMessage. All visible text comes from lib/i18n.
+ * @namespace SettingsApp
+ */
+
 (function () {
   const i18n = (typeof window !== "undefined" && window.WG_POPUP_LIB && window.WG_POPUP_LIB.i18n) || null;
 
@@ -17,6 +23,11 @@
     loadVersion();
   });
 
+  /**
+   * Send a message to the background service worker.
+   * @param {object} msg - Action payload.
+   * @returns {Promise<object>}
+   */
   function sendMessage(msg) {
     return new Promise((resolve) => {
       chrome.runtime.sendMessage(msg, (response) => {
@@ -29,6 +40,10 @@
     });
   }
 
+  /**
+   * Render the extension version from the runtime manifest into the header.
+   * @returns {void}
+   */
   function loadVersion() {
     try {
       const manifest = chrome.runtime.getManifest();
@@ -39,6 +54,11 @@
   // Populate the locale <select> from i18n.availableLocales() and
   // LOCALE_DISPLAY. Mark the current locale as selected. Switching the
   // dropdown updates translations live AND persists to chrome.storage.
+  /**
+   * Build the language <select> from i18n.availableLocales() and mark the
+   * current locale as selected.
+   * @returns {void}
+   */
   function populateLocaleSelect() {
     const sel = document.getElementById("locale-select");
     if (!sel || !i18n) return;
@@ -55,6 +75,11 @@
     }
   }
 
+  /**
+   * Fetch all settings from the background service worker and populate the
+   * UI. Shows an error toast if the worker fails to respond.
+   * @returns {Promise<void>}
+   */
   async function loadSettings() {
     const data = await sendMessage({ action: "getSettings" });
     if (!data || data.error) {
@@ -69,6 +94,12 @@
 
     const multichain = data.multiChain === true;
     applyMultiChainUI(multichain);
+
+    const notifEnabled = data.notificationsEnabled !== false;
+    applyToggleUI("notifications-toggle", "notifications-pill", notifEnabled, "settings.toggle.on", "settings.toggle.off");
+
+    const threatFeedEnabled = data.threatFeedEnabled === true;
+    applyToggleUI("threatfeed-toggle", "threatfeed-pill", threatFeedEnabled, "settings.toggle.on", "settings.toggle.off");
 
     renderList("whitelist-list", data.whitelist || [], "whitelist");
     renderList("blacklist-list", data.customBlacklist || [], "blacklist");
@@ -104,6 +135,34 @@
     }
   }
 
+  // Generic toggle + pill helper.
+  /**
+   * Generic helper for paired toggle + pill controls.
+   * @param {string} toggleId - Element id of the toggle button.
+   * @param {string} pillId   - Element id of the status pill.
+   * @param {boolean} on      - Current state.
+   * @param {string} onKey    - i18n key for the "on" pill text.
+   * @param {string} offKey   - i18n key for the "off" pill text.
+   * @returns {void}
+   */
+  function applyToggleUI(toggleId, pillId, on, onKey, offKey) {
+    const toggle = document.getElementById(toggleId);
+    const pill = document.getElementById(pillId);
+    if (!toggle || !pill) return;
+    toggle.setAttribute("aria-checked", on ? "true" : "false");
+    pill.textContent = t(on ? onKey : offKey);
+    pill.classList.toggle("wg-pill--off", !on);
+  }
+
+  /**
+   * Render a whitelist or blacklist list. Empty state shows a translated
+   * placeholder.
+   * @param {string} elementId - UL container id.
+   * @param {string[]} items   - List of addresses/domains.
+   * @param {"whitelist"|"blacklist"} listType - Drives empty-state copy and
+   *        the data-type attribute used by removeFromList().
+   * @returns {void}
+   */
   function renderList(elementId, items, listType) {
     const container = document.getElementById(elementId);
     const emptyKey = listType === "whitelist" ? "settings.list.whitelistEmpty" : "settings.list.blacklistEmpty";
@@ -128,6 +187,10 @@
     });
   }
 
+  /**
+   * Wire up every settings-page control. Idempotent across navigations.
+   * @returns {void}
+   */
   function attachListeners() {
     // ---- Locale selector ----
     const localeSelect = document.getElementById("locale-select");
@@ -164,6 +227,28 @@
       if (res && !res.error) {
         applyMultiChainUI(res.multiChain);
         showToast(res.multiChain ? t("settings.toast.multichainOn") : t("settings.toast.multichainOff"), "success");
+      }
+    });
+
+    // ---- Notifications toggle ----
+    document.getElementById("notifications-toggle").addEventListener("click", async () => {
+      const toggle = document.getElementById("notifications-toggle");
+      const newState = toggle.getAttribute("aria-checked") !== "true";
+      const res = await sendMessage({ action: "saveSettings", notificationsEnabled: newState });
+      if (res && !res.error) {
+        applyToggleUI("notifications-toggle", "notifications-pill", newState, "settings.toggle.on", "settings.toggle.off");
+        showToast(newState ? t("settings.toast.notificationsOn") : t("settings.toast.notificationsOff"), "success");
+      }
+    });
+
+    // ---- Threat feed toggle ----
+    document.getElementById("threatfeed-toggle").addEventListener("click", async () => {
+      const toggle = document.getElementById("threatfeed-toggle");
+      const newState = toggle.getAttribute("aria-checked") !== "true";
+      const res = await sendMessage({ action: "saveSettings", threatFeedEnabled: newState });
+      if (res && !res.error) {
+        applyToggleUI("threatfeed-toggle", "threatfeed-pill", newState, "settings.toggle.on", "settings.toggle.off");
+        showToast(newState ? t("settings.toast.threatFeedOn") : t("settings.toast.threatFeedOff"), "success");
       }
     });
 
@@ -264,6 +349,65 @@
       }
     });
 
+    // ---- Export Settings ----
+    document.getElementById("export-settings-btn").addEventListener("click", async () => {
+      const res = await sendMessage({ action: "exportSettings" });
+      if (!res || res.error) {
+        showToast(t("settings.toast.exportFailed"), "error");
+        return;
+      }
+      const json = JSON.stringify(res, null, 2);
+      try {
+        await navigator.clipboard.writeText(json);
+        showToast(t("settings.toast.settingsCopied"), "success");
+      } catch {
+        try {
+          const blob = new Blob([json], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "walletguard-settings-" + new Date().toISOString().slice(0, 10) + ".json";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast(t("settings.toast.settingsExported"), "success");
+        } catch {
+          showToast(t("settings.toast.exportFailed"), "error");
+        }
+      }
+    });
+
+    // ---- Import Settings ----
+    const importBtn = document.getElementById("import-settings-btn");
+    const importFile = document.getElementById("import-settings-file");
+    if (importBtn && importFile) {
+      importBtn.addEventListener("click", () => importFile.click());
+      importFile.addEventListener("change", async (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) return;
+        if (!confirm(t("settings.confirm.importSettings"))) {
+          importFile.value = "";
+          return;
+        }
+        try {
+          const text = await file.text();
+          const payload = JSON.parse(text);
+          const res = await sendMessage({ action: "importSettings", payload });
+          if (res && !res.error) {
+            showToast(t("settings.toast.settingsImported", { count: res.imported }), "success");
+            await refreshDynamicUI();
+          } else {
+            showToast(t("settings.toast.importFailed"), "error");
+          }
+        } catch {
+          showToast(t("settings.toast.importFailed"), "error");
+        } finally {
+          importFile.value = "";
+        }
+      });
+    }
+
     // ---- Clear AI cache ----
     document.getElementById("clear-cache-btn").addEventListener("click", async () => {
       if (!confirm(t("settings.confirm.clearCache"))) return;
@@ -275,6 +419,11 @@
   // After applyTranslations() replaces all data-i18n text, the imperative
   // pills (ACTIVE/PAUSED, ON/OFF, Remove tooltips) keep their last-rendered
   // values. Re-apply them so the UI stays consistent after a locale switch.
+  /**
+   * Re-apply the imperative UI bits (toggle pills, list items) after a
+   * locale switch so they pick up the new translations.
+   * @returns {Promise<void>}
+   */
   async function refreshDynamicUI() {
     const data = await sendMessage({ action: "getSettings" });
     if (data && !data.error) {
@@ -291,6 +440,13 @@
     return (data && data[key]) || [];
   }
 
+  /**
+   * Remove the entry at `index` from the persisted whitelist/blacklist and
+   * re-render the corresponding list.
+   * @param {"whitelist"|"blacklist"} type
+   * @param {number} index - Position in the array.
+   * @returns {Promise<void>}
+   */
   async function removeFromList(type, index) {
     const key = type === "whitelist" ? "whitelist" : "customBlacklist";
     const current = await getCurrentList(type);
@@ -304,24 +460,48 @@
     }
   }
 
+  /**
+   * Validate user input for whitelist/blacklist: accepts an Ethereum
+   * address (0x + 40 hex) or a domain (foo.bar).
+   * @param {string} value
+   * @returns {boolean}
+   */
   function isValidInput(value) {
     if (/^0x[a-fA-F0-9]{40}$/.test(value)) return true;
     if (/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(value)) return true;
     return false;
   }
 
+  /**
+   * Shorten a string to 10...4 form for toast messages.
+   * @param {string} s
+   * @returns {string}
+   */
   function shorten(s) {
     if (s.length <= 16) return s;
     return `${s.slice(0, 10)}...${s.slice(-4)}`;
   }
 
+  /**
+   * Escape HTML entities to prevent XSS in interpolated strings.
+   * @param {unknown} str
+   * @returns {string}
+   */
   function escapeHtml(str) {
     const div = document.createElement("div");
     div.textContent = String(str);
     return div.innerHTML;
   }
 
+  /** Active toast timer (cleared on re-toast). */
   let toastTimer = null;
+
+  /**
+   * Show a transient toast near the bottom of the settings page.
+   * @param {string} text - Message to display.
+   * @param {"success"|"error"} [kind="success"]
+   * @returns {void}
+   */
   function showToast(text, kind = "success") {
     const toast = document.getElementById("toast");
     toast.textContent = text;

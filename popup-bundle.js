@@ -68,6 +68,11 @@
   "popup.addressBook.trust.blocked": "Blocked",
   "popup.addressBook.empty": "No saved addresses.",
 
+  // ---- Popup: connected wallet ----
+  "popup.wallet.label": "Connected",
+  "popup.wallet.notDetected": "No wallet detected yet \u2014 send a transaction to populate.",
+  "popup.wallet.alerts": "{count, plural, =0{No new alerts} =1{1 new alert} other{# new alerts}}",
+
   // ---- Popup: footer ----
   "popup.footer.reset": "Reset statistics",
   "popup.footer.settings": "Settings",
@@ -239,6 +244,14 @@
   "settings.toggle.on": "ON",
   "settings.toggle.off": "OFF",
 
+  // ---- Settings: notifications ----
+  "settings.section.notifications": "Notifications",
+  "settings.section.notifications.desc": "Choose when WalletGuard should interrupt you with a desktop notification.",
+  "settings.toggle.desktopNotifications": "Desktop alerts",
+  "settings.toggle.desktopNotifications.desc": "Show a Chrome notification when phishing is blocked or a critical risk is detected.",
+  "settings.toggle.threatFeed": "Threat intelligence feed",
+  "settings.toggle.threatFeed.desc": "Pull a community-maintained list of known-malicious addresses (signed, served from GitHub).",
+
   // ---- Settings: API key ----
   "settings.api.keyLabel": "OpenRouter API Key",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
@@ -261,6 +274,8 @@
   // ---- Settings: data ----
   "settings.data.resetStats": "Reset Statistics",
   "settings.data.clearCache": "Clear AI Cache",
+  "settings.data.exportSettings": "Export Settings",
+  "settings.data.importSettings": "Import Settings",
 
   // ---- Settings: locale + onboarding ----
   "settings.section.appearance": "Appearance & Language",
@@ -285,11 +300,21 @@
   "settings.toast.cacheCleared": "AI cache cleared",
   "settings.toast.removed": "Removed {addr}",
   "settings.toast.localeSaved": "Language updated to {name}",
+  "settings.toast.notificationsOn": "Desktop alerts enabled",
+  "settings.toast.notificationsOff": "Desktop alerts muted",
+  "settings.toast.threatFeedOn": "Threat feed enabled (refreshing manifest...)",
+  "settings.toast.threatFeedOff": "Threat feed disabled",
+  "settings.toast.settingsCopied": "Settings JSON copied to clipboard",
+  "settings.toast.settingsExported": "Settings file downloaded",
+  "settings.toast.settingsImported": "Imported {count} settings keys \u2014 reloading...",
+  "settings.toast.exportFailed": "Export failed",
+  "settings.toast.importFailed": "Import failed \u2014 invalid JSON?",
 
   // ---- Settings: confirm dialogs ----
   "settings.confirm.clearApi": "Clear the OpenRouter API key? AI checks will be disabled.",
   "settings.confirm.resetStats": "Reset all WalletGuard statistics? This cannot be undone.",
   "settings.confirm.clearCache": "Clear the AI address check cache? Future checks will re-query OpenRouter.",
+  "settings.confirm.importSettings": "Import will overwrite all your current settings. Continue?",
 
   // ---- Onboarding tour ----
   "onboarding.indicator": "Step {current} of {total}",
@@ -353,6 +378,11 @@
   "popup.addressBook.trust.trusted": "Confiable",
   "popup.addressBook.trust.blocked": "Bloqueado",
   "popup.addressBook.empty": "Sin direcciones guardadas.",
+
+  // ---- Popup: connected wallet ----
+  "popup.wallet.label": "Conectada",
+  "popup.wallet.notDetected": "Billetera no detectada a\u00fan \u2014 env\u00eda una transacci\u00f3n para empezar.",
+  "popup.wallet.alerts": "{count, plural, =0{Sin alertas nuevas} =1{1 alerta nueva} other{# alertas nuevas}}",
   "popup.footer.reset": "Restablecer estad\u00edsticas",
   "popup.footer.settings": "Ajustes",
   "popup.toast.statsReset": "Estad\u00edsticas reiniciadas",
@@ -495,6 +525,14 @@
   "settings.toggle.multichain.desc": "Cuando est\u00e1 desactivado, solo se analiza la red actualmente conectada a tu billetera.",
   "settings.toggle.on": "ON",
   "settings.toggle.off": "OFF",
+
+  // ---- Settings: notifications ----
+  "settings.section.notifications": "Notificaciones",
+  "settings.section.notifications.desc": "Elige cu\u00e1ndo WalletGuard debe interrumpirte con una notificaci\u00f3n de escritorio.",
+  "settings.toggle.desktopNotifications": "Alertas de escritorio",
+  "settings.toggle.desktopNotifications.desc": "Mostrar una notificaci\u00f3n de Chrome cuando se bloquee phishing o se detecte un riesgo cr\u00edtico.",
+  "settings.toggle.threatFeed": "Fuente de inteligencia de amenazas",
+  "settings.toggle.threatFeed.desc": "Descargar lista comunitaria de direcciones maliciosas conocidas (firmada, servida desde GitHub).",
   "settings.api.keyLabel": "Clave API de OpenRouter",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
   "settings.api.show": "Mostrar",
@@ -512,6 +550,8 @@
   "settings.list.remove": "Eliminar",
   "settings.data.resetStats": "Restablecer estad\u00edsticas",
   "settings.data.clearCache": "Borrar cach\u00e9 IA",
+  "settings.data.exportSettings": "Exportar ajustes",
+  "settings.data.importSettings": "Importar ajustes",
   "settings.section.appearance": "Apariencia e idioma",
   "settings.section.appearance.desc": "Elige tu idioma. WalletGuard Pro lo usar\u00e1 en el panel y los ajustes.",
   "settings.onboarding.replay": "Repetir recorrido de bienvenida",
@@ -532,9 +572,19 @@
   "settings.toast.cacheCleared": "Cach\u00e9 IA borrada",
   "settings.toast.removed": "Eliminado {addr}",
   "settings.toast.localeSaved": "Idioma cambiado a {name}",
+  "settings.toast.notificationsOn": "Alertas de escritorio activadas",
+  "settings.toast.notificationsOff": "Alertas de escritorio silenciadas",
+  "settings.toast.threatFeedOn": "Fuente de amenazas activada (actualizando...)",
+  "settings.toast.threatFeedOff": "Fuente de amenazas desactivada",
+  "settings.toast.settingsCopied": "JSON de ajustes copiado al portapapeles",
+  "settings.toast.settingsExported": "Archivo de ajustes descargado",
+  "settings.toast.settingsImported": "Importadas {count} claves \u2014 recargando...",
+  "settings.toast.exportFailed": "Error al exportar",
+  "settings.toast.importFailed": "Error al importar \u2014 \u00bfJSON inv\u00e1lido?",
   "settings.confirm.clearApi": "\u00bfBorrar la clave API de OpenRouter? Las verificaciones IA se deshabilitar\u00e1n.",
   "settings.confirm.resetStats": "\u00bfRestablecer todas las estad\u00edsticas de WalletGuard? Esta acci\u00f3n no se puede deshacer.",
   "settings.confirm.clearCache": "\u00bfBorrar la cach\u00e9 de verificaciones IA? Las futuras volver\u00e1n a consultar OpenRouter.",
+  "settings.confirm.importSettings": "La importaci\u00f3n sobrescribir\u00e1 todos tus ajustes actuales. \u00bfContinuar?",
 
   "onboarding.indicator": "Paso {current} de {total}",
   "onboarding.skip": "Omitir recorrido",
@@ -599,6 +649,11 @@
   "popup.addressBook.trust.trusted": "\u0414\u043e\u0432\u0435\u0440\u0435\u043d\u043d\u044b\u0439",
   "popup.addressBook.trust.blocked": "\u0417\u0430\u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u0430\u043d",
   "popup.addressBook.empty": "\u041d\u0435\u0442 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d\u043d\u044b\u0445 \u0430\u0434\u0440\u0435\u0441\u043e\u0432.",
+
+  // ---- Popup: connected wallet ----
+  "popup.wallet.label": "\u041a\u043e\u0448\u0451\u043b\u0451\u043a",
+  "popup.wallet.notDetected": "\u041a\u043e\u0448\u0451\u043b\u0451\u043a \u043d\u0435 \u043e\u0431\u043d\u0430\u0440\u0443\u0436\u0435\u043d \u2014 \u043e\u0442\u043f\u0440\u0430\u0432\u044c\u0442\u0435 \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u044e.",
+  "popup.wallet.alerts": "{count, plural, =0{\u041d\u0435\u0442 \u043d\u043e\u0432\u044b\u0445 \u043f\u0440\u0435\u0434\u0443\u043f\u0440\u0435\u0436\u0434\u0435\u043d\u0438\u0439} =1{1 \u043d\u043e\u0432\u043e\u0435 \u043f\u0440\u0435\u0434\u0443\u043f\u0440\u0435\u0436\u0434\u0435\u043d\u0438\u0435} one{# \u043d\u043e\u0432\u043e\u0435 \u043f\u0440\u0435\u0434\u0443\u043f\u0440\u0435\u0436\u0434\u0435\u043d\u0438\u0435} few{# \u043d\u043e\u0432\u044b\u0445 \u043f\u0440\u0435\u0434\u0443\u043f\u0440\u0435\u0436\u0434\u0435\u043d\u0438\u044f} many{# \u043d\u043e\u0432\u044b\u0445 \u043f\u0440\u0435\u0434\u0443\u043f\u0440\u0435\u0436\u0434\u0435\u043d\u0438\u0439} other{# \u043d\u043e\u0432\u044b\u0445 \u043f\u0440\u0435\u0434\u0443\u043f\u0440\u0435\u0436\u0434\u0435\u043d\u0438\u0439}}",
   "popup.footer.reset": "\u0421\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0443",
   "popup.footer.settings": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438",
   "popup.toast.statsReset": "\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0430 \u0441\u0431\u0440\u043e\u0448\u0435\u043d\u0430",
@@ -742,6 +797,14 @@
   "settings.toggle.multichain.desc": "\u0412 \u0432\u044b\u043a\u043b\u044e\u0447\u0435\u043d\u043d\u043e\u043c \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0438 \u0441\u043a\u0430\u043d\u0438\u0440\u0443\u0435\u0442\u0441\u044f \u0442\u043e\u043b\u044c\u043a\u043e \u0442\u0435\u043a\u0443\u0449\u0430\u044f \u0441\u0435\u0442\u044c \u0432\u0430\u0448\u0435\u0433\u043e \u043a\u043e\u0448\u0435\u043b\u044c\u043a\u0430.",
   "settings.toggle.on": "\u0412\u041a\u041b",
   "settings.toggle.off": "\u0412\u042b\u041a\u041b",
+
+  // ---- Settings: notifications ----
+  "settings.section.notifications": "\u0423\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u044f",
+  "settings.section.notifications.desc": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435, \u043a\u043e\u0433\u0434\u0430 WalletGuard \u0434\u043e\u043b\u0436\u0435\u043d \u043e\u0442\u0432\u043b\u0435\u043a\u0430\u0442\u044c \u0432\u0430\u0441 \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435\u043c.",
+  "settings.toggle.desktopNotifications": "\u0414\u0435\u0441\u043a\u0442\u043e\u043f-\u0443\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u044f",
+  "settings.toggle.desktopNotifications.desc": "\u041f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0442\u044c \u0443\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u0435 Chrome \u043f\u0440\u0438 \u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u043a\u0435 \u0444\u0438\u0448\u0438\u043d\u0433\u0430 \u0438\u043b\u0438 \u043a\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u043c \u0440\u0438\u0441\u043a\u0435.",
+  "settings.toggle.threatFeed": "\u041b\u0435\u043d\u0442\u0430 \u0443\u0433\u0440\u043e\u0437",
+  "settings.toggle.threatFeed.desc": "\u041f\u043e\u043b\u0443\u0447\u0430\u0442\u044c \u043e\u0431\u043d\u043e\u0432\u043b\u044f\u0435\u043c\u044b\u0439 \u0441\u043f\u0438\u0441\u043e\u043a \u0438\u0437\u0432\u0435\u0441\u0442\u043d\u044b\u0445 \u0432\u0440\u0435\u0434\u043e\u043d\u043e\u0441\u043d\u044b\u0445 \u0430\u0434\u0440\u0435\u0441\u043e\u0432 (\u043f\u043e\u0434\u043f\u0438\u0441\u0430\u043d, \u0445\u0440\u0430\u043d\u0438\u0442\u0441\u044f \u043d\u0430 GitHub).",
   "settings.api.keyLabel": "OpenRouter API-\u043a\u043b\u044e\u0447",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
   "settings.api.show": "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c",
@@ -759,6 +822,8 @@
   "settings.list.remove": "\u0423\u0434\u0430\u043b\u0438\u0442\u044c",
   "settings.data.resetStats": "\u0421\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0443",
   "settings.data.clearCache": "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u043a\u044d\u0448 \u0418\u0418",
+  "settings.data.exportSettings": "\u042d\u043a\u0441\u043f\u043e\u0440\u0442 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043a",
+  "settings.data.importSettings": "\u0418\u043c\u043f\u043e\u0440\u0442 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043a",
   "settings.section.appearance": "\u0412\u043d\u0435\u0448\u043d\u0438\u0439 \u0432\u0438\u0434 \u0438 \u044f\u0437\u044b\u043a",
   "settings.section.appearance.desc": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u044f\u0437\u044b\u043a. WalletGuard Pro \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0435\u0442 \u0435\u0433\u043e \u0432 popup-\u043e\u043a\u043d\u0435 \u0438 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430\u0445.",
   "settings.onboarding.replay": "\u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u044c \u043e\u0431\u0437\u043e\u0440",
@@ -779,9 +844,19 @@
   "settings.toast.cacheCleared": "\u041a\u044d\u0448 \u0418\u0418 \u043e\u0447\u0438\u0449\u0435\u043d",
   "settings.toast.removed": "\u0423\u0434\u0430\u043b\u0451\u043d\u043e: {addr}",
   "settings.toast.localeSaved": "\u042f\u0437\u044b\u043a \u0438\u0437\u043c\u0435\u043d\u0451\u043d \u043d\u0430 {name}",
+  "settings.toast.notificationsOn": "\u0414\u0435\u0441\u043a\u0442\u043e\u043f-\u0443\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u044f \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u044b",
+  "settings.toast.notificationsOff": "\u0414\u0435\u0441\u043a\u0442\u043e\u043f-\u0443\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u044f \u0432\u044b\u043a\u043b\u044e\u0447\u0435\u043d\u044b",
+  "settings.toast.threatFeedOn": "\u041b\u0435\u043d\u0442\u0430 \u0443\u0433\u0440\u043e\u0437 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u0430 (\u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435...)",
+  "settings.toast.threatFeedOff": "\u041b\u0435\u043d\u0442\u0430 \u0443\u0433\u0440\u043e\u0437 \u0432\u044b\u043a\u043b\u044e\u0447\u0435\u043d\u0430",
+  "settings.toast.settingsCopied": "JSON \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043a \u0441\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d",
+  "settings.toast.settingsExported": "\u0424\u0430\u0439\u043b \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043a \u0441\u043a\u0430\u0447\u0430\u043d",
+  "settings.toast.settingsImported": "\u0418\u043c\u043f\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u043e {count} \u043a\u043b\u044e\u0447\u0435\u0439 \u2014 \u043f\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0430...",
+  "settings.toast.exportFailed": "\u041e\u0448\u0438\u0431\u043a\u0430 \u044d\u043a\u0441\u043f\u043e\u0440\u0442\u0430",
+  "settings.toast.importFailed": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0438\u043c\u043f\u043e\u0440\u0442\u0430 \u2014 \u043d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 JSON?",
   "settings.confirm.clearApi": "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c OpenRouter API-\u043a\u043b\u044e\u0447? \u0418\u0418-\u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438 \u0431\u0443\u0434\u0443\u0442 \u043e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u044b.",
   "settings.confirm.resetStats": "\u0421\u0431\u0440\u043e\u0441\u0438\u0442\u044c \u0432\u0441\u044e \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u0443 WalletGuard? \u042d\u0442\u043e \u043d\u0435\u043b\u044c\u0437\u044f \u043e\u0442\u043c\u0435\u043d\u0438\u0442\u044c.",
   "settings.confirm.clearCache": "\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c \u043a\u044d\u0448 \u043f\u0440\u043e\u0432\u0435\u0440\u043e\u043a \u0418\u0418? \u0411\u0443\u0434\u0443\u0449\u0438\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438 \u043f\u043e\u0432\u0442\u043e\u0440\u043d\u043e \u043e\u0431\u0440\u0430\u0442\u044f\u0442\u0441\u044f \u043a OpenRouter.",
+  "settings.confirm.importSettings": "\u0418\u043c\u043f\u043e\u0440\u0442 \u043f\u0435\u0440\u0435\u0437\u0430\u043f\u0438\u0448\u0435\u0442 \u0432\u0441\u0435 \u0442\u0435\u043a\u0443\u0449\u0438\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438. \u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c?",
 
   // ---- Onboarding ----
   "onboarding.indicator": "\u0428\u0430\u0433 {current} \u0438\u0437 {total}",
@@ -845,6 +920,11 @@
   "popup.addressBook.trust.trusted": "\u53ef\u4fe1",
   "popup.addressBook.trust.blocked": "\u5df2\u5c01\u7981",
   "popup.addressBook.empty": "\u8fd8\u6ca1\u6709\u4fdd\u5b58\u7684\u5730\u5740\u3002",
+
+  // ---- Popup: connected wallet ----
+  "popup.wallet.label": "\u5df2\u8fde\u63a5",
+  "popup.wallet.notDetected": "\u5c1a\u672a\u68c0\u6d4b\u5230\u94b1\u5305 \u2014 \u53d1\u9001\u4e00\u7b14\u4ea4\u6613\u5373\u53ef\u3002",
+  "popup.wallet.alerts": "{count, plural, =0{\u65e0\u65b0\u8b66\u62a5} other{# \u6761\u65b0\u8b66\u62a5}}",
   "popup.footer.reset": "\u91cd\u7f6e\u7edf\u8ba1",
   "popup.footer.settings": "\u8bbe\u7f6e",
   "popup.toast.statsReset": "\u7edf\u8ba1\u5df2\u91cd\u7f6e",
@@ -987,6 +1067,14 @@
   "settings.toggle.multichain.desc": "\u5173\u95ed\u540e,\u4ec5\u626b\u63cf\u94b1\u5305\u5f53\u524d\u8fde\u63a5\u7684\u7f51\u7edc\u3002",
   "settings.toggle.on": "\u5f00",
   "settings.toggle.off": "\u5173",
+
+  // ---- Settings: notifications ----
+  "settings.section.notifications": "\u901a\u77e5",
+  "settings.section.notifications.desc": "\u9009\u62e9 WalletGuard \u5728\u4ec0\u4e48\u65f6\u5019\u4ee5\u684c\u9762\u901a\u77e5\u6253\u6270\u4f60\u3002",
+  "settings.toggle.desktopNotifications": "\u684c\u9762\u63d0\u9192",
+  "settings.toggle.desktopNotifications.desc": "\u5728\u963b\u6b62\u949c\u9c7c\u6216\u68c0\u6d4b\u5230\u4e25\u91cd\u98ce\u9669\u65f6\u663e\u793a Chrome \u901a\u77e5\u3002",
+  "settings.toggle.threatFeed": "\u5a01\u80c1\u60c5\u62a5\u6e90",
+  "settings.toggle.threatFeed.desc": "\u83b7\u53d6\u793e\u533a\u7ef4\u62a4\u7684\u5df2\u77e5\u6076\u610f\u5730\u5740\u6e05\u5355\uff08\u5df2\u7b7e\u540d\uff0c\u7531 GitHub \u63d0\u4f9b\uff09\u3002",
   "settings.api.keyLabel": "OpenRouter API \u5bc6\u94a5",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
   "settings.api.show": "\u663e\u793a",
@@ -1004,6 +1092,8 @@
   "settings.list.remove": "\u5220\u9664",
   "settings.data.resetStats": "\u91cd\u7f6e\u7edf\u8ba1",
   "settings.data.clearCache": "\u6e05\u9664 AI \u7f13\u5b58",
+  "settings.data.exportSettings": "\u5bfc\u51fa\u8bbe\u7f6e",
+  "settings.data.importSettings": "\u5bfc\u5165\u8bbe\u7f6e",
   "settings.section.appearance": "\u5916\u89c2\u4e0e\u8bed\u8a00",
   "settings.section.appearance.desc": "\u9009\u62e9\u60a8\u7684\u8bed\u8a00\u3002WalletGuard Pro \u5c06\u5728\u4eea\u8868\u76d8\u548c\u8bbe\u7f6e\u4e2d\u4f7f\u7528\u5b83\u3002",
   "settings.onboarding.replay": "\u91cd\u653e\u5bfc\u822a",
@@ -1024,9 +1114,19 @@
   "settings.toast.cacheCleared": "AI \u7f13\u5b58\u5df2\u6e05\u9664",
   "settings.toast.removed": "\u5df2\u5220\u9664\uff1a{addr}",
   "settings.toast.localeSaved": "\u8bed\u8a00\u5df2\u5207\u6362\u4e3a {name}",
+  "settings.toast.notificationsOn": "\u684c\u9762\u63d0\u9192\u5df2\u5f00\u542f",
+  "settings.toast.notificationsOff": "\u684c\u9762\u63d0\u9192\u5df2\u5173\u95ed",
+  "settings.toast.threatFeedOn": "\u5a01\u80c1\u60c5\u62a5\u5df2\u5f00\u542f\uff08\u6b63\u5728\u5237\u65b0...\uff09",
+  "settings.toast.threatFeedOff": "\u5a01\u80c1\u60c5\u62a5\u5df2\u5173\u95ed",
+  "settings.toast.settingsCopied": "\u8bbe\u7f6e JSON \u5df2\u590d\u5236\u5230\u526a\u8d34\u677f",
+  "settings.toast.settingsExported": "\u8bbe\u7f6e\u6587\u4ef6\u5df2\u4e0b\u8f7d",
+  "settings.toast.settingsImported": "\u5df2\u5bfc\u5165 {count} \u6761\u8bbe\u7f6e\u2014\u6b63\u5728\u91cd\u8f7d...",
+  "settings.toast.exportFailed": "\u5bfc\u51fa\u5931\u8d25",
+  "settings.toast.importFailed": "\u5bfc\u5165\u5931\u8d25 \u2014 JSON \u683c\u5f0f\u9519\u8bef\uff1f",
   "settings.confirm.clearApi": "\u6e05\u9664 OpenRouter API \u5bc6\u94a5\uff1fAI \u68c0\u67e5\u5c06\u88ab\u7981\u7528\u3002",
   "settings.confirm.resetStats": "\u91cd\u7f6e\u6240\u6709 WalletGuard \u7edf\u8ba1\uff1f\u6b64\u64cd\u4f5c\u4e0d\u53ef\u64a4\u9500\u3002",
   "settings.confirm.clearCache": "\u6e05\u9664 AI \u5730\u5740\u68c0\u67e5\u7f13\u5b58\uff1f\u540e\u7eed\u68c0\u67e5\u4f1a\u91cd\u65b0\u67e5\u8be2 OpenRouter\u3002",
+  "settings.confirm.importSettings": "\u5bfc\u5165\u5c06\u8986\u76d6\u6240\u6709\u5f53\u524d\u8bbe\u7f6e\u3002\u7ee7\u7eed\uff1f",
 
   "onboarding.indicator": "\u7b2c {current} \u6b65\uff0c\u5171 {total} \u6b65",
   "onboarding.skip": "\u8df3\u8fc7\u5bfc\u822a",
