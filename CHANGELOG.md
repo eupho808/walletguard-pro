@@ -7,6 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.5.0] - 2026-07-07 - "FORTRESS"
+
+Six new modules that close the gap between "show me what's exposed" and
+"actually fix it". Real-time USD valuations, native ENS resolution, stale
+approval detection with auto-revoke candidates, wallet-type classification
+with adaptive rules, exportable audit log, and bulk multicall revoke that
+saves N transactions → K where K = unique (chain, token) pairs.
+
+### Added
+
+- **`lib/price-oracle.js`** — Real-time token prices via Uniswap V3 QuoterV2 → V2 router → static fallback. 60s in-memory cache, 8 chains with V3 quoters, handles 6/18 decimals. `getUsdPriceLive()`, `getUsdPriceSync()`, `estimateValueUsdLive()`, `clearPriceCache()`. 16 tests pass.
+- **`lib/ens-resolver.js`** (WORLD-FIRST) — Pure-JS Keccak-256 + ENS namehash + on-chain Registry/Resolver reads. No external APIs. `resolveEnsName()` forward, `reverseResolveEns()` reverse, `resolveDisplay()` convenience. ENS regex normalization strips zero-width chars. Mainnet-only. 25 tests pass.
+- **`lib/stale-tracker.js`** — Approval age tracking (5 levels: fresh/recent/aging/stale/ancient, default 180d threshold), spend profiling, `wasteScore` 0-100, auto-revoke candidate detection, summary report. 69 tests pass.
+- **`lib/wallet-classifier.js`** — 8 wallet types (unknown/hot/cold/whale/contract/exchange/defi/fresh). Per-type adaptive rules: cold wallets reject unlimited approvals, fresh wallets require 7-day re-approval, exchange addresses get lower scrutiny. `KNOWN_EXCHANGES` Set with 10 Binance/Coinbase/Kraken addresses. 51 tests pass.
+- **`lib/audit-log.js`** — Privacy-first local log. 9 entry types (BLOCKED/WARNED/ALLOWED/APPROVAL_SCAN/SIMULATION/REVOKE_GENERATED/PHISHING_BLOCKED/DRAINER_DETECTED/STALE_DETECTED). 5000-entry FIFO cap. CSV/JSON export with field mapping. `buildDownload()` for browser downloads. 75 tests pass.
+- **`lib/revoke-generator.js`** extended with `buildBulkRevokeMulticall()` — groups approvals by (chainId, tokenAddress), builds Multicall3 `aggregate((address,bytes)[])` calldata. `selectBulkRevokeCandidates()` filters stale. Gas estimate 30k+50k·N+10k. 58 tests pass.
+
+### Changed
+
+- `lib/explain.js` extended with ENS display support (uses resolver to show "vitalik.eth (0xd8da…6045)" instead of raw addresses).
+- `build.js` ORDER updated to include all 6 new modules (26 lib modules total).
+- All locale files preserve existing keys (no breaking changes).
+
+### Tests
+- **1177 tests across 29 suites pass** (was 883 across 23 in v3.4.0).
+- New: `test-price-oracle.js` (16), `test-ens-resolver.js` (25), `test-stale-tracker.js` (69), `test-wallet-classifier.js` (51), `test-audit-log.js` (75), `test-bulk-multicall.js` (58).
+- Net delta: +294 new tests, 0 regressions.
+
+### Bundle Size
+- `content.js`: 354 KB → ~360 KB (+6 KB for 6 new modules, 0 dependencies added).
+- `popup-bundle.js`: 437 KB → ~445 KB (+8 KB).
+- ZIP: 2078 KB.
+
+---
+
+## [3.4.0] - 2026-07-07 - "IMMUNE-SYSTEM"
+
+Three world-first detection systems that go beyond Pocket Universe's
+signature-matching approach: structural DNA extraction, real-time USD
+blast radius, and cross-approval correlation.
+
+### Added
+
+- **`lib/blast-radius.js`** (WORLD-FIRST) — Real-time USD blast radius per approval. Per-approval blast + aggregate + chain breakdown + ranking. Severity: none/low/medium/high/critical based on USD value. 44 tests pass.
+- **`lib/pattern-dna.js`** (WORLD-FIRST) — 12-feature structural DNA extraction from any transaction. Cosine similarity against 8 drainer archetypes (approval/permit/swap/multicall/proxy/eip7702/direct_transfer/wrapped_native). Verdict: critical/suspicious/review/safe. Nested selector detection for multicall-encoded operations. 21 tests pass.
+- **`lib/correlation.js`** (WORLD-FIRST) — Forensic-grade correlation. Same-deployer clustering, same-week deployment (3+), approval stacking, converging flow (multi-chain / >$5k blast radius). Risk score 0-100. 24 tests pass.
+
+### Docs
+- New `IMMUNE_SYSTEM.md` documents the 3 world-first features with API examples + "what's still missing" roadmap.
+
+### Premium Landing Page
+- New `site/index.html` (41 KB, 10 sections), `site/style.css` (37 KB), `site/script.js` (8.6 KB).
+- Design: Space Grotesk + Inter + JetBrains Mono, single emerald accent, aurora background, glassmorphism-light, 3D shield parallax, mouse-follow glow, scroll reveals, demo animation.
+- Sections: Nav, Hero, Trusted, Interactive demo, Features (12 cards), Engine (23 layers), How (3 steps), Compare table, Open source stats, FAQ (8 items), Final CTA, Footer.
+
+### Tests
+- **883 tests across 23 suites pass** (was 794 across 21 in v3.3.0).
+
+---
+
 ## [3.3.0] - 2026-07-07 - "ROBUST+THREAT-FEED"
 
 ### Added

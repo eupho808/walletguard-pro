@@ -314,8 +314,8 @@
   <div class="features__inner">
     <div class="section__header" data-reveal>
       <span class="section__eyebrow">What it catches</span>
-      <h2 class="section__title">Twenty-three layers<br>between you and a drain.</h2>
-      <p class="section__sub">Every known Web3 attack surface, monitored in real time. Local-first. No account. No telemetry.</p>
+        <h2 class="section__title">Twenty-nine layers<br>between you and a drain.</h2>
+        <p class="section__sub">Every known Web3 attack surface, monitored in real time. Local-first. No account. No telemetry.</p>
     </div>
 
     <div class="features__grid">
@@ -414,6 +414,46 @@
         <h3 class="feature-card__title">Hardware wallet rules</h3>
         <p class="feature-card__desc">5 strict enforcement rules for Ledger, Trezor, GridPlus, Keystone. Verifies recipient matches before signing.</p>
       </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <h3 class="feature-card__title">USD blast radius</h3>
+        <p class="feature-card__desc">Real-time price feeds via Uniswap V3 Quoter. Shows exact dollar value at risk per approval — sorted by severity.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3 class="feature-card__title">Stale approval tracker</h3>
+        <p class="feature-card__desc">Surfaces approvals older than 180 days that you never used. Suggests bulk revoke candidates with waste-score ranking.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7L9 18l-5-5"/></svg>
+        </div>
+        <h3 class="feature-card__title">Bulk multicall revoke</h3>
+        <p class="feature-card__desc">Turn 10 approvals into 1 transaction. Groups by (chain, token), generates Multicall3 calldata. Saves gas + signature time.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3 class="feature-card__title">Native ENS resolution</h3>
+        <p class="feature-card__desc">Pure-JS Keccak-256 + on-chain ENS Registry. Resolves vitalik.eth → address without external APIs. Zero dependencies.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h3 class="feature-card__title">Exportable audit log</h3>
+        <p class="feature-card__desc">Privacy-first local log of every block / warn / approval scan. One-click CSV or JSON export. No telemetry, ever.</p>
+      </article>
     </div>
   </div>
 </section>
@@ -425,7 +465,7 @@
       <div class="section__header" data-reveal>
         <span class="section__eyebrow">The engine</span>
         <h2 class="section__title">Local-first.<br>Open architecture.</h2>
-        <p class="section__sub">23 protection layers run in your browser. No data leaves your machine. Every heuristic is documented in source.</p>
+        <p class="section__sub">29 protection layers run in your browser. No data leaves your machine. Every heuristic is documented in source.</p>
       </div>
 
       <div class="engine__layers" data-reveal>
@@ -488,8 +528,8 @@
         <div class="engine__layer engine__layer--more">
           <span class="engine__layer-num">+</span>
           <div class="engine__layer-body">
-            <h4>15 more layers</h4>
-            <p>EIP-7702, session keys, threat feed, wallet DNA, drainer patterns, Safe multisig, address book, hardware rules, AI cache, i18n, decoder, explain, capabilities.</p>
+            <h4>21 more layers</h4>
+            <p>EIP-7702, session keys, threat feed, wallet DNA, drainer patterns, Safe multisig, address book, hardware rules, AI cache, i18n, decoder, explain, capabilities, <strong>blast radius</strong>, <strong>drainer DNA</strong>, <strong>correlation engine</strong>, <strong>price oracle</strong>, <strong>ENS resolver</strong>, <strong>stale tracker</strong>, <strong>wallet classifier</strong>, <strong>audit log</strong>.</p>
           </div>
         </div>
       </div>
@@ -667,7 +707,7 @@
       </details>
       <details class="faq__item">
         <summary>How is this different from MetaMask's built-in alerts?</summary>
-        <p>MetaMask uses Blockaid (closed-source, paid) and only shows alerts after the user confirms. WalletGuard intercepts <em>before</em> the wallet sees the transaction, decodes the calldata, runs simulation, checks 13 chains for existing approvals, scores against 23 layers — and shows you a full receipt. MetaMask shows a generic popup. We show what the transaction actually does.</p>
+        <p>MetaMask uses Blockaid (closed-source, paid) and only shows alerts after the user confirms. WalletGuard intercepts <em>before</em> the wallet sees the transaction, decodes the calldata, runs simulation, checks 13 chains for existing approvals, scores against 29 layers — and shows you a full receipt. MetaMask shows a generic popup. We show what the transaction actually does.</p>
       </details>
       <details class="faq__item">
         <summary>Does it work with my wallet?</summary>
@@ -691,7 +731,11 @@
       </details>
       <details class="faq__item">
         <summary>Why not just use Pocket Universe?</summary>
-        <p>Pocket Universe was excellent and was acquired by MetaMask in 2023 for an estimated $5-15M. After acquisition, the standalone extension was deprecated. WalletGuard Pro is the open-source successor — same simulation engine, but 23 layers, 13 chains, EIP-7702 detection, wallet DNA, and threat feed.</p>
+        <p>Pocket Universe was excellent and was acquired by MetaMask in 2023 for an estimated $5-15M. After acquisition, the standalone extension was deprecated. WalletGuard Pro is the open-source successor — same simulation engine, but 29 layers, 13 chains, EIP-7702 detection, blast radius, drainer DNA, correlation, price oracle, ENS resolution, and threat feed.</p>
+      </details>
+      <details class="faq__item">
+        <summary>What's new in v3.5 "FORTRESS"?</summary>
+        <p>Six new modules: <strong>USD blast radius</strong> (real-time prices via Uniswap V3), <strong>native ENS resolution</strong> (pure-JS Keccak-256, no APIs), <strong>stale approval tracker</strong> (180d threshold, waste-score ranking), <strong>wallet classifier</strong> (8 types with adaptive rules), <strong>exportable audit log</strong> (CSV/JSON, privacy-first), and <strong>bulk multicall revoke</strong> (N approvals → 1 tx). Plus 3 world-first detection systems from v3.4: drainer DNA matching, correlation engine, and real-time blast radius.</p>
       </details>
     </div>
   </div>

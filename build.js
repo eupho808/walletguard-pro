@@ -38,6 +38,11 @@ const ORDER = [
   "blast-radius.js",
   "pattern-dna.js",
   "correlation.js",
+  "price-oracle.js",
+  "ens-resolver.js",
+  "stale-tracker.js",
+  "wallet-classifier.js",
+  "audit-log.js",
   "explain.js"
 ];
 
