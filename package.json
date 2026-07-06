@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node test-typosquat.js && node test-integration.js && node test-multichain.js && node test-nft.js && node test-revoke.js && node test-build.js && node test-i18n.js && node test-onboarding.js && node test-simulator-v2.js && node test-address-book.js && node test-eip7702.js && node test-session-key.js && node test-threat-feed.js && node test-wallet-dna.js && node test-drainer-detector.js && node test-visual-phish.js && node test-hw-wallet.js && node test-explain.js && node test-safe-multisig.js",
+    "test": "node test-typosquat.js && node test-integration.js && node test-multichain.js && node test-nft.js && node test-revoke.js && node test-build.js && node test-i18n.js && node test-simulator-v2.js && node test-address-book.js && node test-eip7702.js && node test-session-key.js && node test-threat-feed.js && node test-wallet-dna.js && node test-drainer-detector.js && node test-visual-phish.js && node test-hw-wallet.js && node test-explain.js && node test-safe-multisig.js",
     "build": "node build.js",
     "build:firefox": "node build-firefox.js",
     "build:firefox:pack": "node build-firefox-pack.js",

@@ -113,7 +113,7 @@
     }
 
     container.innerHTML = items.map((item, idx) => `
-      <div class="wg-list-item" style="animation-delay:${Math.min(idx * 30, 240)}ms">
+      <div class="wg-list-item">
         <span class="wg-list-item__addr">${escapeHtml(item)}</span>
         <button class="wg-list-item__remove" data-type="${listType}" data-index="${idx}" title="${escapeHtml(t("settings.list.remove"))}" aria-label="${escapeHtml(t("settings.list.remove"))}">\u00d7</button>
       </div>
@@ -142,21 +142,6 @@
           const display = i18n.LOCALE_DISPLAY || {};
           showToast(t("settings.toast.localeSaved", { name: display[code] || code }), "success");
         }
-      });
-    }
-
-    // ---- Replay onboarding tour ----
-    const replayBtn = document.getElementById("replay-onboarding-btn");
-    if (replayBtn) {
-      replayBtn.addEventListener("click", async () => {
-        // Open the popup so the overlay has somewhere to render.
-        try { chrome.action.openPopup(); } catch { /* Firefox MV2 uses different API */ }
-        // Also clear the completion flag so next popup open shows the tour.
-        try {
-          await new Promise((resolve) => {
-            chrome.storage.local.set({ wg_onboardingCompleted: false }, resolve);
-          });
-        } catch { /* ignore */ }
       });
     }
 
@@ -340,10 +325,10 @@
   function showToast(text, kind = "success") {
     const toast = document.getElementById("toast");
     toast.textContent = text;
-    toast.className = `toast show ${kind}`;
+    toast.className = `wg-toast is-show is-${kind}`;
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
-      toast.classList.remove("show");
+      toast.classList.remove("is-show");
     }, 2500);
   }
 })();

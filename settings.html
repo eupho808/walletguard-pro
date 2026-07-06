@@ -8,213 +8,165 @@
 </head>
 <body class="wg-theme-dark">
 
-    <!-- Decorative background -->
-    <div class="wg-bg-decoration" aria-hidden="true">
-        <div class="wg-bg-blob wg-bg-blob--cyan"></div>
-        <div class="wg-bg-blob wg-bg-blob--blue"></div>
-    </div>
-
     <div class="wg-settings">
 
         <!-- HEADER -->
         <header class="wg-settings-header">
             <div class="wg-settings-header__brand">
-                <span class="wg-status-dot" aria-hidden="true"></span>
-                <h1 class="wg-settings-header__title">WalletGuard <span class="wg-settings-header__accent">Pro</span></h1>
+                <span class="wg-settings-header__title">WalletGuard Pro</span>
+                <span class="wg-settings-header__sep">/</span>
+                <span class="wg-settings-header__page" data-i18n="settings.title">Settings</span>
             </div>
-            <span class="wg-version-pill" id="version-pill">v--</span>
+            <span class="wg-settings-header__version" id="version-pill">v--</span>
         </header>
 
         <!-- APPEARANCE & LANGUAGE -->
-        <section class="wg-card wg-settings-section">
-            <div class="wg-settings-section__header">
-                <div class="wg-settings-section__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14.7 14.7 0 010 18M12 3a14.7 14.7 0 000 18"/></svg>
-                </div>
-                <div>
-                    <div class="wg-settings-section__title" data-i18n="settings.section.appearance">Appearance &amp; Language</div>
-                    <div class="wg-settings-section__desc" data-i18n="settings.section.appearance.desc">
-                        Choose your language. WalletGuard Pro will use it for the popup, settings, and onboarding tour.
-                    </div>
-                </div>
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.appearance">Appearance &amp; Language</div>
+            <div class="wg-section__desc" data-i18n="settings.section.appearance.desc">
+                Choose your language. WalletGuard Pro will use it for the popup and settings.
             </div>
-            <div class="wg-form-row">
-                <label for="locale-select" data-i18n="common.language">Language</label>
-                <select id="locale-select" class="wg-select"></select>
-            </div>
-            <div class="wg-row-actions">
-                <button class="wg-btn wg-btn--ghost wg-btn--sm" id="replay-onboarding-btn" data-i18n="settings.onboarding.replay">Replay onboarding tour</button>
+            <div class="wg-section__body">
+                <div class="wg-field">
+                    <label for="locale-select" data-i18n="common.language">Language</label>
+                    <select id="locale-select" class="wg-select"></select>
+                </div>
             </div>
         </section>
 
         <!-- PROTECTION TOGGLE -->
-        <section class="wg-card wg-settings-section">
-            <div class="wg-settings-section__header">
-                <div class="wg-settings-section__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
-                </div>
-                <div>
-                    <div class="wg-settings-section__title" data-i18n="settings.section.protection">Protection Status</div>
-                    <div class="wg-settings-section__desc" data-i18n="settings.section.protection.desc">Master switch for all WalletGuard security layers.</div>
-                </div>
-            </div>
-            <div class="wg-toggle-row">
-                <div class="wg-toggle-info">
-                    <div class="wg-toggle-info__title">
-                        <span data-i18n="settings.toggle.protection">Active Protection</span>
-                        <span class="wg-pill" id="status-pill" data-i18n="popup.header.active">ACTIVE</span>
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.protection">Protection Status</div>
+            <div class="wg-section__desc" data-i18n="settings.section.protection.desc">Master switch for all WalletGuard security layers.</div>
+            <div class="wg-section__body">
+                <div class="wg-toggle-row">
+                    <div class="wg-toggle-info">
+                        <div class="wg-toggle-info__title">
+                            <span data-i18n="settings.toggle.protection">Active Protection</span>
+                            <span class="wg-pill" id="status-pill" data-i18n="popup.header.active">ACTIVE</span>
+                        </div>
+                        <div class="wg-toggle-info__desc" data-i18n="settings.toggle.protection.desc">When off, transactions are not intercepted or analyzed.</div>
                     </div>
-                    <div class="wg-toggle-info__desc" data-i18n="settings.toggle.protection.desc">When off, transactions are not intercepted or analyzed.</div>
+                    <button class="wg-toggle" id="enabled-toggle" role="switch" aria-checked="false"></button>
                 </div>
-                <button class="wg-toggle" id="enabled-toggle" role="switch" aria-checked="false"></button>
             </div>
         </section>
 
         <!-- MULTI-CHAIN APPROVAL SCAN -->
-        <section class="wg-card wg-settings-section">
-            <div class="wg-settings-section__header">
-                <div class="wg-settings-section__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9c2.5 0 4.7 1 6.4 2.6L21 8"/><path d="M21 3v5h-5"/></svg>
-                </div>
-                <div>
-                    <div class="wg-settings-section__title" data-i18n="settings.section.multichain">Multi-Chain Approval Scanner</div>
-                    <div class="wg-settings-section__desc" data-i18n="settings.section.multichain.desc">
-                        When enabled, the approval scanner checks all 9 supported networks in parallel using public RPC endpoints.
-                    </div>
-                </div>
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.multichain">Multi-Chain Approval Scanner</div>
+            <div class="wg-section__desc" data-i18n="settings.section.multichain.desc">
+                When enabled, the approval scanner checks all 9 supported networks in parallel using public RPC endpoints.
             </div>
-            <div class="wg-toggle-row">
-                <div class="wg-toggle-info">
-                    <div class="wg-toggle-info__title">
-                        <span data-i18n="settings.toggle.multichain">Scan All Chains</span>
-                        <span class="wg-pill wg-pill--off" id="multichain-pill" data-i18n="settings.toggle.off">OFF</span>
+            <div class="wg-section__body">
+                <div class="wg-toggle-row">
+                    <div class="wg-toggle-info">
+                        <div class="wg-toggle-info__title">
+                            <span data-i18n="settings.toggle.multichain">Scan All Chains</span>
+                            <span class="wg-pill wg-pill--off" id="multichain-pill" data-i18n="settings.toggle.off">OFF</span>
+                        </div>
+                        <div class="wg-toggle-info__desc" data-i18n="settings.toggle.multichain.desc">When off, only the wallet's currently-connected chain is scanned.</div>
                     </div>
-                    <div class="wg-toggle-info__desc" data-i18n="settings.toggle.multichain.desc">When off, only the wallet's currently-connected chain is scanned.</div>
+                    <button class="wg-toggle" id="multichain-toggle" role="switch" aria-checked="false"></button>
                 </div>
-                <button class="wg-toggle" id="multichain-toggle" role="switch" aria-checked="false"></button>
-            </div>
-            <div class="wg-chain-grid">
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Ethereum</span>
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Optimism</span>
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>BNB Chain</span>
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Polygon</span>
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Fantom</span>
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Base</span>
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Arbitrum</span>
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Avalanche</span>
-                <span class="wg-chain-chip"><span class="wg-chain-chip__dot"></span>Sepolia</span>
+                <div class="wg-chains">
+                    <span class="wg-chains__item">Ethereum</span>
+                    <span class="wg-chains__item">Optimism</span>
+                    <span class="wg-chains__item">BNB Chain</span>
+                    <span class="wg-chains__item">Polygon</span>
+                    <span class="wg-chains__item">Fantom</span>
+                    <span class="wg-chains__item">Base</span>
+                    <span class="wg-chains__item">Arbitrum</span>
+                    <span class="wg-chains__item">Avalanche</span>
+                    <span class="wg-chains__item">Sepolia</span>
+                </div>
             </div>
         </section>
 
         <!-- OPENROUTER API KEY -->
-        <section class="wg-card wg-settings-section">
-            <div class="wg-settings-section__header">
-                <div class="wg-settings-section__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/><circle cx="12" cy="11" r="2"/><path d="M12 13v3"/></svg>
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.ai">AI Security Core</div>
+            <div class="wg-section__desc" data-i18n="settings.section.ai.desc">WalletGuard uses OpenRouter to perform heuristic checks on unknown addresses. Get a free API key at openrouter.ai.</div>
+            <div class="wg-section__body">
+                <div class="wg-field">
+                    <label for="api-key-input" data-i18n="settings.api.keyLabel">OpenRouter API Key</label>
+                    <div class="wg-input-group">
+                        <input type="password" id="api-key-input" class="wg-input"
+                               data-i18n-attr="placeholder:settings.api.keyPlaceholder"
+                               placeholder="sk-or-v1-..." autocomplete="off">
+                        <button class="wg-btn wg-btn--ghost" id="toggle-key-vis" data-i18n="settings.api.show">Show</button>
+                    </div>
                 </div>
-                <div>
-                    <div class="wg-settings-section__title" data-i18n="settings.section.ai">AI Security Core</div>
-                    <div class="wg-settings-section__desc" data-i18n="settings.section.ai.desc">WalletGuard uses OpenRouter to perform heuristic checks on unknown addresses. Get a free API key at openrouter.ai.</div>
+                <div class="wg-row-actions">
+                    <button class="wg-btn wg-btn--primary" id="save-api-btn" data-i18n="settings.api.save">Save Key</button>
+                    <button class="wg-btn wg-btn--danger" id="clear-api-btn" data-i18n="settings.api.clear">Clear</button>
                 </div>
-            </div>
-            <div class="wg-form-row">
-                <label for="api-key-input" data-i18n="settings.api.keyLabel">OpenRouter API Key</label>
-                <div class="wg-input-group">
-                    <input type="password" id="api-key-input" class="wg-input"
-                           data-i18n-attr="placeholder:settings.api.keyPlaceholder"
-                           placeholder="sk-or-v1-..." autocomplete="off">
-                    <button class="wg-btn wg-btn--ghost wg-btn--sm" id="toggle-key-vis" data-i18n="settings.api.show">Show</button>
-                </div>
-            </div>
-            <div class="wg-row-actions">
-                <button class="wg-btn wg-btn--primary wg-btn--sm" id="save-api-btn" data-i18n="settings.api.save">Save Key</button>
-                <button class="wg-btn wg-btn--danger wg-btn--sm" id="clear-api-btn" data-i18n="settings.api.clear">Clear</button>
-            </div>
-            <div class="wg-info-box" data-i18n="settings.api.privacy">
-                <strong>Privacy:</strong> The API key is stored locally in your browser via <code>chrome.storage.local</code>. It is only sent to OpenRouter when checking addresses.
+                <p class="wg-note" data-i18n="settings.api.privacy">
+                    The API key is stored locally in your browser via <code>chrome.storage.local</code>. It is only sent to OpenRouter when checking addresses.
+                </p>
             </div>
         </section>
 
         <!-- APPROVAL SCANNER INFO -->
-        <section class="wg-card wg-settings-section">
-            <div class="wg-settings-section__header">
-                <div class="wg-settings-section__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
-                </div>
-                <div>
-                    <div class="wg-settings-section__title" data-i18n="settings.section.approvals">Approval Scanner</div>
-                    <div class="wg-settings-section__desc" data-i18n="settings.section.approvals.desc">Reads active token approvals on your wallet's currently-connected chain.</div>
-                </div>
-            </div>
-            <div class="wg-info-box" data-i18n="settings.section.approvals.how">
-                <strong>How it works:</strong> When you click <em>Rescan</em> in the popup, WalletGuard reads historical <code>Approval</code> events.
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.approvals">Approval Scanner</div>
+            <div class="wg-section__desc" data-i18n="settings.section.approvals.desc">Reads active token approvals on your wallet's currently-connected chain.</div>
+            <div class="wg-section__body">
+                <p class="wg-note" data-i18n="settings.section.approvals.how">
+                    When you click <em>Rescan</em> in the popup, WalletGuard reads historical <code>Approval</code> events.
+                </p>
             </div>
         </section>
 
         <!-- WHITELIST -->
-        <section class="wg-card wg-settings-section">
-            <div class="wg-settings-section__header">
-                <div class="wg-settings-section__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-4 9-9 9s-9-4-9-9 4-9 9-9c2.5 0 4.7 1 6.4 2.6"/></svg>
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.whitelist">Trusted Contracts (Whitelist)</div>
+            <div class="wg-section__desc" data-i18n="settings.section.whitelist.desc">Addresses that you fully trust. WalletGuard will give them a higher trust score automatically.</div>
+            <div class="wg-section__body">
+                <div class="wg-field">
+                    <label for="whitelist-input" data-i18n="settings.list.whitelistInput.label">Add Address (0x... or domain.tld)</label>
+                    <div class="wg-input-group">
+                        <input type="text" id="whitelist-input" class="wg-input"
+                               data-i18n-attr="placeholder:settings.list.whitelistInput.placeholder"
+                               placeholder="0x...">
+                        <button class="wg-btn wg-btn--primary" id="add-whitelist-btn" data-i18n="settings.list.add">Add</button>
+                    </div>
                 </div>
-                <div>
-                    <div class="wg-settings-section__title" data-i18n="settings.section.whitelist">Trusted Contracts (Whitelist)</div>
-                    <div class="wg-settings-section__desc" data-i18n="settings.section.whitelist.desc">Addresses that you fully trust. WalletGuard will give them a higher trust score automatically.</div>
+                <div class="wg-list" id="whitelist-list">
+                    <div class="wg-list-empty" data-i18n="settings.list.whitelistEmpty">No trusted addresses yet.</div>
                 </div>
-            </div>
-            <div class="wg-form-row">
-                <label for="whitelist-input" data-i18n="settings.list.whitelistInput.label">Add Address (0x... or domain.tld)</label>
-                <div class="wg-input-group">
-                    <input type="text" id="whitelist-input" class="wg-input"
-                           data-i18n-attr="placeholder:settings.list.whitelistInput.placeholder"
-                           placeholder="0x...">
-                    <button class="wg-btn wg-btn--primary wg-btn--sm" id="add-whitelist-btn" data-i18n="settings.list.add">Add</button>
-                </div>
-            </div>
-            <div class="wg-list" id="whitelist-list">
-                <div class="wg-list-empty" data-i18n="settings.list.whitelistEmpty">No trusted addresses yet.</div>
             </div>
         </section>
 
         <!-- BLACKLIST -->
-        <section class="wg-card wg-settings-section">
-            <div class="wg-settings-section__header">
-                <div class="wg-settings-section__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.blacklist">Custom Blacklist</div>
+            <div class="wg-section__desc" data-i18n="settings.section.blacklist.desc">Addresses or domains that you know are malicious. These will be blocked instantly without an AI check.</div>
+            <div class="wg-section__body">
+                <div class="wg-field">
+                    <label for="blacklist-input" data-i18n="settings.list.blacklistInput.label">Add Address or Domain</label>
+                    <div class="wg-input-group">
+                        <input type="text" id="blacklist-input" class="wg-input"
+                               data-i18n-attr="placeholder:settings.list.blacklistInput.placeholder"
+                               placeholder="0x... or malicious-site.com">
+                        <button class="wg-btn wg-btn--danger" id="add-blacklist-btn" data-i18n="settings.list.add">Add</button>
+                    </div>
                 </div>
-                <div>
-                    <div class="wg-settings-section__title" data-i18n="settings.section.blacklist">Custom Blacklist</div>
-                    <div class="wg-settings-section__desc" data-i18n="settings.section.blacklist.desc">Addresses or domains that you know are malicious. These will be blocked instantly without an AI check.</div>
+                <div class="wg-list" id="blacklist-list">
+                    <div class="wg-list-empty" data-i18n="settings.list.blacklistEmpty">No custom blacklist entries.</div>
                 </div>
-            </div>
-            <div class="wg-form-row">
-                <label for="blacklist-input" data-i18n="settings.list.blacklistInput.label">Add Address or Domain</label>
-                <div class="wg-input-group">
-                    <input type="text" id="blacklist-input" class="wg-input"
-                           data-i18n-attr="placeholder:settings.list.blacklistInput.placeholder"
-                           placeholder="0x... or malicious-site.com">
-                    <button class="wg-btn wg-btn--danger wg-btn--sm" id="add-blacklist-btn" data-i18n="settings.list.add">Add</button>
-                </div>
-            </div>
-            <div class="wg-list" id="blacklist-list">
-                <div class="wg-list-empty" data-i18n="settings.list.blacklistEmpty">No custom blacklist entries.</div>
             </div>
         </section>
 
         <!-- DATA -->
-        <section class="wg-card wg-settings-section">
-            <div class="wg-settings-section__header">
-                <div class="wg-settings-section__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <section class="wg-section">
+            <div class="wg-section__title" data-i18n="settings.section.data">Local Data</div>
+            <div class="wg-section__desc" data-i18n="settings.section.data.desc">Statistics, logs, and the AI cache live in your browser. You can wipe them at any time.</div>
+            <div class="wg-section__body">
+                <div class="wg-row-actions">
+                    <button class="wg-btn wg-btn--danger" id="reset-stats-btn" data-i18n="settings.data.resetStats">Reset Statistics</button>
+                    <button class="wg-btn wg-btn--danger" id="clear-cache-btn" data-i18n="settings.data.clearCache">Clear AI Cache</button>
                 </div>
-                <div>
-                    <div class="wg-settings-section__title" data-i18n="settings.section.data">Local Data</div>
-                    <div class="wg-settings-section__desc" data-i18n="settings.section.data.desc">Statistics, logs, and the AI cache live in your browser. You can wipe them at any time.</div>
-                </div>
-            </div>
-            <div class="wg-row-actions">
-                <button class="wg-btn wg-btn--danger wg-btn--sm" id="reset-stats-btn" data-i18n="settings.data.resetStats">Reset Statistics</button>
-                <button class="wg-btn wg-btn--danger wg-btn--sm" id="clear-cache-btn" data-i18n="settings.data.clearCache">Clear AI Cache</button>
             </div>
         </section>
 

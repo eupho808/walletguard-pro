@@ -51,7 +51,7 @@ const EXCLUDE_FILES = [
   "build.js", "build-chrome-pack.js", "build-firefox.js", "build-firefox-pack.js",
   "test.js", "test.html",
   "test-typosquat.js", "test-integration.js", "test-multichain.js",
-  "test-nft.js", "test-revoke.js", "test-build.js", "test-i18n.js", "test-onboarding.js",
+  "test-nft.js", "test-revoke.js", "test-build.js", "test-i18n.js",
   "generate-icons.ps1",
   "package-lock.json",
   // Dev documentation
