@@ -25,12 +25,14 @@ const ORDER = [
   "risk-engine.js",
   "capabilities.js",
   "simulator.js",
+  "mev-detector.js",
   "revoke-generator.js"
 ];
 
-// Popup bundle gets all the modules PLUS the i18n system.
-// Content scripts don't show UI, so they don't need i18n.
-const POPUP_ORDER = [...ORDER, "i18n.js"];
+// Popup bundle gets all the modules PLUS the i18n system AND popup-only
+// features (address book for labels).
+// Content scripts don't show UI, so they don't need i18n or address book.
+const POPUP_ORDER = [...ORDER, "address-book.js", "i18n.js"];
 
 // We need a single IIFE so internal `const` declarations don't collide.
 // Strategy: read each lib file, strip its `import` statements and `export` keywords,

@@ -7,6 +7,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] - 2026-07-06 — "PRIME"
+
+### 🚀 Major release — feature-complete Web3 wallet security suite
+
+This is the release that consolidates WalletGuard Pro into a single
+open-source package that competes with paid SaaS alternatives
+(Blockaid, Blowfish, Pocket Universe) — for free, MIT licensed.
+
+### Added — Real Transaction Simulation (the killer feature)
+
+The same kind of pre-signing simulation that Pocket Universe was
+acquired by MetaMask for. Now open source. Now free. Now yours.
+
+- **`lib/simulator.js` (rewritten)** — Real on-chain simulation via eth_call:
+  - **`detectRevert(tx, provider)`** — catches failing txs BEFORE signing
+    with parsed revert reasons ("execution reverted: ERC20: insufficient
+    allowance", panic codes 0x11/0x12/etc.)
+  - **`quoteUniswapV3(tx, provider, chainId)`** — calls Uniswap V3 Quoter V2
+    to get exact swap output for V3 exactInputSingle / exactOutputSingle
+  - **`simulate(tx, provider, options)`** — comprehensive simulation that
+    combines revert detection + V3 quoter + MEV checks + asset diff
+  - 30-second result cache (LRU eviction) — same tx never simulated twice
+  - Falls back to heuristic estimation when no provider available
+- **`lib/mev-detector.js` (new)** — MEV attack detection:
+  - Sandwich attack risk on large swaps (≥0.5 ETH = medium, >1 ETH = high,
+    >5 ETH = critical)
+  - Mempool exposure flag for any tx >2 ETH
+  - Known MEV bot recipient detection (12 verified bots including
+    Flashbots, jaredfromsubway.eth clones, MEV-Boost relays)
+  - Tight deadline pressure tactic detection
+  - Actionable recommendations (Flashbots Protect RPC, MEV-Blocker,
+    slippage tuning, split trades)
+
+### Added — Address Book (new lib/address-book.js)
+
+- Custom labels for addresses you interact with regularly
+- Trust levels: trusted / neutral / blocked
+- Per-chain scoping
+- Free-form tags (e.g. "team", "personal", "CEX")
+- JSON export/import for backup
+- Local-only storage (never leaves your browser)
+- Pure helpers (normalizeAddress, isValidEntry) — testable in Node
+
+### Changed — Build pipeline
+
+- `build.js` ORDER extended with `mev-detector.js`
+- `build.js` POPUP_ORDER extended with `address-book.js` (popup-only)
+- Bundle sizes:
+  - content.js: 92783 → 114982 bytes (+24% — real simulation engine)
+  - popup-bundle.js: 136128 → 163986 bytes (+20% — address book UI support)
+- `test-build.js` updated to verify 11 modules (was 9)
+
+### Stats
+
+- **478 → 524 automated tests** (+46 tests across new test files)
+- 10 test suites, all green
+- 9 chains supported (Ethereum, Optimism, BNB, Polygon, Fantom,
+  Base, Arbitrum, Avalanche, Sepolia)
+- Bundle integrity verified (`node --check` both bundles)
+- All test counters updated throughout docs
+
+### Breaking changes
+
+- `manifest_version` bumped to 2.0.0 (semver-major)
+- New modules added to `WG_POPUP_LIB` global: `mevDetector`, `addressBook`
+- If you fork/embed: update your code to handle the new module surface
+
+---
+
 ## [1.5.2] - 2026-07-06
 
 ### Added — Tier 4 (Always-on Protection)
