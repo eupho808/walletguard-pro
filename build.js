@@ -35,6 +35,9 @@ const ORDER = [
   "visual-phish.js",
   "hw-wallet.js",
   "safe-multisig.js",
+  "blast-radius.js",
+  "pattern-dna.js",
+  "correlation.js",
   "explain.js"
 ];
 

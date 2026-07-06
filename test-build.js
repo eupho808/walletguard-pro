@@ -55,13 +55,14 @@ for (const [label, file] of [["content.js", CONTENT], ["popup-bundle.js", POPUP]
       "universalRouter", "riskEngine", "capabilities", "simulator",
       "mevDetector", "revokeGenerator", "eip7702Detector", "sessionKeyAnalyzer",
       "threatFeed", "walletDna", "drainerDetector", "visualPhish",
-      "hwWallet", "safeMultisig", "explain", "addressBook", "i18n"
+      "hwWallet", "safeMultisig", "blastRadius", "patternDna", "correlation",
+      "explain", "addressBook", "i18n"
     ];
     const actual = Object.keys(lib).sort();
     const expSorted = [...expected].sort();
 
     if (JSON.stringify(actual) === JSON.stringify(expSorted)) {
-      ok(`WG_POPUP_LIB has all 20 modules: ${actual.join(", ")}`);
+      ok(`WG_POPUP_LIB has all 23 modules: ${actual.join(", ")}`);
     } else {
       fail("WG_POPUP_LIB modules",
         `expected [${expSorted.join(",")}] got [${actual.join(",")}]`);
