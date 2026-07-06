@@ -28,6 +28,53 @@
             </div>
         </div>
 
+        <!-- v2.0 SIMULATION PREVIEW -->
+        <div class="sim-section" id="sim-section" hidden>
+            <div class="section-title-row">
+                <span class="section-title" data-i18n="popup.sim.title">Last Simulation</span>
+                <span class="section-subtitle" id="sim-meta"></span>
+            </div>
+            <div class="sim-status" id="sim-status">
+                <div class="sim-status-icon" id="sim-status-icon">?</div>
+                <div class="sim-status-body">
+                    <div class="sim-status-headline" id="sim-status-headline">--</div>
+                    <div class="sim-status-detail" id="sim-status-detail">--</div>
+                </div>
+            </div>
+            <div class="sim-assets" id="sim-assets"></div>
+            <div class="sim-risks" id="sim-risks"></div>
+        </div>
+
+        <!-- v2.0 ADDRESS BOOK -->
+        <div class="addr-section" id="addr-section">
+            <div class="section-title-row">
+                <span class="section-title" data-i18n="popup.addrbook.title">Address Book</span>
+                <button class="rescan-btn" id="addr-export-btn"
+                        data-i18n="popup.addrbook.export">Export</button>
+            </div>
+            <div class="addr-add-row">
+                <input type="text" id="addr-input" class="addr-input"
+                       data-i18n-attr="placeholder:popup.addrbook.placeholder"
+                       placeholder="0x… address to label" />
+                <input type="text" id="addr-label" class="addr-input addr-label-input"
+                       data-i18n-attr="placeholder:popup.addrbook.labelPlaceholder"
+                       placeholder="Label" />
+                <select id="addr-trust" class="addr-select">
+                    <option value="neutral" data-i18n="popup.addrbook.trust.neutral">Neutral</option>
+                    <option value="trusted" data-i18n="popup.addrbook.trust.trusted">Trusted</option>
+                    <option value="blocked" data-i18n="popup.addrbook.trust.blocked">Blocked</option>
+                </select>
+                <button class="rescan-btn" id="addr-add-btn"
+                        data-i18n="popup.addrbook.add">Add</button>
+            </div>
+            <div class="addr-list" id="addr-list">
+                <div class="approval-empty" id="addr-empty"
+                     data-i18n="popup.addrbook.empty">
+                    No entries yet. Label addresses you've interacted with so future transactions show a warning.
+                </div>
+            </div>
+        </div>
+
         <!-- STATS GRID -->
         <div class="stats-grid">
             <div class="stat-box">

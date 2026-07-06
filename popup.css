@@ -235,6 +235,261 @@ body {
     color: #ffb700;
 }
 
+/* ---------- SIMULATION PREVIEW (v2.0) ---------- */
+
+.sim-section {
+    background: linear-gradient(135deg, rgba(0,255,204,0.04), rgba(0,255,102,0.02));
+    border: 1px solid rgba(0,255,204,0.15);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.sim-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.sim-status-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.sim-status-icon.ok {
+    background: rgba(0,255,102,0.15);
+    color: #00ff66;
+}
+
+.sim-status-icon.warn {
+    background: rgba(255,183,0,0.15);
+    color: #ffb700;
+}
+
+.sim-status-icon.bad {
+    background: rgba(255,77,77,0.15);
+    color: #ff4d4d;
+}
+
+.sim-status-icon.unknown {
+    background: rgba(0,255,204,0.1);
+    color: #00ffcc;
+}
+
+.sim-status-headline {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.sim-status-detail {
+    font-size: 11px;
+    color: #8a92a3;
+    line-height: 1.4;
+}
+
+.sim-assets {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sim-asset-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 16px 1fr;
+    gap: 8px;
+    align-items: center;
+    font-size: 11px;
+    padding: 4px 8px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+    font-family: 'SF Mono', Menlo, monospace;
+}
+
+.sim-asset-out {
+    color: #ff6b6b;
+}
+
+.sim-asset-in {
+    color: #00ff66;
+}
+
+.sim-asset-arrow {
+    color: #4c5264;
+    text-align: center;
+}
+
+.sim-risks {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sim-risk {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.4;
+    border-left: 3px solid;
+}
+
+.sim-risk.high {
+    background: rgba(255,77,77,0.08);
+    border-left-color: #ff4d4d;
+    color: #ff8080;
+}
+
+.sim-risk.medium {
+    background: rgba(255,183,0,0.08);
+    border-left-color: #ffb700;
+    color: #ffd966;
+}
+
+.sim-risk.low {
+    background: rgba(0,255,204,0.06);
+    border-left-color: #00ffcc;
+    color: #80ffe0;
+}
+
+.sim-risk strong {
+    font-weight: 700;
+}
+
+/* ---------- ADDRESS BOOK (v2.0) ---------- */
+
+.addr-section {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.addr-add-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 6px;
+    margin: 10px 0;
+}
+
+.addr-input, .addr-select {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 7px 9px;
+    color: #fff;
+    font-size: 11px;
+    font-family: 'SF Mono', Menlo, monospace;
+    outline: none;
+    transition: border-color 0.15s;
+    min-width: 0;
+}
+
+.addr-input:focus, .addr-select:focus {
+    border-color: #00ffcc;
+}
+
+.addr-input::placeholder {
+    color: #4c5264;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.addr-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.addr-card {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.03);
+    border-left: 3px solid;
+    font-size: 11px;
+}
+
+.addr-card.trust-trusted {
+    border-left-color: #00ff66;
+}
+
+.addr-card.trust-neutral {
+    border-left-color: #646b7c;
+}
+
+.addr-card.trust-blocked {
+    border-left-color: #ff4d4d;
+}
+
+.addr-card-label {
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+.addr-card-addr {
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 10px;
+    color: #8a92a3;
+}
+
+.addr-card-trust {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.addr-card-trust.trusted {
+    background: rgba(0,255,102,0.15);
+    color: #00ff66;
+}
+
+.addr-card-trust.neutral {
+    background: rgba(100,107,124,0.15);
+    color: #8a92a3;
+}
+
+.addr-card-trust.blocked {
+    background: rgba(255,77,77,0.15);
+    color: #ff6b6b;
+}
+
+.addr-card-del {
+    background: transparent;
+    border: none;
+    color: #4c5264;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.addr-card-del:hover {
+    color: #ff4d4d;
+    background: rgba(255,77,77,0.1);
+}
+
 /* ---------- DIVIDER ---------- */
 
 .divider {

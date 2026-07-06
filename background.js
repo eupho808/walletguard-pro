@@ -23,7 +23,9 @@ const STORAGE_KEYS = {
   MULTICHAIN: "wg_multiChain",               // opt-in: scan all chains via public RPCs
   AI_CACHE: "wg_aiCache",
   APPROVAL_SCAN: "wg_approvalScan",          // last scan result + summary
-  LAST_WALLET: "wg_lastWalletAddress"        // most recent `from` we saw
+  LAST_WALLET: "wg_lastWalletAddress",       // most recent `from` we saw
+  LAST_RECEIPT: "wg_lastReceipt",            // v2.0: last intercepted tx analysis (popup display)
+  ADDRESS_BOOK: "wg_addressBook"             // v2.0: local address labels { addr: { label, trust, tags } }
 };
 
 const MAX_LOGS = 50;
@@ -419,9 +421,89 @@ async function handleMessage(message, sender) {
       return { status: "ok" };
     }
 
+    // --- v2.0: Tx receipt from content script (last intercepted analysis) ---
+    case "txReceipt": {
+      // message: { receipt: { statusKind, statusIcon, statusHeadline, statusDetail,
+      //                       assetLines, mevRisks, risks, target, method, chainId, chainName,
+      //                       addressBookMatch, scannedAt } }
+      if (!message.receipt) return { error: "missing receipt" };
+      // Stamp time + cap size.
+      const receipt = { ...message.receipt, scannedAt: message.receipt.scannedAt || nowIso() };
+      await setStorage(STORAGE_KEYS.LAST_RECEIPT, receipt);
+      // If there are MEV risks, also update badge.
+      const mevCount = (receipt.mevRisks && receipt.mevRisks.length) || 0;
+      if (mevCount > 0 && (receipt.statusKind === "warn" || receipt.statusKind === "bad")) {
+        await setBadgeState(receipt.statusKind === "bad" ? "danger" : "warn",
+          receipt.statusKind === "bad" ? "!" : String(mevCount));
+      }
+      return { status: "ok" };
+    }
+
+    // --- v2.0: popup fetches last receipt ---
+    case "getLastReceipt": {
+      const receipt = await getStorage(STORAGE_KEYS.LAST_RECEIPT, null);
+      return { receipt };
+    }
+
+    // --- v2.0: popup fetches address book ---
+    case "getAddressBook": {
+      const book = await getStorage(STORAGE_KEYS.ADDRESS_BOOK, {});
+      return { book };
+    }
+
+    // --- v2.0: popup adds entry to address book ---
+    case "addAddress": {
+      const addr = (message.address || "").trim();
+      if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+        return { error: "Invalid address" };
+      }
+      const book = await getStorage(STORAGE_KEYS.ADDRESS_BOOK, {});
+      const key = addr.toLowerCase();
+      book[key] = {
+        label: (message.label || "").trim().slice(0, 64),
+        trust: ["trusted", "neutral", "blocked"].includes(message.trust) ? message.trust : "neutral",
+        tags: Array.isArray(message.tags) ? message.tags.slice(0, 8) : [],
+        note: (message.note || "").slice(0, 256),
+        addedAt: nowIso()
+      };
+      await setStorage(STORAGE_KEYS.ADDRESS_BOOK, book);
+      await appendLog(`Address book: added ${shorten(addr)} (${book[key].label || "unlabeled"}, ${book[key].trust}).`);
+      return { status: "ok", book };
+    }
+
+    // --- v2.0: popup removes entry ---
+    case "removeAddress": {
+      const addr = (message.address || "").trim();
+      if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+        return { error: "Invalid address" };
+      }
+      const book = await getStorage(STORAGE_KEYS.ADDRESS_BOOK, {});
+      const key = addr.toLowerCase();
+      if (book[key]) {
+        delete book[key];
+        await setStorage(STORAGE_KEYS.ADDRESS_BOOK, book);
+        await appendLog(`Address book: removed ${shorten(addr)}.`);
+      }
+      return { status: "ok", book };
+    }
+
+    // --- v2.0: content script looks up an address in the book ---
+    case "lookupAddress": {
+      const addr = (message.address || "").trim();
+      if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) return { entry: null };
+      const book = await getStorage(STORAGE_KEYS.ADDRESS_BOOK, {});
+      const key = addr.toLowerCase();
+      return { entry: book[key] || null };
+    }
+
     default:
       return { error: `unknown action: ${message.action}` };
   }
+}
+
+function shorten(addr) {
+  if (!addr || addr.length < 10) return addr || "";
+  return addr.slice(0, 6) + "..." + addr.slice(-4);
 }
 
 // ---------- APPROVAL SCANNER HELPERS ----------

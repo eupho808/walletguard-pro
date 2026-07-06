@@ -15,6 +15,7 @@
     if (i18n && i18n.applyTranslations) i18n.applyTranslations(document);
     await refreshData();
     attachListeners();
+    initAddressBook();
     initOnboarding();
   });
 
@@ -74,6 +75,22 @@
       renderApprovals(approvalData || {});
     } catch (e) {
       console.error("WalletGuard: failed to fetch approval scan:", e);
+    }
+
+    // v2.0: last simulation receipt (independent fetch).
+    try {
+      const simData = await sendMessage({ action: "getLastReceipt" });
+      renderSimulation(simData || {});
+    } catch (e) {
+      console.error("WalletGuard: failed to fetch simulation:", e);
+    }
+
+    // v2.0: address book list (independent fetch).
+    try {
+      const addrData = await sendMessage({ action: "getAddressBook" });
+      renderAddressBook(addrData || {});
+    } catch (e) {
+      console.error("WalletGuard: failed to fetch address book:", e);
     }
   }
 
@@ -471,6 +488,228 @@
   function shorten(addr) {
     if (!addr || addr.length < 12) return addr || "";
     return addr.slice(0, 6) + "..." + addr.slice(-4);
+  }
+
+  // ============================================================
+  // v2.0 SIMULATION RECEIPT (last intercepted transaction)
+  // ============================================================
+  //
+  // Render the most recent tx that the content script analyzed. Shows
+  // asset changes, MEV risk, and revert status. Populated by the
+  // background SW when it receives a `txReceipt` message.
+
+  function renderSimulation(data) {
+    const section = document.getElementById("sim-section");
+    if (!section) return;
+    const receipt = data && data.receipt;
+    if (!receipt) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+
+    // Meta line: chain + age.
+    const metaEl = document.getElementById("sim-meta");
+    if (metaEl) {
+      const chain = receipt.chainName || (receipt.chainId ? "Chain " + receipt.chainId : "");
+      const age = receipt.scannedAt ? relativeTime(receipt.scannedAt) : "";
+      metaEl.textContent = [chain, age].filter(Boolean).join(" \u00b7 ");
+    }
+
+    // Status icon + headline.
+    const icon = document.getElementById("sim-status-icon");
+    const headline = document.getElementById("sim-status-headline");
+    const detail = document.getElementById("sim-status-detail");
+    icon.className = "sim-status-icon " + (receipt.statusKind || "unknown");
+    icon.textContent = receipt.statusIcon || "?";
+    headline.textContent = receipt.statusHeadline || t("popup.sim.unknown");
+    detail.textContent = receipt.statusDetail || "";
+
+    // Asset changes.
+    const assetsEl = document.getElementById("sim-assets");
+    const lines = receipt.assetLines || [];
+    if (assetsEl) {
+      if (lines.length === 0) {
+        assetsEl.innerHTML = '<div style="font-size:11px;color:#4c5264;padding:4px 8px;">No asset changes detected.</div>';
+      } else {
+        assetsEl.innerHTML = lines.map((l) => `
+          <div class="sim-asset-row">
+            <span>${escapeHtml(l.symbol || "?")}</span>
+            <span class="sim-asset-out">${escapeHtml(l.sent || "0")}</span>
+            <span class="sim-asset-arrow">&rarr;</span>
+            <span class="sim-asset-in">${escapeHtml(l.received || "0")}</span>
+          </div>
+        `).join("");
+      }
+    }
+
+    // MEV + risk list.
+    const risksEl = document.getElementById("sim-risks");
+    const risks = (receipt.mevRisks && receipt.mevRisks.length > 0)
+      ? receipt.mevRisks
+      : (receipt.risks || []);
+    if (risksEl) {
+      if (risks.length === 0) {
+        risksEl.innerHTML = '<div class="sim-risk low"><strong>No MEV / risk flags.</strong> This transaction looks safe to sign.</div>';
+      } else {
+        risksEl.innerHTML = risks.map((r) => `
+          <div class="sim-risk ${escapeHtml(r.severity || "low")}">
+            <strong>${escapeHtml(r.title || r.type || "Risk")}</strong>
+            ${r.message ? " \u2014 " + escapeHtml(r.message) : ""}
+          </div>
+        `).join("");
+      }
+    }
+  }
+
+  // ============================================================
+  // v2.0 ADDRESS BOOK
+  // ============================================================
+  //
+  // Local-only CRUD for address labels. The background SW persists
+  // the book in chrome.storage.local under wg_addressBook.
+
+  let __addressBook = {};
+
+  function renderAddressBook(data) {
+    const list = document.getElementById("addr-list");
+    const empty = document.getElementById("addr-empty");
+    if (!list || !empty) return;
+
+    __addressBook = (data && data.book) || {};
+
+    const entries = Object.entries(__addressBook).map(([addr, e]) => ({ address: addr, ...e }));
+    if (entries.length === 0) {
+      empty.style.display = "";
+      Array.from(list.querySelectorAll(".addr-card")).forEach((el) => el.remove());
+      return;
+    }
+    empty.style.display = "none";
+
+    entries.sort((a, b) => {
+      const ta = a.trust || "neutral";
+      const tb = b.trust || "neutral";
+      const order = { blocked: 0, trusted: 1, neutral: 2 };
+      const oa = order[ta] ?? 9;
+      const ob = order[tb] ?? 9;
+      if (oa !== ob) return oa - ob;
+      return (a.label || "").localeCompare(b.label || "");
+    });
+
+    list.innerHTML = entries.map((e) => {
+      const trust = e.trust || "neutral";
+      const label = e.label || "(unlabeled)";
+      const tags = Array.isArray(e.tags) && e.tags.length > 0
+        ? ` <span style="color:#8a92a3;font-size:10px;">[${escapeHtml(e.tags.join(", "))}]</span>`
+        : "";
+      return `
+        <div class="addr-card trust-${escapeHtml(trust)}">
+          <div>
+            <div class="addr-card-label">${escapeHtml(label)}${tags}</div>
+            <div class="addr-card-addr">${escapeHtml(shorten(e.address))}</div>
+          </div>
+          <span class="addr-card-trust ${escapeHtml(trust)}">${escapeHtml(trust)}</span>
+          <button class="addr-card-del" data-addr-del="${escapeHtml(e.address)}" title="Remove">&times;</button>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function handleAddrAdd() {
+    const addrInput = document.getElementById("addr-input");
+    const labelInput = document.getElementById("addr-label");
+    const trustSelect = document.getElementById("addr-trust");
+    if (!addrInput || !labelInput) return;
+    const addr = addrInput.value.trim();
+    const label = labelInput.value.trim();
+    const trust = (trustSelect && trustSelect.value) || "neutral";
+    if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+      addrInput.focus();
+      addrInput.style.borderColor = "#ff4d4d";
+      setTimeout(() => { addrInput.style.borderColor = ""; }, 1400);
+      return;
+    }
+    const res = await sendMessage({
+      action: "addAddress",
+      address: addr,
+      label: label,
+      trust: trust
+    });
+    if (res && res.error) {
+      console.error("addr-book: add failed:", res.error);
+      return;
+    }
+    addrInput.value = "";
+    labelInput.value = "";
+    renderAddressBook(res && res.book ? { book: res.book } : { book: __addressBook });
+    // Refetch authoritative state.
+    const fresh = await sendMessage({ action: "getAddressBook" });
+    renderAddressBook(fresh || {});
+  }
+
+  async function handleAddrDelete(ev) {
+    const btn = ev.target.closest("[data-addr-del]");
+    if (!btn) return;
+    const addr = btn.getAttribute("data-addr-del");
+    if (!addr) return;
+    const res = await sendMessage({ action: "removeAddress", address: addr });
+    if (res && res.book) renderAddressBook({ book: res.book });
+  }
+
+  async function handleAddrExport() {
+    const res = await sendMessage({ action: "getAddressBook" });
+    const book = (res && res.book) || __addressBook || {};
+    const json = JSON.stringify(book, null, 2);
+    try {
+      await navigator.clipboard.writeText(json);
+      flashExportButton(t("popup.addrbook.exported"), true);
+    } catch {
+      // Fallback: download as a file via a Blob URL.
+      try {
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "walletguard-address-book-" + new Date().toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        flashExportButton(t("popup.addrbook.exported"), true);
+      } catch {
+        flashExportButton(t("popup.addrbook.exportFailed"), false);
+      }
+    }
+  }
+
+  function flashExportButton(text, ok) {
+    const btn = document.getElementById("addr-export-btn");
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = text;
+    btn.classList.add(ok ? "is-ok" : "is-fail");
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove("is-ok", "is-fail");
+    }, 1400);
+  }
+
+  function initAddressBook() {
+    const addBtn = document.getElementById("addr-add-btn");
+    if (addBtn) addBtn.addEventListener("click", handleAddrAdd);
+    const list = document.getElementById("addr-list");
+    if (list) list.addEventListener("click", handleAddrDelete);
+    const exportBtn = document.getElementById("addr-export-btn");
+    if (exportBtn) exportBtn.addEventListener("click", handleAddrExport);
+    // Enter key in label field submits.
+    const labelInput = document.getElementById("addr-label");
+    if (labelInput) labelInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleAddrAdd();
+    });
+    const addrInput = document.getElementById("addr-input");
+    if (addrInput) addrInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleAddrAdd();
+    });
   }
 
   // ============================================================

@@ -117,6 +117,40 @@ setLocale("zh");
 eq(t("onboarding.step1.title"), "\u6b22\u8fce\u4f7f\u7528 WalletGuard Pro", "zh onboarding step1 title");
 eq(t("popup.approvals.time.minutesAgo", { n: 5 }), "5 \u5206\u949f\u524d", "zh minutesAgo");
 
+// ---- v2.0: Simulation Receipt + Address Book translations ----
+setLocale("en");
+const SIM_KEYS = ["popup.sim.title", "popup.sim.unknown"];
+const ADDR_KEYS = [
+  "popup.addrbook.title", "popup.addrbook.placeholder", "popup.addrbook.labelPlaceholder",
+  "popup.addrbook.add", "popup.addrbook.export", "popup.addrbook.exported",
+  "popup.addrbook.exportFailed", "popup.addrbook.empty",
+  "popup.addrbook.trust.neutral", "popup.addrbook.trust.trusted", "popup.addrbook.trust.blocked"
+];
+let v2KeyFailures = 0;
+for (const k of [...SIM_KEYS, ...ADDR_KEYS]) {
+  if (typeof EN[k] !== "string" || EN[k].trim() === "") {
+    console.log(`  FAIL en missing/empty: ${k}`);
+    v2KeyFailures++;
+  }
+  if (typeof RU[k] !== "string" || RU[k].trim() === "") {
+    console.log(`  FAIL ru missing/empty: ${k}`);
+    v2KeyFailures++;
+  }
+  if (typeof ES[k] !== "string" || ES[k].trim() === "") {
+    console.log(`  FAIL es missing/empty: ${k}`);
+    v2KeyFailures++;
+  }
+  if (typeof ZH[k] !== "string" || ZH[k].trim() === "") {
+    console.log(`  FAIL zh missing/empty: ${k}`);
+    v2KeyFailures++;
+  }
+}
+if (v2KeyFailures === 0) {
+  ok(`v2.0 keys present in all 4 locales (${SIM_KEYS.length + ADDR_KEYS.length} keys)`);
+} else {
+  failed += v2KeyFailures;
+}
+
 // ---- 5. Fallback: missing key in active locale falls back to en ----
 setMessages({
   en: { "only.en": "English only" },
