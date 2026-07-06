@@ -1,353 +1,231 @@
-/* ========================================================================
-   WalletGuard Pro — Landing Page
-   Vanilla JS · Shield parallax · Threat modal · Reveal observer
-   ======================================================================== */
+/* ============================================================================
+   WalletGuard Pro — Landing Page interactions
+   Vanilla JS, no framework. All animations respect prefers-reduced-motion.
+   ============================================================================ */
 
 (() => {
-  'use strict';
+  "use strict";
 
-  /* =========================================================================
-     Utilities
-     ========================================================================= */
-  const $  = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isTouch = window.matchMedia("(hover: none)").matches;
 
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* Eased cubic for counter animations */
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-  /* =========================================================================
-     1. NAVIGATION — scroll state & smooth anchor offset
-     ========================================================================= */
-  const nav = $('#nav');
-
-  const updateNavOnScroll = () => {
-    if (!nav) return;
-    nav.classList.toggle('nav--scrolled', window.scrollY > 16);
-  };
-
-  updateNavOnScroll();
-  window.addEventListener('scroll', updateNavOnScroll, { passive: true });
-
-  /* Smooth scroll that accounts for the fixed nav height */
-  $$('a[href^="#"]').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      const targetId = link.getAttribute('href');
-      if (!targetId || targetId === '#') return;
-
-      const target = document.querySelector(targetId);
-      if (!target) return;
-
-      e.preventDefault();
-      const navHeight = nav ? nav.offsetHeight : 72;
-      const y = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
-      window.scrollTo({ top: y, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
-    });
-  });
-
-  /* =========================================================================
-     2. HERO SHIELD — multi-layer mouse parallax
-     ========================================================================= */
-  const shieldWrapper = $('#shieldWrapper');
-
-  if (shieldWrapper && !prefersReducedMotion) {
-    const layers = $$('[data-depth]', shieldWrapper);
-
-    let targetX = 0;
-    let targetY = 0;
-    let currentX = 0;
-    let currentY = 0;
+  // ----- Cursor glow + dot (desktop only) -----
+  if (!isTouch && !reduceMotion) {
+    const glow = document.getElementById("cursor-glow");
+    const dot = document.getElementById("cursor-dot");
+    let mouseX = 0, mouseY = 0;
+    let glowX = 0, glowY = 0;
     let rafId = null;
-    let isInside = false;
 
-    const tick = () => {
-      // Smoothly approach target
-      currentX += (targetX - currentX) * 0.08;
-      currentY += (targetY - currentY) * 0.08;
+    function onMouseMove(e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      if (dot) {
+        dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+        dot.classList.add("is-active");
+      }
+      if (!rafId) rafId = requestAnimationFrame(updateGlow);
+    }
 
-      layers.forEach((layer) => {
-        const depth = parseFloat(layer.dataset.depth) || 1;
-        const moveX = currentX * depth * 28;
-        const moveY = currentY * depth * 28;
-        layer.style.transform = `translate3d(${moveX.toFixed(2)}px, ${moveY.toFixed(2)}px, 0)`;
-      });
-
-      // Continue until nearly settled
-      const settled =
-        Math.abs(targetX - currentX) < 0.001 && Math.abs(targetY - currentY) < 0.001;
-
-      if (!settled || isInside) {
-        rafId = requestAnimationFrame(tick);
+    function updateGlow() {
+      glowX += (mouseX - glowX) * 0.12;
+      glowY += (mouseY - glowY) * 0.12;
+      if (glow) glow.style.transform = `translate(${glowX}px, ${glowY}px) translate(-50%, -50%)`;
+      if (Math.abs(mouseX - glowX) > 0.5 || Math.abs(mouseY - glowY) > 0.5) {
+        rafId = requestAnimationFrame(updateGlow);
       } else {
         rafId = null;
       }
-    };
+    }
 
-    const startLoop = () => {
-      if (rafId === null) rafId = requestAnimationFrame(tick);
-    };
-
-    shieldWrapper.addEventListener('mousemove', (e) => {
-      const rect = shieldWrapper.getBoundingClientRect();
-      targetX = ((e.clientX - rect.left) / rect.width  - 0.5) * 2; // -1..1
-      targetY = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
-      isInside = true;
-      startLoop();
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
+    window.addEventListener("mouseenter", () => glow && glow.classList.add("is-active"));
+    window.addEventListener("mouseleave", () => {
+      glow && glow.classList.remove("is-active");
+      dot && dot.classList.remove("is-active");
     });
 
-    shieldWrapper.addEventListener('mouseleave', () => {
-      targetX = 0;
-      targetY = 0;
-      isInside = false;
-      startLoop();
-    });
-
-    /* Subtle parallax on touch move for mobile devices */
-    shieldWrapper.addEventListener('touchmove', (e) => {
-      const touch = e.touches[0];
-      if (!touch) return;
-      const rect = shieldWrapper.getBoundingClientRect();
-      targetX = ((touch.clientX - rect.left) / rect.width  - 0.5) * 2;
-      targetY = ((touch.clientY - rect.top)  / rect.height - 0.5) * 2;
-      isInside = true;
-      startLoop();
-    }, { passive: true });
-
-    shieldWrapper.addEventListener('touchend', () => {
-      targetX = 0;
-      targetY = 0;
-      isInside = false;
-      startLoop();
+    // Hover state on interactive elements
+    document.querySelectorAll("a, button, .feature-card, .how__step, .compare__row, .opensource__stat, details, summary").forEach(el => {
+      el.addEventListener("mouseenter", () => dot && dot.classList.add("is-hover"));
+      el.addEventListener("mouseleave", () => dot && dot.classList.remove("is-hover"));
     });
   }
 
-  /* =========================================================================
-     3. REVEAL ANIMATIONS — Intersection Observer
-     ========================================================================= */
-  const revealTargets = $$('[data-reveal]');
+  // ----- Nav scroll state -----
+  const nav = document.getElementById("nav");
+  let lastScroll = 0;
+  function onScroll() {
+    const y = window.scrollY;
+    if (nav) nav.classList.toggle("is-scrolled", y > 24);
+    lastScroll = y;
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 
-  if ('IntersectionObserver' in window) {
-    const revealObserver = new IntersectionObserver(
-      (entries, observer) => {
+  // ----- Mobile menu -----
+  const mobileBtn = document.getElementById("nav-mobile");
+  const mobileMenu = document.getElementById("mobile-menu");
+  if (mobileBtn && mobileMenu) {
+    mobileBtn.addEventListener("click", () => {
+      const isOpen = mobileMenu.classList.toggle("is-open");
+      mobileBtn.setAttribute("aria-expanded", String(isOpen));
+      mobileMenu.setAttribute("aria-hidden", String(!isOpen));
+      document.body.style.overflow = isOpen ? "hidden" : "";
+    });
+    mobileMenu.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", () => {
+        mobileMenu.classList.remove("is-open");
+        mobileBtn.setAttribute("aria-expanded", "false");
+        mobileMenu.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      });
+    });
+  }
+
+  // ----- Scroll reveals -----
+  const revealEls = document.querySelectorAll("[data-reveal]");
+  if ("IntersectionObserver" in window && !reduceMotion) {
+    const revealObs = new IntersectionObserver(
+      (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-revealed');
-            observer.unobserve(entry.target);
+            entry.target.classList.add("is-revealed");
+            revealObs.unobserve(entry.target);
           }
         });
       },
-      {
-        threshold: 0.12,
-        rootMargin: '0px 0px -60px 0px',
-      }
+      { rootMargin: "-10% 0px -10% 0px", threshold: 0.1 }
     );
-
-    revealTargets.forEach((el) => revealObserver.observe(el));
+    revealEls.forEach((el) => revealObs.observe(el));
   } else {
-    revealTargets.forEach((el) => el.classList.add('is-revealed'));
+    revealEls.forEach((el) => el.classList.add("is-revealed"));
   }
 
-  /* =========================================================================
-     4. THREAT MODAL — interactive demo
-     ========================================================================= */
-  const simulateBtn = $('#simulateBtn');
-  const modal       = $('#threatModal');
-  const riskArc     = modal ? $('.modal__risk-arc', modal) : null;
-  const riskNumber  = modal ? $('.modal__risk-number', modal) : null;
-  const modalCard   = modal ? $('.modal__card', modal) : null;
-  const focusableSel = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
-  let lastFocusedBeforeModal = null;
+  // ----- 3D shield parallax -----
+  if (!isTouch && !reduceMotion) {
+    const shield = document.getElementById("shield");
+    const stage = document.querySelector(".shield-stage");
+    const heroVisual = document.getElementById("hero-visual");
 
-  /* The full circle circumference for r=44 is 2*PI*44 ≈ 276.46 */
-  const ARC_LENGTH = 276.46;
-  /* Target risk score (91/100 → 91% of the circle is filled) */
-  const RISK_TARGET = 91;
+    if (shield && heroVisual) {
+      let shieldX = 0, shieldY = 0;
+      let targetX = 0, targetY = 0;
+      let rafId = null;
 
-  const openModal = () => {
-    if (!modal) return;
-
-    lastFocusedBeforeModal = document.activeElement;
-    modal.classList.add('modal--open');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-
-    /* Reset arc + counter to start state before each open */
-    if (riskArc) {
-      riskArc.style.transition = 'none';
-      riskArc.style.strokeDashoffset = String(ARC_LENGTH);
-    }
-    if (riskNumber) {
-      riskNumber.textContent = '0';
-    }
-
-    /* Trigger the animation on the next frame */
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (riskArc) {
-          riskArc.style.transition = `stroke-dashoffset 1500ms cubic-bezier(0.16, 1, 0.3, 1)`;
-          /* Offset = circumference * (1 - target/100) */
-          riskArc.style.strokeDashoffset = String(ARC_LENGTH * (1 - RISK_TARGET / 100));
-        }
-        if (riskNumber) {
-          animateValue(riskNumber, 0, RISK_TARGET, 1500);
-        }
-      });
-    });
-
-    /* Move focus into the modal for accessibility */
-    const firstFocusable = $(focusableSel, modal);
-    if (firstFocusable) {
-      setTimeout(() => firstFocusable.focus(), 400);
-    }
-  };
-
-  const closeModal = () => {
-    if (!modal || !modal.classList.contains('modal--open')) return;
-    modal.classList.remove('modal--open');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-
-    /* Restore focus */
-    if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === 'function') {
-      lastFocusedBeforeModal.focus();
-    }
-  };
-
-  /* Animated number counter */
-  const animateValue = (el, from, to, duration) => {
-    const startTime = performance.now();
-    const step = (now) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = easeOutCubic(progress);
-      el.textContent = Math.round(from + (to - from) * eased).toString();
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  };
-
-  /* Simulate button → loading state → open modal */
-  if (simulateBtn) {
-    simulateBtn.addEventListener('click', () => {
-      if (simulateBtn.classList.contains('btn--loading')) return;
-
-      simulateBtn.classList.add('btn--loading');
-      const label = $('.btn__label', simulateBtn);
-      const originalText = label ? label.textContent : '';
-      if (label) label.textContent = 'Analyzing calldata…';
-
-      /* Briefly show analysis, then open the modal — feels like a real scan */
-      setTimeout(() => {
-        simulateBtn.classList.remove('btn--loading');
-        if (label) label.textContent = originalText;
-        openModal();
-      }, 950);
-    });
-  }
-
-  /* Close handlers — backdrop, X button, "Proceed anyway" */
-  if (modal) {
-    $$('[data-close]', modal).forEach((el) => {
-      el.addEventListener('click', closeModal);
-    });
-
-    /* Trap focus inside modal while open (basic) */
-    modal.addEventListener('keydown', (e) => {
-      if (e.key !== 'Tab') return;
-      const focusables = $$(focusableSel, modal);
-      if (focusables.length === 0) return;
-      const first = focusables[0];
-      const last  = focusables[focusables.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
+      function onShieldMove(e) {
+        const rect = heroVisual.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / rect.width;
+        const dy = (e.clientY - cy) / rect.height;
+        targetX = dx * 8;
+        targetY = dy * 8;
+        if (!rafId) rafId = requestAnimationFrame(updateShield);
       }
-    });
+
+      function updateShield() {
+        shieldX += (targetX - shieldX) * 0.08;
+        shieldY += (targetY - shieldY) * 0.08;
+        if (stage) stage.style.transform = `rotateY(${shieldX}deg) rotateX(${-shieldY}deg)`;
+        if (Math.abs(targetX - shieldX) > 0.05 || Math.abs(targetY - shieldY) > 0.05) {
+          rafId = requestAnimationFrame(updateShield);
+        } else {
+          rafId = null;
+        }
+      }
+
+      window.addEventListener("mousemove", onShieldMove, { passive: true });
+    }
   }
 
-  /* Global Escape closes the modal */
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal && modal.classList.contains('modal--open')) {
-      closeModal();
+  // ----- Demo animation (trigger when in view) -----
+  const demoStage = document.getElementById("demo-stage");
+  const warning = document.querySelector("[data-demo-warning]");
+  const receipt = document.querySelector("[data-demo-receipt]");
+  const urlText = document.querySelector("[data-demo-url-text]");
+
+  if (demoStage && warning && receipt) {
+    const triggerDemo = () => {
+      // Type the URL with a Cyrillic 'а' to show the phishing detection
+      if (urlText) {
+        urlText.textContent = "https://uniswаp.org/claim";
+      }
+      // Show warning after a brief pause
+      setTimeout(() => warning.classList.add("is-visible"), 600);
+      // Show receipt slightly after
+      setTimeout(() => receipt.classList.add("is-visible"), 1100);
+    };
+
+    if ("IntersectionObserver" in window) {
+      const demoObs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              triggerDemo();
+              demoObs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      demoObs.observe(demoStage);
+    } else {
+      triggerDemo();
     }
+  }
+
+  // ----- Smooth scroll for anchor links -----
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    a.addEventListener("click", (e) => {
+      const href = a.getAttribute("href");
+      if (href === "#" || href.length < 2) return;
+      const target = document.querySelector(href);
+      if (!target) return;
+      e.preventDefault();
+      const navHeight = nav ? nav.offsetHeight : 0;
+      const y = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+      window.scrollTo({ top: y, behavior: reduceMotion ? "auto" : "smooth" });
+    });
   });
 
-  /* =========================================================================
-     5. MOBILE BURGER (placeholder — gracefully degrades)
-     ========================================================================= */
-  const burger = $('#navBurger');
-  if (burger) {
-    burger.addEventListener('click', () => {
-      /* For this single-page demo the burger scrolls to the demo section.
-         In a production build this would toggle a mobile drawer. */
-      const demo = $('#demo');
-      if (demo) demo.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }
+  // ----- Subtle stat number animation on first view -----
+  if ("IntersectionObserver" in window) {
+    const statNums = document.querySelectorAll(".opensource__stat-num, .trusted__num, .hero__trust-num");
+    const animated = new WeakSet();
 
-  /* =========================================================================
-     6. STAT COUNTERS — tick up when hero is in view
-     ========================================================================= */
-  const statValues = $$('.hero__stat-value[data-count]');
-
-  if (statValues.length && 'IntersectionObserver' in window) {
-    const animateStat = (el) => {
-      const target = parseInt(el.dataset.count, 10);
-      if (Number.isNaN(target)) return;
-      const format = el.dataset.format || "compact";
-      const duration = 1800;
-      const startTime = performance.now();
-      const step = (now) => {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const eased = easeOutCubic(progress);
-        const value = Math.floor(target * eased);
-        // format="number" → raw count, no suffix
-        // format="compact" (default) → "1.2K+", "3.4M+"
-        el.textContent = format === "number"
-          ? value.toString()
-          : formatCompact(value) + '+';
-        if (progress < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    };
-
-    const formatCompact = (n) => {
-      if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
-      if (n >= 1_000)     return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
-      return n.toString();
-    };
-
-    const statObserver = new IntersectionObserver(
-      (entries, observer) => {
+    const numObs = new IntersectionObserver(
+      (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            animateStat(entry.target);
-            observer.unobserve(entry.target);
+          if (entry.isIntersecting && !animated.has(entry.target)) {
+            animated.add(entry.target);
+            const el = entry.target;
+            const final = el.textContent.trim();
+            // Only animate plain numbers (skip "MIT", "0", "100%", etc. that are non-numeric context)
+            const match = final.match(/^([\$]?)(\d+)(.*)$/);
+            if (!match || reduceMotion) return;
+            const prefix = match[1];
+            const num = parseInt(match[2], 10);
+            const suffix = match[3];
+            if (num < 5) return; // too small to animate
+            const duration = 1200;
+            const start = performance.now();
+            const ease = (t) => 1 - Math.pow(1 - t, 3);
+            function step(now) {
+              const elapsed = now - start;
+              const progress = Math.min(elapsed / duration, 1);
+              const value = Math.round(num * ease(progress));
+              el.textContent = prefix + value.toLocaleString() + suffix;
+              if (progress < 1) requestAnimationFrame(step);
+              else el.textContent = final; // ensure exact final value
+            }
+            requestAnimationFrame(step);
+            numObs.unobserve(el);
           }
         });
       },
       { threshold: 0.5 }
     );
-
-    statValues.forEach((el) => statObserver.observe(el));
-  }
-
-  /* =========================================================================
-     7. CARD HOVER GLOW — track cursor for radial highlight (progressive enhancement)
-     ========================================================================= */
-  if (!prefersReducedMotion && window.matchMedia('(hover: hover)').matches) {
-    $$('.feature-card').forEach((card) => {
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width)  * 100;
-        const y = ((e.clientY - rect.top)  / rect.height) * 100;
-        card.style.setProperty('--mx', `${x}%`);
-        card.style.setProperty('--my', `${y}%`);
-      });
-    });
+    statNums.forEach((el) => numObs.observe(el));
   }
 })();

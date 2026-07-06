@@ -1,873 +1,774 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="WalletGuard Pro — independent Web3 wallet security. See what your wallet is signing before it signs. 184 tests, 9 chains, 0 API keys. Open source." />
-  <meta name="theme-color" content="#080808" />
-  <meta name="color-scheme" content="dark" />
-  <title>WalletGuard Pro — Real-time security for your Web3 assets</title>
-
-  <!-- Preconnect for fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<meta name="description" content="WalletGuard Pro is the security layer every Web3 wallet needs. Intercepts transactions, detects drainers, phishing, MEV, and EIP-7702 attacks before they reach your wallet. Free. MIT licensed.">
+<meta name="keywords" content="web3 security, wallet protection, phishing detection, drainer detector, EIP-7702, MEV protection, ethereum security, crypto extension">
+<meta property="og:title" content="WalletGuard Pro — The Security Layer Every Web3 Wallet Needs">
+<meta property="og:description" content="23 protection layers. 13 chains. 6 languages. Free. MIT licensed.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="../assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WalletGuard Pro">
+<meta name="twitter:description" content="The security layer every Web3 wallet needs.">
+<title>WalletGuard Pro — The Security Layer Every Web3 Wallet Needs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/icon.svg">
 </head>
 <body>
-  <!-- Ambient background orbs (decorative, behind everything) -->
-  <div class="ambient" aria-hidden="true">
-    <div class="ambient__orb ambient__orb--green"></div>
-    <div class="ambient__orb ambient__orb--blue"></div>
-    <div class="ambient__grid"></div>
-    <div class="ambient__noise"></div>
-  </div>
 
-  <!-- ============ NAVIGATION ============ -->
-  <header class="nav" id="nav">
-    <div class="nav__container">
-      <a href="#hero" class="nav__logo" aria-label="WalletGuard Pro — Home">
-        <svg class="nav__logo-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#00ff9d" />
-              <stop offset="100%" stop-color="#4dd0ff" />
-            </linearGradient>
-          </defs>
-          <path d="M16 3L5 8v8c0 7.5 5 13 11 14 6-1 11-6.5 11-14V8L16 3z" stroke="url(#logoGrad)" stroke-width="1.6" fill="none" />
-          <path d="M16 10.5l-4 4 4 4 4-4-4-4z" fill="url(#logoGrad)" opacity="0.85" />
-        </svg>
-        <span class="nav__logo-text">WalletGuard <span class="nav__logo-accent">Pro</span></span>
+<!-- Aurora background -->
+<div class="aurora" aria-hidden="true">
+  <div class="aurora__layer aurora__layer--1"></div>
+  <div class="aurora__layer aurora__layer--2"></div>
+  <div class="aurora__layer aurora__layer--3"></div>
+</div>
+
+<!-- Mouse glow -->
+<div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
+
+<!-- Custom cursor dot -->
+<div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>
+
+<!-- Grain overlay -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Nav -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a href="#hero" class="nav__logo" aria-label="WalletGuard Pro home">
+      <svg class="nav__logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <defs>
+          <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#34D399"/>
+            <stop offset="100%" stop-color="#10B981"/>
+          </linearGradient>
+        </defs>
+        <path d="M16 2L4 7v9c0 7.4 5.1 13.6 12 14 6.9-.4 12-6.6 12-14V7L16 2z" fill="none" stroke="url(#logoGradient)" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M11 16l3.5 3.5L21 13" fill="none" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="nav__logo-text">WalletGuard<span class="nav__logo-accent">Pro</span></span>
+    </a>
+    <nav class="nav__menu" aria-label="Primary">
+      <a href="#features" class="nav__link">Features</a>
+      <a href="#engine" class="nav__link">Engine</a>
+      <a href="#compare" class="nav__link">Compare</a>
+      <a href="#faq" class="nav__link">FAQ</a>
+      <a href="https://github.com/eupho808/walletguard-pro" class="nav__link nav__link--icon" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
       </a>
-
-      <nav class="nav__menu" aria-label="Primary">
-        <a href="#demo" class="nav__link">Demo</a>
-        <a href="#features" class="nav__link">Features</a>
-        <a href="#compare" class="nav__link">Compare</a>
-        <a href="https://github.com/yourname/walletguard-pro" target="_blank" rel="noopener noreferrer" class="nav__link">
-          GitHub
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-            <path d="M2.5 7.5L7.5 2.5M7.5 2.5H4M7.5 2.5V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </a>
-        <a href="#features" class="nav__link">Features</a>
-        <a href="#compare" class="nav__link">Compare</a>
-      </nav>
-
       <a href="#install" class="nav__cta">
-        <span>Install Extension</span>
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <span>Add to Chrome</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
+    </nav>
+    <button class="nav__mobile" id="nav-mobile" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
 
-      <button class="nav__burger" aria-label="Toggle menu" id="navBurger">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <a href="#features">Features</a>
+  <a href="#engine">Engine</a>
+  <a href="#compare">Compare</a>
+  <a href="#faq">FAQ</a>
+  <a href="#install" class="mobile-menu__cta">Add to Chrome</a>
+</div>
 
-  <main>
-    <!-- ============ HERO ============ -->
-    <section class="hero" id="hero">
-      <div class="hero__container">
-        <div class="hero__badge" data-reveal>
-          <span class="hero__badge-dot" aria-hidden="true"></span>
-          <span>v1.5.1 · 478 tests passing · Open source</span>
-        </div>
-
-        <h1 class="hero__title" data-reveal>
-          <span class="hero__title-line">Real-time security</span>
-          <span class="hero__title-line">for your Web3 assets.</span>
-          <span class="hero__title-line hero__title-line--accent">
-            <em>Before</em> you sign.
-          </span>
-        </h1>
-
-        <p class="hero__subtitle" data-reveal>
-          WalletGuard Pro inspects every transaction, signature, and domain in real time —
-          surfacing hidden approvals, drainer patterns, and phishing risks the instant they appear.
-        </p>
-
-        <!-- Interactive shield -->
-        <div class="hero__shield" id="shieldWrapper" aria-label="Animated security shield" data-reveal>
-          <div class="hero__shield-halo" data-depth="0.2"></div>
-          <div class="hero__shield-ring hero__shield-ring--3" data-depth="0.4"></div>
-          <div class="hero__shield-ring hero__shield-ring--2" data-depth="0.6"></div>
-          <div class="hero__shield-ring hero__shield-ring--1" data-depth="0.8"></div>
-
-          <div class="hero__shield-core" data-depth="1">
-            <svg class="hero__shield-svg" viewBox="0 0 240 240" aria-hidden="true">
-              <defs>
-                <linearGradient id="shieldFill" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#00ff9d" stop-opacity="0.95" />
-                  <stop offset="55%" stop-color="#4dd0ff" stop-opacity="0.75" />
-                  <stop offset="100%" stop-color="#00ff9d" stop-opacity="0.4" />
-                </linearGradient>
-                <linearGradient id="shieldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#00ff9d" />
-                  <stop offset="100%" stop-color="#4dd0ff" />
-                </linearGradient>
-                <filter id="shieldGlow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="4" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-                <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
-                  <stop offset="40%" stop-color="#00ff9d" stop-opacity="0.6" />
-                  <stop offset="100%" stop-color="#00ff9d" stop-opacity="0" />
-                </radialGradient>
-              </defs>
-
-              <!-- Outer hex frame -->
-              <path d="M120 24 L208 72 L208 168 L120 216 L32 168 L32 72 Z"
-                    fill="none" stroke="url(#shieldStroke)" stroke-width="1" opacity="0.25" />
-
-              <!-- Mid shield -->
-              <path d="M120 50 L185 85 L185 155 C185 180 158 200 120 208 C82 200 55 180 55 155 L55 85 Z"
-                    fill="rgba(0, 255, 157, 0.02)" stroke="url(#shieldStroke)" stroke-width="1.5" opacity="0.6" />
-
-              <!-- Inner shield (the hero shape) -->
-              <path d="M120 75 L165 95 L165 145 C165 165 145 180 120 187 C95 180 75 165 75 145 L75 95 Z"
-                    fill="rgba(0, 255, 157, 0.05)" stroke="url(#shieldStroke)" stroke-width="2.2" filter="url(#shieldGlow)" />
-
-              <!-- Central diamond -->
-              <path d="M120 105 L142 130 L120 155 L98 130 Z"
-                    fill="url(#shieldFill)" opacity="0.55" />
-              <path d="M120 110 L138 130 L120 150 L102 130 Z"
-                    fill="none" stroke="url(#shieldStroke)" stroke-width="1" opacity="0.8" />
-
-              <!-- Central glowing core -->
-              <circle cx="120" cy="130" r="10" fill="url(#coreGlow)" />
-              <circle cx="120" cy="130" r="3.5" fill="#ffffff" />
-
-              <!-- Registration / crosshair ticks -->
-              <line x1="120" y1="24" x2="120" y2="38" stroke="#00ff9d" stroke-width="1" opacity="0.45" />
-              <line x1="120" y1="202" x2="120" y2="216" stroke="#00ff9d" stroke-width="1" opacity="0.45" />
-              <line x1="32" y1="120" x2="46" y2="120" stroke="#00ff9d" stroke-width="1" opacity="0.45" />
-              <line x1="194" y1="120" x2="208" y2="120" stroke="#00ff9d" stroke-width="1" opacity="0.45" />
-
-              <!-- Corner micro-marks -->
-              <circle cx="120" cy="24" r="2" fill="#00ff9d" opacity="0.7" />
-              <circle cx="120" cy="216" r="2" fill="#00ff9d" opacity="0.7" />
-              <circle cx="32" cy="120" r="2" fill="#00ff9d" opacity="0.7" />
-              <circle cx="208" cy="120" r="2" fill="#00ff9d" opacity="0.7" />
-            </svg>
-          </div>
-
-          <!-- Floating data tags -->
-          <div class="hero__chip hero__chip--1" data-depth="1.2">
-            <span class="hero__chip-dot"></span>
-            EIP-712 Protected
-          </div>
-          <div class="hero__chip hero__chip--2" data-depth="0.9">
-            <span class="hero__chip-dot hero__chip-dot--blue"></span>
-            0&nbsp;API keys
-          </div>
-          <div class="hero__chip hero__chip--3" data-depth="1.4">
-            <span class="hero__chip-dot hero__chip-dot--amber"></span>
-            9 chains
-          </div>
-        </div>
-
-        <div class="hero__cta-group" data-reveal>
-          <a href="#install" class="btn btn--primary">
-            <span>Install for Chrome</span>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-          <a href="#demo" class="btn btn--ghost">
-            <span>See it in action</span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M7 3v8M3 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-        </div>
-
-        <div class="hero__stats" data-reveal>
-          <div class="hero__stat">
-            <div class="hero__stat-value" data-count="184" data-format="number">184</div>
-            <div class="hero__stat-label">Tests passing</div>
-          </div>
-          <div class="hero__stat-divider" aria-hidden="true"></div>
-          <div class="hero__stat">
-            <div class="hero__stat-value">9</div>
-            <div class="hero__stat-label">Chains supported</div>
-          </div>
-          <div class="hero__stat-divider" aria-hidden="true"></div>
-          <div class="hero__stat">
-            <div class="hero__stat-value">0</div>
-            <div class="hero__stat-label">API keys required</div>
-          </div>
-        </div>
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero__inner">
+    <div class="hero__content">
+      <div class="hero__eyebrow" data-reveal>
+        <span class="hero__eyebrow-dot"></span>
+        <span>v3.3.0 · 794 tests · 13 chains</span>
       </div>
-
-      <div class="hero__scroll" aria-hidden="true">
-        <span>Scroll</span>
-        <div class="hero__scroll-line"></div>
-      </div>
-    </section>
-
-    <!-- ============ DEMO ============ -->
-    <section class="demo" id="demo">
-      <div class="section__container">
-        <header class="section__header" data-reveal>
-          <div class="section__label">
-            <span class="section__label-dot" aria-hidden="true"></span>
-            <span>Interactive Demo</span>
-          </div>
-          <h2 class="section__title">
-            Watch it <em>intercept</em><br />a malicious approval
-          </h2>
-          <p class="section__subtitle">
-            Press <strong>Simulate Transaction</strong> to see how WalletGuard Pro catches a
-            real-world EIP-712 drainer attack before it can touch your wallet.
-          </p>
-        </header>
-
-        <div class="demo__stage" data-reveal>
-          <div class="browser" role="figure" aria-label="Simulated wallet interface">
-            <div class="browser__chrome">
-              <div class="browser__dots" aria-hidden="true">
-                <span></span><span></span><span></span>
-              </div>
-              <div class="browser__url">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                  <rect x="2.5" y="5" width="7" height="5.5" rx="1" stroke="currentColor" stroke-width="1" />
-                  <path d="M4 5V3.5a2 2 0 014 0V5" stroke="currentColor" stroke-width="1" />
-                </svg>
-                <span>unisw<span class="browser__url-homoglyph">а</span>pp.eth-airdrop[.]xyz</span>
-              </div>
-              <div class="browser__menu" aria-hidden="true">
-                <span></span><span></span><span></span>
-              </div>
-            </div>
-
-            <div class="browser__content">
-              <div class="wallet">
-                <div class="wallet__header">
-                  <div class="wallet__brand">
-                    <div class="wallet__avatar">
-                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
-                        <path d="M8 14c1-2 3-3 4-3s3 1 4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                        <circle cx="9" cy="10" r="1" fill="currentColor" />
-                        <circle cx="15" cy="10" r="1" fill="currentColor" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="wallet__name">Uniswap Airdrop Claim</div>
-                      <div class="wallet__chain">
-                        <span class="wallet__chain-dot"></span>
-                        Ethereum Mainnet
-                      </div>
-                    </div>
-                  </div>
-                  <div class="wallet__balance">
-                    <div class="wallet__balance-label">Your balance</div>
-                    <div class="wallet__balance-value">
-                      14.82 <span>ETH</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="wallet__divider" aria-hidden="true"></div>
-
-                <div class="wallet__claim">
-                  <div class="wallet__reward">
-                    <div class="wallet__reward-label">Claim reward</div>
-                    <div class="wallet__reward-value">
-                      <span class="wallet__reward-plus">+</span>500 UNI
-                    </div>
-                  </div>
-                  <p class="wallet__info">
-                    Sign a gasless message to claim your airdrop.
-                    <strong>No gas fees required.</strong>
-                  </p>
-                </div>
-
-                <div class="wallet__permits">
-                  <div class="wallet__permit-row">
-                    <span class="wallet__permit-label">Requested action</span>
-                    <span class="wallet__permit-value">Permit (EIP-712)</span>
-                  </div>
-                  <div class="wallet__permit-row">
-                    <span class="wallet__permit-label">Spender</span>
-                    <span class="wallet__permit-value wallet__permit-value--mono">
-                      0x71C7...976F
-                    </span>
-                  </div>
-                  <div class="wallet__permit-row">
-                    <span class="wallet__permit-label">Allowance</span>
-                    <span class="wallet__permit-value wallet__permit-value--danger">
-                      Unlimited
-                    </span>
-                  </div>
-                </div>
-
-                <button class="btn btn--primary btn--full" id="simulateBtn">
-                  <span class="btn__label">Simulate Transaction</span>
-                  <span class="btn__loader" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
-                      <path d="M14 8a6 6 0 00-6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                    </svg>
-                  </span>
-                  <svg class="btn__arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </button>
-
-                <div class="wallet__footnote">
-                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
-                    <circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1" />
-                    <path d="M5.5 3v3l1.8 1" stroke="currentColor" stroke-width="1" stroke-linecap="round" />
-                  </svg>
-                  Wallet not connected · Simulation only
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="demo__aside">
-            <div class="demo__hint" data-reveal>
-              <div class="demo__hint-icon">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-                  <path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-              </div>
-              <div>
-                <div class="demo__hint-title">What you're about to see</div>
-                <p class="demo__hint-text">
-                  A live analysis of a phishing site mimicking Uniswap. WalletGuard intercepts
-                  the signature, decodes the calldata, and shows exactly what would have been
-                  drained from your wallet — in under 80&nbsp;ms.
-                </p>
-              </div>
-            </div>
-
-            <ul class="demo__steps">
-              <li class="demo__step" data-reveal>
-                <span class="demo__step-num">01</span>
-                <div>
-                  <strong>Domain flagged</strong>
-                  <p>Reputation Radar marks the URL as malicious using a homoglyph + IDN check.</p>
-                </div>
-              </li>
-              <li class="demo__step" data-reveal>
-                <span class="demo__step-num">02</span>
-                <div>
-                  <strong>Calldata decoded</strong>
-                  <p>Transaction Capabilities unwraps the hidden <code>Permit</code> payload.</p>
-                </div>
-              </li>
-              <li class="demo__step" data-reveal>
-                <span class="demo__step-num">03</span>
-                <div>
-                  <strong>Balance simulated</strong>
-                  <p>Asset Diff Engine projects the exact outflow before you commit.</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- ============ THREAT MODAL ============ -->
-      <div class="modal" id="threatModal" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
-        <div class="modal__backdrop" data-close></div>
-        <div class="modal__card" role="document">
-          <div class="modal__header">
-            <div class="modal__brand">
-              <svg viewBox="0 0 24 24" class="modal__brand-icon" aria-hidden="true">
-                <path d="M12 2L4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4z" fill="none" stroke="currentColor" stroke-width="1.5" />
-                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              <div>
-                <div class="modal__brand-title">WalletGuard Pro</div>
-                <div class="modal__brand-sub" id="modalTitle">Threat analysis · live</div>
-              </div>
-            </div>
-            <button class="modal__close" data-close aria-label="Close threat report">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-              </svg>
-            </button>
-          </div>
-
-          <div class="modal__hero">
-            <div class="modal__risk">
-              <div class="modal__risk-ring">
-                <svg viewBox="0 0 100 100" aria-hidden="true">
-                  <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,71,87,0.12)" stroke-width="6" />
-                  <circle class="modal__risk-arc" cx="50" cy="50" r="44" fill="none"
-                          stroke="#ff4757" stroke-width="6" stroke-linecap="round"
-                          stroke-dasharray="276.5" stroke-dashoffset="276.5"
-                          transform="rotate(-90 50 50)" />
-                </svg>
-                <div class="modal__risk-number">0</div>
-              </div>
-              <div class="modal__risk-meta">
-                <div class="modal__risk-label">Risk Score</div>
-                <div class="modal__risk-status">Critical · Likely drainer</div>
-              </div>
-            </div>
-            <div class="modal__domain">
-              <span class="modal__domain-icon" aria-hidden="true">
-                <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
-                  <path d="M8 1l7 4v6c0 3.5-3 5.5-7 6-4-0.5-7-2.5-7-6V5l7-4z" stroke="currentColor" stroke-width="1.3" fill="none" />
-                  <path d="M5.5 8l1.8 1.8L10.5 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none" />
-                </svg>
-              </span>
-              <div>
-                <div class="modal__domain-name">uniswаpp.eth-airdrop[.]xyz</div>
-                <div class="modal__domain-meta">Registered 2 days ago · IDN homoglyph</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal__section modal__section--diff" data-stagger="1">
-            <div class="modal__section-head">
-              <span class="modal__chip modal__chip--danger">
-                <svg viewBox="0 0 12 12" width="10" height="10" fill="none" aria-hidden="true">
-                  <path d="M6 1v6M6 9.5v0.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-                Asset Diff Engine
-              </span>
-              <span class="modal__section-meta">Projected balance changes</span>
-            </div>
-            <div class="modal__diff">
-              <div class="modal__diff-row">
-                <div class="modal__diff-asset">
-                  <span class="modal__diff-icon modal__diff-icon--out" aria-hidden="true">−</span>
-                  <div>
-                    <div class="modal__diff-name">USDC</div>
-                    <div class="modal__diff-addr">0xa0b8…eb48</div>
-                  </div>
-                </div>
-                <div class="modal__diff-amount modal__diff-amount--out">
-                  −4,219.50
-                  <span>USDC</span>
-                </div>
-              </div>
-              <div class="modal__diff-row">
-                <div class="modal__diff-asset">
-                  <span class="modal__diff-icon modal__diff-icon--out" aria-hidden="true">−</span>
-                  <div>
-                    <div class="modal__diff-name">WETH</div>
-                    <div class="modal__diff-addr">0xc02a…6cc2</div>
-                  </div>
-                </div>
-                <div class="modal__diff-amount modal__diff-amount--out">
-                  −2.30
-                  <span>WETH</span>
-                </div>
-              </div>
-              <div class="modal__diff-row">
-                <div class="modal__diff-asset">
-                  <span class="modal__diff-icon modal__diff-icon--in" aria-hidden="true">+</span>
-                  <div>
-                    <div class="modal__diff-name">UNI</div>
-                    <div class="modal__diff-addr">0x1f98…0984</div>
-                  </div>
-                </div>
-                <div class="modal__diff-amount modal__diff-amount--in">
-                  +0.00
-                  <span>UNI</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal__section" data-stagger="2">
-            <div class="modal__section-head">
-              <span class="modal__chip modal__chip--danger">
-                <svg viewBox="0 0 12 12" width="10" height="10" fill="none" aria-hidden="true">
-                  <rect x="2.5" y="5" width="7" height="5" rx="1" stroke="currentColor" stroke-width="1.2" />
-                  <path d="M4 5V3.5a2 2 0 014 0V5" stroke="currentColor" stroke-width="1.2" />
-                </svg>
-                EIP-712 Permit Blocker
-              </span>
-            </div>
-            <p class="modal__copy">
-              This signature grants the spender <strong>unlimited allowance</strong> to transfer your
-              USDC and WETH via a gasless <code>Permit</code>. The token amounts shown above are what
-              the attacker will drain from your wallet the instant you sign — no second transaction
-              required.
-            </p>
-          </div>
-
-          <div class="modal__section" data-stagger="3">
-            <div class="modal__section-head">
-              <span class="modal__chip modal__chip--warn">
-                <svg viewBox="0 0 12 12" width="10" height="10" fill="none" aria-hidden="true">
-                  <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2" />
-                  <circle cx="6" cy="6" r="1.5" fill="currentColor" />
-                  <path d="M6 3.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-                </svg>
-                Reputation Radar
-              </span>
-            </div>
-            <ul class="modal__flags">
-              <li><span class="modal__flag-dot"></span>Domain registered <strong>2 days ago</strong></li>
-              <li><span class="modal__flag-dot"></span>Cyrillic <strong>«а»</strong> in <em>uniswаpp</em> (homoglyph)</li>
-              <li><span class="modal__flag-dot"></span>Clustered with <strong>Pink Drainer</strong> infrastructure</li>
-              <li><span class="modal__flag-dot"></span>No presence on Etherscan / GoPlus / Chainabuse</li>
-            </ul>
-          </div>
-
-          <div class="modal__section" data-stagger="4">
-            <div class="modal__section-head">
-              <span class="modal__chip modal__chip--info">
-                <svg viewBox="0 0 12 12" width="10" height="10" fill="none" aria-hidden="true">
-                  <rect x="2" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2" />
-                  <path d="M4 5h4M4 7h4M4 9h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-                </svg>
-                Transaction Capabilities
-              </span>
-            </div>
-            <div class="modal__caps">
-              <div class="modal__cap">
-                <span class="modal__cap-name">Permit</span>
-                <span class="modal__cap-risk modal__cap-risk--high">high</span>
-              </div>
-              <div class="modal__cap">
-                <span class="modal__cap-name">TransferFrom</span>
-                <span class="modal__cap-risk modal__cap-risk--high">high</span>
-              </div>
-              <div class="modal__cap">
-                <span class="modal__cap-name">setApprovalForAll</span>
-                <span class="modal__cap-risk modal__cap-risk--med">med</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal__actions" data-stagger="5">
-            <button class="btn btn--danger btn--full" data-close>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-              </svg>
-              <span>Block & Stay Safe</span>
-            </button>
-            <button class="btn btn--ghost btn--small" data-close>Proceed anyway</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ FEATURES ============ -->
-    <section class="features" id="features">
-      <div class="section__container">
-        <header class="section__header" data-reveal>
-          <div class="section__label">
-            <span class="section__label-dot" aria-hidden="true"></span>
-            <span>Capabilities</span>
-          </div>
-          <h2 class="section__title">
-            A full security layer<br />that <em>thinks</em> before you sign
-          </h2>
-          <p class="section__subtitle">
-            Every primitive runs locally in your browser. No data leaves your machine.
-            No accounts. No telemetry.
-          </p>
-        </header>
-
-        <div class="features__grid">
-          <article class="feature-card" data-reveal>
-            <div class="feature-card__inner">
-              <div class="feature-card__head">
-                <div class="feature-card__icon">
-                  <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                    <path d="M4 24V14M10 24V10M16 24V6M22 24V12M28 24V16"
-                          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                    <circle cx="28" cy="16" r="2" fill="currentColor" />
-                    <circle cx="16" cy="6" r="2" fill="currentColor" />
-                    <circle cx="10" cy="10" r="2" fill="currentColor" />
-                  </svg>
-                </div>
-                <span class="feature-card__tag">Engine</span>
-              </div>
-              <h3 class="feature-card__title">Asset Diff Engine</h3>
-              <p class="feature-card__text">
-                Static analysis of every state-changing call — surfacing exact token deltas
-                before you commit. Know precisely what leaves your wallet, and what comes back.
-              </p>
-              <div class="feature-card__code">
-                <span class="feature-card__code-dot"></span>
-                <code>trace_transfer(state_diff)</code>
-              </div>
-            </div>
-            <div class="feature-card__glow" aria-hidden="true"></div>
-          </article>
-
-          <article class="feature-card" data-reveal>
-            <div class="feature-card__inner">
-              <div class="feature-card__head">
-                <div class="feature-card__icon">
-                  <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                    <rect x="6" y="11" width="20" height="14" rx="2.5" stroke="currentColor" stroke-width="1.5" />
-                    <path d="M12 15V9a4 4 0 018 0v6" stroke="currentColor" stroke-width="1.5" />
-                    <circle cx="16" cy="18" r="1.5" fill="currentColor" />
-                    <line x1="16" y1="19" x2="16" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                  </svg>
-                </div>
-                <span class="feature-card__tag">Shield</span>
-              </div>
-              <h3 class="feature-card__title">EIP-712 Permit Blocker</h3>
-              <p class="feature-card__text">
-                Intercepts gasless <code>Permit</code> signatures — the preferred weapon of modern
-                wallet drainers. Stops unlimited allowances before they're signed.
-              </p>
-              <div class="feature-card__code">
-                <span class="feature-card__code-dot"></span>
-                <code>intercept(typed_data, EIP712Domain)</code>
-              </div>
-            </div>
-            <div class="feature-card__glow" aria-hidden="true"></div>
-          </article>
-
-          <article class="feature-card" data-reveal>
-            <div class="feature-card__inner">
-              <div class="feature-card__head">
-                <div class="feature-card__icon">
-                  <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                    <circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.5" />
-                    <circle cx="16" cy="16" r="6" stroke="currentColor" stroke-width="1.2" opacity="0.5" />
-                    <circle cx="16" cy="16" r="1.8" fill="currentColor" />
-                    <path d="M16 2v4M16 26v4M2 16h4M26 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                  </svg>
-                </div>
-                <span class="feature-card__tag">Radar</span>
-              </div>
-              <h3 class="feature-card__title">Reputation Radar</h3>
-              <p class="feature-card__text">
-                Instant overlay on phishing domains, lookalike URLs, and known drainer
-                clusters — with homoglyph and IDN attack detection built in.
-              </p>
-              <div class="feature-card__code">
-                <span class="feature-card__code-dot"></span>
-                <code>resolve(ens, punycode, age_days)</code>
-              </div>
-            </div>
-            <div class="feature-card__glow" aria-hidden="true"></div>
-          </article>
-
-          <article class="feature-card" data-reveal>
-            <div class="feature-card__inner">
-              <div class="feature-card__head">
-                <div class="feature-card__icon">
-                  <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                    <rect x="6" y="6" width="20" height="20" rx="2" stroke="currentColor" stroke-width="1.5" />
-                    <path d="M10 11h12M10 15h12M10 19h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.55" />
-                    <circle cx="24" cy="6" r="3.5" fill="#0c0c0f" stroke="currentColor" stroke-width="1.5" />
-                    <path d="M22.5 6h3M24 4.5v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-                  </svg>
-                </div>
-                <span class="feature-card__tag">Decode</span>
-              </div>
-              <h3 class="feature-card__title">Transaction Capabilities</h3>
-              <p class="feature-card__text">
-                Decodes calldata and surfaces hidden rights — <code>setApprovalForAll</code>,
-                <code>setOwner</code>, and other footguns tucked inside routine approvals.
-              </p>
-              <div class="feature-card__code">
-                <span class="feature-card__code-dot"></span>
-                <code>decode(calldata, abi, proxy)</code>
-              </div>
-            </div>
-            <div class="feature-card__glow" aria-hidden="true"></div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ COMPARE ============ -->
-    <section class="compare" id="compare">
-      <div class="section__container">
-        <header class="section__header" data-reveal>
-          <div class="section__label">
-            <span class="section__label-dot" aria-hidden="true"></span>
-            <span>How we compare</span>
-          </div>
-          <h2 class="section__title">
-            WalletGuard Pro vs the alternatives<br />
-            <em>the security stack you actually want</em>
-          </h2>
-          <p class="section__subtitle">
-            Local-first inspection beats API-based simulation &mdash; for speed,
-            privacy, and uptime when the third-party servers go down.
-          </p>
-        </header>
-
-        <div class="compare__table-wrap" data-reveal>
-          <table class="compare__table">
-            <thead>
-              <tr>
-                <th class="compare__th compare__th--feature" scope="col">Capability</th>
-                <th class="compare__th compare__th--wg" scope="col">
-                  <span class="compare__brand">WalletGuard Pro</span>
-                  <span class="compare__brand-sub">v1.5.1 · open source</span>
-                </th>
-                <th class="compare__th" scope="col">Pocket Universe<sup>*</sup></th>
-                <th class="compare__th" scope="col">Stelo<sup>**</sup></th>
-                <th class="compare__th" scope="col">Fire<sup>**</sup></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th class="compare__row-label" scope="row">Intercepts every transaction before signing</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">Zero API keys &mdash; uses your wallet's own RPC</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">Calldata decoded (Universal Router, Multicall, Permit)</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--partial" aria-label="partial"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">Recursive Multicall V1/V2/V3 decoding</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span><span class="compare__hint">4 levels</span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">Phishing overlay on known-drainer domains</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">Typosquatting detection (Levenshtein + IDN homoglyph)</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">NFT approval scanner (setApprovalForAll)</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">Multi-chain approval scanner</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span><span class="compare__hint">9 chains</span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--partial" aria-label="partial"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">Open source (MIT, auditable, forkable)</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-              </tr>
-              <tr>
-                <th class="compare__row-label" scope="row">No backend &mdash; purely client-side</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-              </tr>
-              <tr class="compare__row--meta">
-                <th class="compare__row-label" scope="row">Actively maintained</th>
-                <td class="compare__cell compare__cell--wg"><span class="compare__mark compare__mark--yes" aria-label="yes"></span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--yes" aria-label="yes"></span><span class="compare__hint">via MetaMask (MySim)</span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span><span class="compare__hint">shut down</span></td>
-                <td class="compare__cell"><span class="compare__mark compare__mark--no" aria-label="no"></span><span class="compare__hint">discontinued</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p class="compare__note" data-reveal>
-          <sup>*</sup> Pocket Universe was acquired by MetaMask in 2023 and rebranded to
-          <em>MySim</em>. Comparison reflects the Pocket Universe product line as it
-          stood before integration.<br />
-          <sup>**</sup> Stelo shut down in October 2024; Fire (De.Fi anti-hack) is no
-          longer maintained. Listed for context only.
-        </p>
-      </div>
-    </section>
-  </main>
-
-  <!-- ============ FOOTER ============ -->
-  <footer class="footer" id="install">
-    <div class="footer__glow" aria-hidden="true"></div>
-    <div class="section__container">
-      <div class="footer__cta" data-reveal>
-        <div class="footer__cta-eyebrow">
-          <span class="footer__cta-pulse" aria-hidden="true"></span>
-          <span>One click. Zero cost. Yours forever.</span>
-        </div>
-        <h2 class="footer__cta-title">
-          Don't be the next statistic.
-          <span class="footer__cta-accent">Install WalletGuard Pro.</span>
-        </h2>
-        <div class="footer__cta-actions">
-          <a href="#" class="btn btn--primary btn--large">
-            <span>Add to Chrome — Free</span>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
-          <div class="footer__cta-meta">
-            <span>Works on Chrome · Brave · Edge · Arc</span>
-            <span class="footer__cta-sep" aria-hidden="true">·</span>
-            <span>MIT licensed</span>
-            <span class="footer__cta-sep" aria-hidden="true">·</span>
-            <span>No account required</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer__bottom">
-        <a href="#hero" class="footer__brand" aria-label="WalletGuard Pro — Back to top">
-          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-            <path d="M16 3L5 8v8c0 7.5 5 13 11 14 6-1 11-6.5 11-14V8L16 3z"
-                  stroke="currentColor" stroke-width="1.5" fill="none" />
-            <path d="M16 10.5l-4 4 4 4 4-4-4-4z" fill="currentColor" opacity="0.6" />
-          </svg>
-          <span>WalletGuard <em>Pro</em></span>
+      <h1 class="hero__title" data-reveal>
+        The security layer<br>
+        every Web3 wallet<br>
+        <span class="hero__title-accent">needs.</span>
+      </h1>
+      <p class="hero__sub" data-reveal>
+        Intercept transactions, decode calldata, detect drainers and phishing.
+        Catch unlimited approvals before they drain your wallet. Free, MIT licensed,
+        zero API keys required.
+      </p>
+      <div class="hero__actions" data-reveal>
+        <a href="#install" class="btn btn--primary">
+          <span>Add to Chrome</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-
-        <nav class="footer__links" aria-label="Footer">
-          <a href="https://github.com/yourname/walletguard-pro" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://chromewebstore.google.com/" target="_blank" rel="noopener noreferrer">Chrome Web Store</a>
-          <a href="./PRIVACY.md">Privacy</a>
-          <a href="./THREAT_MODEL.md">Threat Model</a>
-          <a href="./SECURITY.md">Security</a>
-          <a href="./LICENSE">MIT License</a>
-          <a href="mailto:hello@example.com">Contact</a>
-        </nav>
-
-        <div class="footer__copy">
-          © 2026 WalletGuard Pro · Open source · MIT licensed
+        <a href="#features" class="btn btn--ghost">
+          <span>Explore features</span>
+        </a>
+      </div>
+      <div class="hero__trust" data-reveal>
+        <div class="hero__trust-item">
+          <span class="hero__trust-num">23</span>
+          <span class="hero__trust-label">protection<br>layers</span>
+        </div>
+        <div class="hero__trust-divider"></div>
+        <div class="hero__trust-item">
+          <span class="hero__trust-num">13</span>
+          <span class="hero__trust-label">chains<br>covered</span>
+        </div>
+        <div class="hero__trust-divider"></div>
+        <div class="hero__trust-item">
+          <span class="hero__trust-num">6</span>
+          <span class="hero__trust-label">languages<br>supported</span>
         </div>
       </div>
     </div>
-  </footer>
+    <div class="hero__visual" id="hero-visual">
+      <!-- Animated 3D shield -->
+      <div class="shield-stage">
+        <div class="shield-orbit shield-orbit--1">
+          <div class="shield-orbit__node"></div>
+        </div>
+        <div class="shield-orbit shield-orbit--2">
+          <div class="shield-orbit__node"></div>
+        </div>
+        <div class="shield-orbit shield-orbit--3">
+          <div class="shield-orbit__node"></div>
+        </div>
 
-  <script src="script.js" defer></script>
+        <div class="shield" id="shield">
+          <svg viewBox="0 0 200 200" class="shield__svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="shieldFill" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="rgba(16,185,129,0.12)"/>
+                <stop offset="50%" stop-color="rgba(16,185,129,0.04)"/>
+                <stop offset="100%" stop-color="rgba(16,185,129,0.08)"/>
+              </linearGradient>
+              <linearGradient id="shieldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#34D399"/>
+                <stop offset="100%" stop-color="#10B981"/>
+              </linearGradient>
+              <filter id="shieldGlow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <!-- Outer hex rings -->
+            <polygon points="100,10 180,55 180,145 100,190 20,145 20,55" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <polygon points="100,30 160,65 160,135 100,170 40,135 40,65" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <!-- Main shield -->
+            <path d="M100 40 L155 65 L155 115 Q155 145 100 165 Q45 145 45 115 L45 65 Z" fill="url(#shieldFill)" stroke="url(#shieldStroke)" stroke-width="2" filter="url(#shieldGlow)"/>
+            <!-- Inner checkmark -->
+            <path d="M75 100 L92 117 L130 79" fill="none" stroke="url(#shieldStroke)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#shieldGlow)"/>
+            <!-- Inner detail lines -->
+            <path d="M60 90 L75 90 M125 90 L140 90" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <path d="M60 110 L75 110 M125 110 L140 110" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <!-- Data stream particles -->
+        <div class="data-stream" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <!-- Floating data points -->
+        <div class="data-point data-point--1">
+          <span class="data-point__label">risk</span>
+          <span class="data-point__value">12</span>
+        </div>
+        <div class="data-point data-point--2">
+          <span class="data-point__label">tx</span>
+          <span class="data-point__value">sim</span>
+        </div>
+        <div class="data-point data-point--3">
+          <span class="data-point__label">0x..a3f8</span>
+          <span class="data-point__value">safe</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero__scroll" aria-hidden="true">
+    <span></span>
+  </div>
+</section>
+
+<!-- Trusted by -->
+<section class="trusted">
+  <div class="trusted__inner">
+    <p class="trusted__label">Built for serious Web3 users</p>
+    <div class="trusted__grid">
+      <div class="trusted__item">
+        <span class="trusted__num">$4.1B</span>
+        <span class="trusted__caption">stolen in 2024 (Chainalysis)</span>
+      </div>
+      <div class="trusted__divider"></div>
+      <div class="trusted__item">
+        <span class="trusted__num">332K</span>
+        <span class="trusted__caption">unique phishing URLs in 2024</span>
+      </div>
+      <div class="trusted__divider"></div>
+      <div class="trusted__item">
+        <span class="trusted__num">63%</span>
+        <span class="trusted__caption">of attacks via signed approvals</span>
+      </div>
+      <div class="trusted__divider"></div>
+      <div class="trusted__item">
+        <span class="trusted__num">0</span>
+        <span class="trusted__caption">API keys required</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive demo -->
+<section class="demo" id="demo">
+  <div class="demo__inner">
+    <div class="section__header" data-reveal>
+      <span class="section__eyebrow">How it works</span>
+      <h2 class="section__title">A drainer doesn't get<br>your signature.</h2>
+      <p class="section__sub">Every transaction is intercepted, decoded, simulated, and scored before it reaches your wallet. If anything smells off, you see it first.</p>
+    </div>
+
+    <div class="demo__stage" id="demo-stage">
+      <!-- Browser mockup -->
+      <div class="browser" data-demo-browser>
+        <div class="browser__chrome">
+          <div class="browser__dots"><span></span><span></span><span></span></div>
+          <div class="browser__url" data-demo-url>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <span data-demo-url-text>https://uniswаp.org/claim</span>
+          </div>
+        </div>
+        <div class="browser__body">
+          <div class="demo-page">
+            <div class="demo-page__hero">
+              <span class="demo-page__title">Claim your UNI airdrop</span>
+              <span class="demo-page__sub">Connect wallet to receive 1,247 UNI</span>
+            </div>
+            <div class="demo-page__btn">Connect Wallet</div>
+          </div>
+
+          <!-- Warning overlay -->
+          <div class="warning" data-demo-warning>
+            <div class="warning__icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="warning__body">
+              <div class="warning__title">Phishing site detected</div>
+              <div class="warning__desc">
+                <strong>unisw<span class="text-cyrillic">а</span>p.org</strong> uses a Cyrillic 'а' to impersonate <strong>uniswap.org</strong>.
+              </div>
+              <div class="warning__meta">
+                <span class="warning__chip warning__chip--danger">Critical</span>
+                <span class="warning__chip">Domain spoofing</span>
+                <span class="warning__chip">Typosquatting</span>
+              </div>
+            </div>
+            <div class="warning__action">
+              <div class="warning__score">
+                <span class="warning__score-num">87</span>
+                <span class="warning__score-label">risk score</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sim receipt -->
+      <div class="receipt" data-demo-receipt>
+        <div class="receipt__header">
+          <span class="receipt__title">Last simulation</span>
+          <span class="receipt__time">just now</span>
+        </div>
+        <div class="receipt__rows">
+          <div class="receipt__row">
+            <span class="receipt__row-label">Method</span>
+            <span class="receipt__row-value">setApprovalForAll</span>
+          </div>
+          <div class="receipt__row">
+            <span class="receipt__row-label">Spender</span>
+            <span class="receipt__row-value receipt__row-value--mono">0x4d9f…3a7b</span>
+          </div>
+          <div class="receipt__row">
+            <span class="receipt__row-label">Risk</span>
+            <span class="receipt__row-value receipt__row-value--danger">CRITICAL</span>
+          </div>
+          <div class="receipt__row">
+            <span class="receipt__row-label">Verdict</span>
+            <span class="receipt__row-value">Block signing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features" id="features">
+  <div class="features__inner">
+    <div class="section__header" data-reveal>
+      <span class="section__eyebrow">What it catches</span>
+      <h2 class="section__title">Twenty-three layers<br>between you and a drain.</h2>
+      <p class="section__sub">Every known Web3 attack surface, monitored in real time. Local-first. No account. No telemetry.</p>
+    </div>
+
+    <div class="features__grid">
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <h3 class="feature-card__title">Phishing detection</h3>
+        <p class="feature-card__desc">Visual fingerprinting of 17+ legitimate dApps. Detects pixel-perfect clones and typosquatted domains (Cyrillic, Greek, zero-width homoglyphs).</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </div>
+        <h3 class="feature-card__title">Transaction simulation</h3>
+        <p class="feature-card__desc">Runs your tx against <code>eth_call</code> before signing. Catches reverts, estimates exact Uniswap V3 output, classifies the error.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <h3 class="feature-card__title">Approval scanner</h3>
+        <p class="feature-card__desc">Reads every active token approval across 13 chains. Highlights unlimited allowances, stale grants, and unknown spenders.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        </div>
+        <h3 class="feature-card__title">Threat intelligence</h3>
+        <p class="feature-card__desc">24 curated threats built in. Opt-in community feed updates weekly. Ed25519-signed manifests from GitHub.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 12l3-3 4 4 5-5"/></svg>
+        </div>
+        <h3 class="feature-card__title">Behavioral DNA</h3>
+        <p class="feature-card__desc">Learns your normal transaction shape. Flags deviations in amount, recipient patterns, or timing that don't match you.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        </div>
+        <h3 class="feature-card__title">Auto-revoke</h3>
+        <p class="feature-card__desc">Generate revoke calldata for stale or dangerous approvals. You sign, WalletGuard never holds keys or signs for you.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3 class="feature-card__title">Real-time protection</h3>
+        <p class="feature-card__desc">Every <code>eth_sendTransaction</code> is intercepted at the provider level. No popup to remember. Protection is automatic.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3 class="feature-card__title">13-chain coverage</h3>
+        <p class="feature-card__desc">Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia, zkSync, Linea, Blast, Mode. Single scan, parallel RPC.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        </div>
+        <h3 class="feature-card__title">EIP-7702 ready</h3>
+        <p class="feature-card__desc">Detects post-Pectra delegation abuse. Flags wallet-becomes-spender patterns before they drain you.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3 class="feature-card__title">Drainer detector</h3>
+        <p class="feature-card__desc">10 known drainer selectors. 6 risk patterns. Bytecode fingerprint registry. Catches new variants via pattern matching.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>
+        </div>
+        <h3 class="feature-card__title">MEV protection</h3>
+        <p class="feature-card__desc">Detects sandwich attack setup. Flags known MEV bot recipients and excessive slippage tolerance.</p>
+      </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3 class="feature-card__title">Hardware wallet rules</h3>
+        <p class="feature-card__desc">5 strict enforcement rules for Ledger, Trezor, GridPlus, Keystone. Verifies recipient matches before signing.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Security engine -->
+<section class="engine" id="engine">
+  <div class="engine__inner">
+    <div class="engine__content">
+      <div class="section__header" data-reveal>
+        <span class="section__eyebrow">The engine</span>
+        <h2 class="section__title">Local-first.<br>Open architecture.</h2>
+        <p class="section__sub">23 protection layers run in your browser. No data leaves your machine. Every heuristic is documented in source.</p>
+      </div>
+
+      <div class="engine__layers" data-reveal>
+        <div class="engine__layer">
+          <span class="engine__layer-num">01</span>
+          <div class="engine__layer-body">
+            <h4>Typosquat detector</h4>
+            <p>Cyrillic, Greek, zero-width homoglyphs. Levenshtein distance against 53+ trusted domains.</p>
+          </div>
+        </div>
+        <div class="engine__layer">
+          <span class="engine__layer-num">02</span>
+          <div class="engine__layer-body">
+            <h4>Visual phishing</h4>
+            <p>DOM fingerprinting + perceptual hash against known-good sites. Catches pixel-perfect clones.</p>
+          </div>
+        </div>
+        <div class="engine__layer">
+          <span class="engine__layer-num">03</span>
+          <div class="engine__layer-body">
+            <h4>Multicall decoder</h4>
+            <p>Unwraps nested multicalls. Reveals hidden approve + transferFrom + setApprovalForAll chains.</p>
+          </div>
+        </div>
+        <div class="engine__layer">
+          <span class="engine__layer-num">04</span>
+          <div class="engine__layer-body">
+            <h4>Universal Router</h4>
+            <p>Decodes Uniswap Universal Router commands. Flags unknown commands and unlimited approvals.</p>
+          </div>
+        </div>
+        <div class="engine__layer">
+          <span class="engine__layer-num">05</span>
+          <div class="engine__layer-body">
+            <h4>Risk engine</h4>
+            <p>Composite scoring across address reputation, method risk, MEV exposure, drainer patterns.</p>
+          </div>
+        </div>
+        <div class="engine__layer">
+          <span class="engine__layer-num">06</span>
+          <div class="engine__layer-body">
+            <h4>Simulator</h4>
+            <p><code>eth_call</code> against your wallet's RPC. Exact Uniswap V3 output via Quoter V2.</p>
+          </div>
+        </div>
+        <div class="engine__layer">
+          <span class="engine__layer-num">07</span>
+          <div class="engine__layer-body">
+            <h4>MEV detector</h4>
+            <p>12 known bot addresses. Sandwich bait heuristics. Mempool exposure scoring.</p>
+          </div>
+        </div>
+        <div class="engine__layer">
+          <span class="engine__layer-num">08</span>
+          <div class="engine__layer-body">
+            <h4>Revoke generator</h4>
+            <p>Produces signed-cancel calldata. You sign in your own wallet. WalletGuard never holds keys.</p>
+          </div>
+        </div>
+        <div class="engine__layer engine__layer--more">
+          <span class="engine__layer-num">+</span>
+          <div class="engine__layer-body">
+            <h4>15 more layers</h4>
+            <p>EIP-7702, session keys, threat feed, wallet DNA, drainer patterns, Safe multisig, address book, hardware rules, AI cache, i18n, decoder, explain, capabilities.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="how">
+  <div class="how__inner">
+    <div class="section__header" data-reveal>
+      <span class="section__eyebrow">How it works</span>
+      <h2 class="section__title">Three steps.<br>Zero configuration.</h2>
+    </div>
+    <div class="how__steps">
+      <div class="how__step" data-reveal>
+        <div class="how__step-num">01</div>
+        <div class="how__step-marker"></div>
+        <h3>Install</h3>
+        <p>Add to Chrome. No account, no email, no signup. Opens with zero configuration — defaults are safe.</p>
+      </div>
+      <div class="how__step" data-reveal>
+        <div class="how__step-num">02</div>
+        <div class="how__step-marker"></div>
+        <h3>Browse</h3>
+        <p>Use any dApp as usual. Every transaction, signature, and approval is intercepted before your wallet sees it.</p>
+      </div>
+      <div class="how__step" data-reveal>
+        <div class="how__step-num">03</div>
+        <div class="how__step-marker"></div>
+        <h3>Stay protected</h3>
+        <p>Risky transactions are blocked. Safe ones pass through silently. You see a clear risk score and explanation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Compare -->
+<section class="compare" id="compare">
+  <div class="compare__inner">
+    <div class="section__header" data-reveal>
+      <span class="section__eyebrow">Compare</span>
+      <h2 class="section__title">More layers.<br>More chains.<br>Zero lock-in.</h2>
+    </div>
+    <div class="compare__table" data-reveal>
+      <div class="compare__row compare__row--head">
+        <div class="compare__cell compare__cell--feature">Feature</div>
+        <div class="compare__cell compare__cell--us">WalletGuard Pro</div>
+        <div class="compare__cell">Pocket Universe</div>
+        <div class="compare__cell">Rabby</div>
+        <div class="compare__cell">MetaMask</div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">Phishing detection</div>
+        <div class="compare__cell compare__cell--us"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--partial"></span></div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">Transaction simulation</div>
+        <div class="compare__cell compare__cell--us"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">13-chain approval scan</div>
+        <div class="compare__cell compare__cell--us"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">EIP-7702 detection</div>
+        <div class="compare__cell compare__cell--us"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--partial"></span></div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">Wallet DNA learning</div>
+        <div class="compare__cell compare__cell--us"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">Signed threat feed</div>
+        <div class="compare__cell compare__cell--us"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--partial"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--yes"></span></div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">Open source</div>
+        <div class="compare__cell compare__cell--us"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--yes"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">API key required</div>
+        <div class="compare__cell compare__cell--us"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+        <div class="compare__cell"><span class="check check--no"></span></div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell compare__cell--feature">Price</div>
+        <div class="compare__cell compare__cell--us">Free</div>
+        <div class="compare__cell">Acquired</div>
+        <div class="compare__cell">Free</div>
+        <div class="compare__cell">Free</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Open source -->
+<section class="opensource">
+  <div class="opensource__inner">
+    <div class="opensource__left" data-reveal>
+      <span class="section__eyebrow">Open source</span>
+      <h2 class="section__title">Every line of code<br>is public.</h2>
+      <p class="section__sub">MIT licensed. 794 tests pass on every commit. Audit-ready. No obfuscation, no closed-source binaries.</p>
+      <div class="opensource__actions">
+        <a href="https://github.com/eupho808/walletguard-pro" class="btn btn--primary">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          <span>View on GitHub</span>
+        </a>
+        <a href="../SELF_AUDIT.md" class="btn btn--ghost">Read self-audit</a>
+      </div>
+    </div>
+    <div class="opensource__right" data-reveal>
+      <div class="opensource__stat">
+        <span class="opensource__stat-num">794</span>
+        <span class="opensource__stat-label">tests passing</span>
+      </div>
+      <div class="opensource__stat">
+        <span class="opensource__stat-num">21</span>
+        <span class="opensource__stat-label">test suites</span>
+      </div>
+      <div class="opensource__stat">
+        <span class="opensource__stat-num">23</span>
+        <span class="opensource__stat-label">lib modules</span>
+      </div>
+      <div class="opensource__stat">
+        <span class="opensource__stat-num">MIT</span>
+        <span class="opensource__stat-label">license</span>
+      </div>
+      <div class="opensource__stat">
+        <span class="opensource__stat-num">0</span>
+        <span class="opensource__stat-label">dependencies</span>
+      </div>
+      <div class="opensource__stat">
+        <span class="opensource__stat-num">100%</span>
+        <span class="opensource__stat-label">client-side</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="faq__inner">
+    <div class="section__header" data-reveal>
+      <span class="section__eyebrow">Questions</span>
+      <h2 class="section__title">Everything you might ask.</h2>
+    </div>
+    <div class="faq__list" data-reveal>
+      <details class="faq__item">
+        <summary>Is it really free? What's the catch?</summary>
+        <p>Yes, free. MIT licensed. The catch is that the AI cache uses OpenRouter if you enable it — that's optional, has its own free tier, and only runs on addresses you explicitly check. Everything else (phishing, simulation, drainer detection, MEV, EIP-7702, approvals) runs 100% locally with zero API keys.</p>
+      </details>
+      <details class="faq__item">
+        <summary>How is this different from MetaMask's built-in alerts?</summary>
+        <p>MetaMask uses Blockaid (closed-source, paid) and only shows alerts after the user confirms. WalletGuard intercepts <em>before</em> the wallet sees the transaction, decodes the calldata, runs simulation, checks 13 chains for existing approvals, scores against 23 layers — and shows you a full receipt. MetaMask shows a generic popup. We show what the transaction actually does.</p>
+      </details>
+      <details class="faq__item">
+        <summary>Does it work with my wallet?</summary>
+        <p>Yes — MetaMask, Rabby, Phantom, OKX, Brave Wallet, Frame, and any wallet that implements <code>window.ethereum</code>. We wrap the provider at the RPC level; your wallet never knows we're there.</p>
+      </details>
+      <details class="faq__item">
+        <summary>Can it drain my wallet?</summary>
+        <p>No. WalletGuard never holds keys, never signs transactions, and never has custody. All it does is read public RPC data and show you warnings. The revoke generator outputs calldata that <em>you</em> sign in your own wallet.</p>
+      </details>
+      <details class="faq__item">
+        <summary>What about Ledger / Trezor / hardware wallets?</summary>
+        <p>Hardware wallets are supported with extra strict rules. We verify the recipient matches what your screen shows, flag any address substitution attempt, and require explicit confirmation for unlimited approvals.</p>
+      </details>
+      <details class="faq__item">
+        <summary>What data leaves my browser?</summary>
+        <p>Only what you explicitly send. By default: nothing. If you enable the AI cache (optional), OpenRouter sees addresses you check. If you enable the community threat feed (optional), GitHub serves you a signed manifest — no telemetry sent back.</p>
+      </details>
+      <details class="faq__item">
+        <summary>Has it been audited?</summary>
+        <p>Self-audited (full report in <code>SELF_AUDIT.md</code>). 19 bugs found and fixed during v3.2.1 → v3.3.0 cycle. External audit is the next milestone — see <code>THREAT_MODEL.md</code> for residual risks and what's in scope.</p>
+      </details>
+      <details class="faq__item">
+        <summary>Why not just use Pocket Universe?</summary>
+        <p>Pocket Universe was excellent and was acquired by MetaMask in 2023 for an estimated $5-15M. After acquisition, the standalone extension was deprecated. WalletGuard Pro is the open-source successor — same simulation engine, but 23 layers, 13 chains, EIP-7702 detection, wallet DNA, and threat feed.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final-cta" id="install">
+  <div class="final-cta__inner">
+    <div class="final-cta__glow" aria-hidden="true"></div>
+    <div class="final-cta__content">
+      <span class="section__eyebrow" data-reveal>One click</span>
+      <h2 class="final-cta__title" data-reveal>
+        Stop signing blind.<br>
+        <span class="hero__title-accent">Start signing safe.</span>
+      </h2>
+      <p class="final-cta__sub" data-reveal>Free. MIT licensed. Zero configuration. 23 protection layers active the moment you install.</p>
+      <div class="final-cta__actions" data-reveal>
+        <a href="https://chromewebstore.google.com/category/extensions" class="btn btn--primary btn--lg">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+          <span>Add to Chrome — Free</span>
+        </a>
+        <a href="https://github.com/eupho808/walletguard-pro" class="btn btn--ghost btn--lg">
+          <span>View source</span>
+        </a>
+      </div>
+      <div class="final-cta__meta" data-reveal>
+        <span>MIT licensed</span>
+        <span class="final-cta__meta-dot"></span>
+        <span>Zero telemetry</span>
+        <span class="final-cta__meta-dot"></span>
+        <span>794 tests</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <div class="footer__logo">
+        <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true">
+          <path d="M16 2L4 7v9c0 7.4 5.1 13.6 12 14 6.9-.4 12-6.6 12-14V7L16 2z" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M11 16l3.5 3.5L21 13" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>WalletGuard Pro</span>
+      </div>
+      <p class="footer__tagline">The security layer every Web3 wallet needs.</p>
+    </div>
+    <div class="footer__col">
+      <h4>Product</h4>
+      <a href="#features">Features</a>
+      <a href="#engine">Engine</a>
+      <a href="#compare">Compare</a>
+      <a href="../CHANGELOG.md">Changelog</a>
+    </div>
+    <div class="footer__col">
+      <h4>Resources</h4>
+      <a href="../README.md">Documentation</a>
+      <a href="../THREAT_MODEL.md">Threat model</a>
+      <a href="../SELF_AUDIT.md">Self-audit</a>
+      <a href="../PRIVACY.md">Privacy</a>
+    </div>
+    <div class="footer__col">
+      <h4>Open source</h4>
+      <a href="https://github.com/eupho808/walletguard-pro">GitHub</a>
+      <a href="https://github.com/eupho808/walletguard-pro/issues">Issues</a>
+      <a href="../CONTRIBUTING.md">Contributing</a>
+      <a href="../LICENSE">MIT License</a>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <span>© 2026 WalletGuard Pro</span>
+    <span>Built with paranoia, shipped with care.</span>
+  </div>
+</footer>
+
+<script src="script.js" defer></script>
 </body>
 </html>
