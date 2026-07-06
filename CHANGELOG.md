@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.1.0] - 2026-07-06 — "CALM"
+
+### 🎨 Minimal UI redesign (all three surfaces)
+
+Replaces v3.0 STELLAR's cyberpunk aesthetic with a Linear/Stripe-grade minimal look. Same functionality, dramatically less chrome.
+
+**Design tokens** (single dark theme, no light mode toggle):
+- `--bg: #0B0B0E` (almost black)
+- `--surface: #131317` / `--surface-2: #18181D`
+- `--text: rgba(255,255,255,0.92)` / `--text-2: rgba(255,255,255,0.55)` / `--text-3: rgba(255,255,255,0.32)`
+- `--accent: #10B981` (emerald, only color besides gray)
+- `--warn: #F59E0B`, `--danger: #EF4444`
+- 1px borders `rgba(255,255,255,0.06)` separate sections (no card walls)
+- Animations capped at 180-220ms `cubic-bezier(0.4, 0, 0.2, 1)` — no spring, no pulse
+
+**Popup (`popup.html` / `popup.css` / `popup.js`):**
+- Hero Safety Score: 56px tabular-num instead of animated SVG ring
+- Section structure: topbar → score → protection checks list → activity timeline → token/NFT rows → address book → footer (1px dividers between, no card chrome)
+- Merged Security Center grid into single protection list (4 toggle checks)
+- Removed stats grid (sitesScanned/intercepted/blocked/permits) — info shown as captions
+- Removed onboarding tour overlay (was confusing for return users)
+- popup.css: 42.8K → 14K (−67%)
+
+**Settings (`settings.html` / `settings.css`):**
+- Removed decorative background blobs (cyan/blue radial gradients)
+- Removed glass cards + colored icon boxes
+- Flat sections with 1px dividers, plain titles
+- Plain iOS-style toggle (no spring), single emerald when on
+- Chain list: inline mono text instead of glowing chips
+- Removed "Replay onboarding tour" button (feature deleted)
+- settings.css: 17.3K → 7.5K (−57%)
+
+**Overlay (`content.js` OVERLAY_CSS):**
+- Removed all linear/radial gradients from modal/header/buttons/factor rows/domain warnings
+- Removed backdrop-filter blur (opaque backdrop now)
+- Removed pulsing danger button (just hover background change)
+- Removed uppercase + letter-spacing on labels
+- Removed green 3px bar before section titles
+- Trust banner: emerald dot + emerald text (no glow)
+- Single emerald accent (`#10B981`) replaces cyan `#00FFCC` + green `#00FF88` mix
+- content.js: 255K → 252K
+
+### 🗑️ Removed
+- `test-onboarding.js` (80 tests for deleted onboarding feature)
+- `settings.section.appearance.desc` reference to "and onboarding tour"
+- Dead `replay-onboarding-btn` handler in `settings.js`
+
+### 📦 Internal
+- `popup.toast.*` / `popup.addressBook.*` / `popup.permissions.*` / `popup.footer.*` / `popup.revoke.*` — 24 new i18n keys across en/ru/es/zh
+- All 4 locales remain balanced (same key sets)
+- 727 tests pass across 18 suites
+- Build clean
+
+---
+
 ## [3.0.0] - 2026-07-06 — "STELLAR"
 
 ### 🎨 Complete UI redesign (popup + overlay + settings)
