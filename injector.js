@@ -332,6 +332,24 @@
   installProxy();
   document.addEventListener("DOMContentLoaded", installProxy);
 
+  // Some wallets (Brave, OKX, Rabby on certain dApps) inject their provider
+  // via a separate content script AFTER the page's own DOMContentLoaded fires.
+  // For those cases the one-shot DOMContentLoaded listener above is too early.
+  // We poll for up to 30s — most wallets appear within 5s.
+  (function watchForLateProvider() {
+    if (window.ethereum && window.ethereum.isWalletGuard) return;
+    let attempts = 0;
+    const handle = setInterval(() => {
+      attempts++;
+      if (window.ethereum && !window.ethereum.isWalletGuard) {
+        installProxy();
+      }
+      if (window.ethereum && window.ethereum.isWalletGuard || attempts >= 30) {
+        clearInterval(handle);
+      }
+    }, 1000);
+  })();
+
   // ------------------------------------------------------------
   // RPC bridge: ISOLATED-world content script -> MAIN-world provider
   //
@@ -370,6 +388,12 @@
       }));
     };
 
+    // Lazy check: the wallet may have injected after our initial pass.
+    // Re-attempt to wrap it on every RPC call so we don't permanently
+    // miss late-injecting wallets (Brave, OKX, some Rabby configs).
+    if (!providerAvailable || !originalRequest) {
+      installProxy();
+    }
     if (!providerAvailable || !originalRequest) {
       reply({ error: "no wallet provider available" });
       return;

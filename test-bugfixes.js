@@ -407,6 +407,144 @@ it("injector.js installProxy no longer installs a mock provider", () => {
 });
 
 // ============================================================
+// Bug #14: installProxy only ran on script load + DOMContentLoaded.
+// Wallets that inject later (Brave, OKX, some Rabby configs) via a
+// separate content script AFTER the page's DOMContentLoaded fired
+// would never get wrapped, so every RPC call via the bridge returned
+// 'no wallet provider available' permanently.
+// ============================================================
+section("Bug #14: late-injecting wallet");
+
+it("injector.js polls for a late-injecting wallet", () => {
+  const js = read("injector.js");
+  // Must have a setInterval-based watcher that calls installProxy()
+  // repeatedly until the wallet shows up or a timeout is reached.
+  assert(/setInterval/.test(js), "must use setInterval to poll");
+  assert(/watchForLateProvider/.test(js), "must declare a polling watcher");
+});
+
+it("injector.js RPC bridge re-attempts installProxy on every call", () => {
+  const js = read("injector.js");
+  // The bridge must call installProxy() if providerAvailable is false,
+  // rather than permanently failing.
+  const bridge = js.match(/addEventListener\("WalletGuardRpcCall"[\s\S]*?\n\s\s\}\);/);
+  assert(bridge, "WalletGuardRpcCall handler must exist");
+  const body = bridge[0];
+  assert(/providerAvailable/.test(body) && /installProxy/.test(body),
+    "bridge must check providerAvailable and call installProxy() to recover");
+});
+
+it("injector.js watcher self-stops when wallet is found OR after 30 attempts", () => {
+  const js = read("injector.js");
+  const watcher = js.match(/watchForLateProvider[\s\S]*?\}\)\(\);/);
+  assert(watcher, "watchForLateProvider IIFE must exist");
+  const body = watcher[0];
+  assert(/clearInterval/.test(body), "watcher must clearInterval when done");
+  assert(/attempts\s*>=?\s*30|attempts\s*>\s*\d+/.test(body),
+    "watcher must have an upper bound (>=30 attempts)");
+});
+
+// ============================================================
+// Bug #15: appendLog and bumpStat do read-modify-write on the same
+// storage key. Two concurrent calls (e.g. user clicks two buttons
+// quickly, or a tx is intercepted while a settings change is also
+// logging) could interleave their get / set, losing one update.
+// ============================================================
+section("Bug #15: storage write races");
+
+it("background.js has a per-key write mutex (serialized)", () => {
+  const js = read("background.js");
+  assert(/_writeChains/.test(js), "must declare per-key write chain map");
+  assert(/function serialized\s*\(/.test(js), "must declare serialized() helper");
+});
+
+it("background.js appendLog wraps its read-modify-write in serialized()", () => {
+  const js = read("background.js");
+  const fn = js.match(/async function appendLog\([\s\S]*?\n\}/);
+  assert(fn, "appendLog must exist");
+  const body = fn[0];
+  assert(/serialized\(\s*STORAGE_KEYS\.LOGS/.test(body),
+    "appendLog must serialize on LOGS key");
+});
+
+it("background.js bumpStat wraps its read-modify-write in serialized()", () => {
+  const js = read("background.js");
+  const fn = js.match(/async function bumpStat\([\s\S]*?\n\}/);
+  assert(fn, "bumpStat must exist");
+  const body = fn[0];
+  assert(/serialized\(\s*STORAGE_KEYS\.STATS/.test(body),
+    "bumpStat must serialize on STATS key");
+});
+
+it("background.js setCachedAi wraps its read-modify-write in serialized()", () => {
+  const js = read("background.js");
+  const fn = js.match(/async function setCachedAi\([\s\S]*?\n\}/);
+  assert(fn, "setCachedAi must exist");
+  const body = fn[0];
+  assert(/serialized\(\s*STORAGE_KEYS\.AI_CACHE/.test(body),
+    "setCachedAi must serialize on AI_CACHE key");
+});
+
+// Functional check: the serialized() helper actually chains promises.
+it("serialized() chains concurrent operations sequentially", async () => {
+  // Re-implement the helper here to test the algorithm in isolation.
+  const chains = new Map();
+  function serialized(key, fn) {
+    const prev = chains.get(key) || Promise.resolve();
+    const next = prev.then(() => fn(), () => fn());
+    chains.set(key, next);
+    next.finally(() => {
+      if (chains.get(key) === next) chains.delete(key);
+    });
+    return next;
+  }
+
+  // Mock chrome.storage.local that records every set call.
+  let stored = 0;
+  const calls = [];
+  const get = async () => stored;
+  const set = async (v) => { calls.push(v); stored = v; };
+
+  // Fire 50 concurrent "increment" operations - the serialized helper
+  // must run them one after another so the final value is exactly 50.
+  const ops = [];
+  for (let i = 0; i < 50; i++) {
+    ops.push(serialized("counter", async () => {
+      const cur = await get();
+      // Tiny artificial delay to widen the race window if serialization
+      // is broken.
+      await new Promise((r) => setTimeout(r, 0));
+      await set(cur + 1);
+    }));
+  }
+  await Promise.all(ops);
+  assert.strictEqual(stored, 50,
+    `Expected final counter=50 (50 serialized ++ operations), got ${stored}`);
+  assert.strictEqual(calls.length, 50, `Expected 50 set() calls, got ${calls.length}`);
+});
+
+it("serialized() recovers from a failing write", async () => {
+  // One write throws - the next queued write must still run.
+  const chains = new Map();
+  function serialized(key, fn) {
+    const prev = chains.get(key) || Promise.resolve();
+    const next = prev.then(() => fn(), () => fn());
+    chains.set(key, next);
+    next.finally(() => {
+      if (chains.get(key) === next) chains.delete(key);
+    });
+    return next;
+  }
+  const log = [];
+  await Promise.all([
+    serialized("k", () => { log.push("a"); throw new Error("boom"); }),
+    serialized("k", () => { log.push("b"); })
+  ]);
+  assert.deepStrictEqual(log, ["a", "b"],
+    "Both writes must run even if the first one throws");
+});
+
+// ============================================================
 // Helpers
 // ============================================================
 

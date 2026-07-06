@@ -96,22 +96,44 @@ async function setStorage(key, value) {
   });
 }
 
+// Per-key write mutex: chains all writes to the same key so concurrent
+// read-modify-write sequences (appendLog, bumpStat, ...) don't lose
+// updates when two async paths interleave their get/set/get/set. Lives
+// only in this SW's lifetime - on SW restart the queue is empty, but
+// any in-flight reads will see whatever the previous SW wrote.
+const _writeChains = new Map();
+function serialized(key, fn) {
+  const prev = _writeChains.get(key) || Promise.resolve();
+  // Run fn() AFTER prev settles (success or failure) so a single failing
+  // write doesn't poison the queue for everyone else.
+  const next = prev.then(() => fn(), () => fn());
+  _writeChains.set(key, next);
+  // Garbage-collect the entry once nothing else is queued behind it.
+  next.finally(() => {
+    if (_writeChains.get(key) === next) _writeChains.delete(key);
+  });
+  return next;
+}
+
 async function appendLog(message) {
   // Hard cap on message length so a single spam entry can't fill storage.
   // clampString lives in lib/storage-validators.js so it can be unit-tested.
   const safe = clampString(message, MAX_LOG_MSG_LEN);
-  const logs = await getStorage(STORAGE_KEYS.LOGS, []);
-  const entry = { time: nowIso(), message: safe };
-  logs.unshift(entry);
-  if (logs.length > MAX_LOGS) logs.length = MAX_LOGS;
-  await setStorage(STORAGE_KEYS.LOGS, logs);
+  return serialized(STORAGE_KEYS.LOGS, async () => {
+    const logs = await getStorage(STORAGE_KEYS.LOGS, []);
+    logs.unshift({ time: nowIso(), message: safe });
+    if (logs.length > MAX_LOGS) logs.length = MAX_LOGS;
+    await setStorage(STORAGE_KEYS.LOGS, logs);
+  });
 }
 
 async function bumpStat(name, delta = 1) {
-  const stats = await getStorage(STORAGE_KEYS.STATS, { ...DEFAULT_STATS });
-  stats[name] = (stats[name] || 0) + delta;
-  await setStorage(STORAGE_KEYS.STATS, stats);
-  return stats;
+  return serialized(STORAGE_KEYS.STATS, async () => {
+    const stats = await getStorage(STORAGE_KEYS.STATS, { ...DEFAULT_STATS });
+    stats[name] = (stats[name] || 0) + delta;
+    await setStorage(STORAGE_KEYS.STATS, stats);
+    return stats;
+  });
 }
 
 async function getCachedAi(address) {
@@ -123,9 +145,11 @@ async function getCachedAi(address) {
 }
 
 async function setCachedAi(address, result) {
-  const cache = await getStorage(STORAGE_KEYS.AI_CACHE, {});
-  cache[address.toLowerCase()] = { ts: Date.now(), result };
-  await setStorage(STORAGE_KEYS.AI_CACHE, cache);
+  return serialized(STORAGE_KEYS.AI_CACHE, async () => {
+    const cache = await getStorage(STORAGE_KEYS.AI_CACHE, {});
+    cache[address.toLowerCase()] = { ts: Date.now(), result };
+    await setStorage(STORAGE_KEYS.AI_CACHE, cache);
+  });
 }
 
 // ---------- INIT ----------
