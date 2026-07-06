@@ -39,16 +39,36 @@ jobs:
           node --check injector.js
           node --check approval-scanner.js
           node --check settings.js
+          # New standalone lib modules loaded as classic scripts
+          node --check lib/address-utils.js
+          node --check lib/storage-validators.js
 
-      - name: Verify ZIP packages are present
+      - name: Verify standalone lib modules ship with the ZIPs
         run: |
-          test -f walletguard-pro-v2.2.0.zip || (echo "Chrome ZIP missing" && exit 1)
-          test -f walletguard-pro-firefox-v2.2.0.zip || (echo "Firefox ZIP missing" && exit 1)
-          echo "Both ZIPs present"
-
-      - name: Verify ZIPs don't contain dev files
-        run: |
-          if unzip -l walletguard-pro-v2.2.0.zip | grep -E '(test-|\.git/|node_modules/|\.zip$)'; then
-            echo "ZIP contains dev files!" && exit 1
-          fi
-          echo "ZIP clean"
+          # The two classic-script lib modules must be in both Chrome and Firefox ZIPs
+          # (popup.html + settings.html load address-utils.js via <script src>,
+          # background.js loads storage-validators.js via importScripts).
+          VERSION=$(node -p "require('./package.json').version")
+          for zip in "walletguard-pro-${VERSION}.zip" \
+                     "walletguard-pro-firefox-${VERSION}.zip"; do
+            if [ ! -f "$zip" ]; then
+              echo "::warning::$zip not built yet (run npm run build:chrome:pack / build:firefox:pack locally)"
+              continue
+            fi
+            echo "Checking $zip..."
+            # Must contain the 2 standalone lib modules
+            if ! unzip -l "$zip" | grep -q "lib/address-utils.js"; then
+              echo "ERROR: $zip missing lib/address-utils.js"
+              exit 1
+            fi
+            if ! unzip -l "$zip" | grep -q "lib/storage-validators.js"; then
+              echo "ERROR: $zip missing lib/storage-validators.js"
+              exit 1
+            fi
+            # Must NOT contain dev cruft
+            if unzip -l "$zip" | grep -E '(test-|\.git/|node_modules/|build\.js$|build-chrome-pack\.js$|build-firefox-pack\.js$|\.zip$)'; then
+              echo "ERROR: $zip contains dev files!"
+              exit 1
+            fi
+          done
+          echo "Both ZIPs contain required lib files and no dev cruft"
