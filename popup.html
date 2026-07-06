@@ -6,251 +6,304 @@
     <title data-i18n="popup.title">WalletGuard Pro Dashboard</title>
     <link rel="stylesheet" href="popup.css">
 </head>
-<body>
+<body class="wg-theme-dark">
 
-    <div class="container" id="main-container">
+    <div class="wg-container" id="main-container">
 
         <!-- HEADER -->
-        <div class="header">
-            <div class="logo-area">
-                <div class="status-dot" id="status-dot"></div>
-                <h1 class="logo-text">WalletGuard Pro</h1>
+        <header class="wg-header">
+            <div class="wg-header__brand">
+                <span class="wg-status-dot" id="status-dot" aria-hidden="true"></span>
+                <h1 class="wg-header__title">WalletGuard <span class="wg-header__title-accent">Pro</span></h1>
             </div>
-            <div class="radar-badge" id="status-badge" data-i18n="popup.header.active">ACTIVE</div>
-        </div>
+            <div class="wg-header__actions">
+                <span class="wg-badge wg-badge--pulse" id="status-badge" data-i18n="popup.header.active">ACTIVE</span>
+            </div>
+        </header>
 
         <!-- SCORE CARD -->
-        <div class="score-card">
-            <div class="section-title" data-i18n="popup.score.label">Wallet Safety Score</div>
-            <div class="score-display">
-                <span class="score-main" id="wallet-score">--</span>
-                <span class="score-total">/100</span>
+        <section class="wg-card wg-card--elevated wg-score-card" aria-label="Wallet Safety Score">
+            <div class="wg-section-label" data-i18n="popup.score.label">Wallet Safety Score</div>
+            <div class="wg-score">
+                <div class="wg-score__ring" aria-hidden="true">
+                    <svg viewBox="0 0 120 120" width="120" height="120">
+                        <circle class="wg-score__ring-track" cx="60" cy="60" r="52" />
+                        <circle class="wg-score__ring-fill" id="score-ring-fill" cx="60" cy="60" r="52"
+                                stroke-dasharray="326.7" stroke-dashoffset="0" />
+                    </svg>
+                    <div class="wg-score__center">
+                        <span class="wg-score__value" id="wallet-score">--</span>
+                        <span class="wg-score__total">/100</span>
+                    </div>
+                </div>
+                <div class="wg-score__caption" id="score-caption">
+                    <div class="wg-score__caption-title" id="score-caption-title">Protected</div>
+                    <div class="wg-score__caption-text" id="score-caption-text" data-i18n="popup.score.captionSafe">All systems operational</div>
+                </div>
             </div>
-        </div>
+        </section>
 
         <!-- v2.2 SECURITY CENTER -->
-        <div class="security-center">
-            <div class="section-title" data-i18n="popup.sec.title">Security Center</div>
-            <div class="sec-grid">
-                <div class="sec-tile" id="sec-enabled">
-                    <div class="sec-tile-icon">●</div>
-                    <div class="sec-tile-label" data-i18n="popup.sec.enabled">Protection</div>
-                    <div class="sec-tile-value" id="sec-enabled-value">—</div>
+        <section class="wg-card wg-card--gradient wg-sec" aria-label="Security Center">
+            <div class="wg-section-label" data-i18n="popup.sec.title">Security Center</div>
+            <div class="wg-sec__grid">
+                <div class="wg-sec__tile" id="sec-enabled" tabindex="0" role="button">
+                    <div class="wg-sec__tile-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
+                    </div>
+                    <div class="wg-sec__tile-label" data-i18n="popup.sec.enabled">Protection</div>
+                    <div class="wg-sec__tile-value" id="sec-enabled-value">—</div>
                 </div>
-                <div class="sec-tile" id="sec-approvals">
-                    <div class="sec-tile-icon">◇</div>
-                    <div class="sec-tile-label" data-i18n="popup.sec.approvals">Approvals</div>
-                    <div class="sec-tile-value" id="sec-approvals-value">—</div>
+                <div class="wg-sec__tile" id="sec-approvals" tabindex="0">
+                    <div class="wg-sec__tile-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                    </div>
+                    <div class="wg-sec__tile-label" data-i18n="popup.sec.approvals">Approvals</div>
+                    <div class="wg-sec__tile-value" id="sec-approvals-value">—</div>
                 </div>
-                <div class="sec-tile" id="sec-stale">
-                    <div class="sec-tile-icon">⏱</div>
-                    <div class="sec-tile-label" data-i18n="popup.sec.stale">Stale</div>
-                    <div class="sec-tile-value" id="sec-stale-value">—</div>
+                <div class="wg-sec__tile" id="sec-stale" tabindex="0">
+                    <div class="wg-sec__tile-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                    </div>
+                    <div class="wg-sec__tile-label" data-i18n="popup.sec.stale">Stale</div>
+                    <div class="wg-sec__tile-value" id="sec-stale-value">—</div>
                 </div>
-                <div class="sec-tile" id="sec-dna">
-                    <div class="sec-tile-icon">🧬</div>
-                    <div class="sec-tile-label" data-i18n="popup.sec.dna">DNA</div>
-                    <div class="sec-tile-value" id="sec-dna-value">—</div>
+                <div class="wg-sec__tile" id="sec-dna" tabindex="0">
+                    <div class="wg-sec__tile-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7c2 0 2 2 4 2s2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M3 13c2 0 2 2 4 2s2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M3 19c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2"/></svg>
+                    </div>
+                    <div class="wg-sec__tile-label" data-i18n="popup.sec.dna">DNA</div>
+                    <div class="wg-sec__tile-value" id="sec-dna-value">—</div>
                 </div>
-                <div class="sec-tile" id="sec-feed">
-                    <div class="sec-tile-icon">🛡</div>
-                    <div class="sec-tile-label" data-i18n="popup.sec.feed">Threats</div>
-                    <div class="sec-tile-value" id="sec-feed-value">—</div>
+                <div class="wg-sec__tile" id="sec-feed" tabindex="0">
+                    <div class="wg-sec__tile-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    </div>
+                    <div class="wg-sec__tile-label" data-i18n="popup.sec.feed">Threats</div>
+                    <div class="wg-sec__tile-value" id="sec-feed-value">—</div>
                 </div>
-                <div class="sec-tile" id="sec-autorevoke">
-                    <div class="sec-tile-icon">🧹</div>
-                    <div class="sec-tile-label" data-i18n="popup.sec.autorevoke">Auto-clean</div>
-                    <div class="sec-tile-value" id="sec-autorevoke-value">—</div>
+                <div class="wg-sec__tile" id="sec-autorevoke" tabindex="0">
+                    <div class="wg-sec__tile-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9c2.5 0 4.7 1 6.4 2.6L21 8"/><path d="M21 3v5h-5"/></svg>
+                    </div>
+                    <div class="wg-sec__tile-label" data-i18n="popup.sec.autorevoke">Auto-clean</div>
+                    <div class="wg-sec__tile-value" id="sec-autorevoke-value">—</div>
                 </div>
             </div>
-            <div class="sec-actions">
-                <button class="sec-toggle" id="sec-feed-toggle"
+            <div class="wg-sec__actions">
+                <button class="wg-btn wg-btn--ghost wg-btn--sm" id="sec-feed-toggle"
                         data-i18n="popup.sec.feedOptIn">Enable threat feed</button>
-                <button class="sec-toggle" id="sec-autorevoke-toggle"
+                <button class="wg-btn wg-btn--ghost wg-btn--sm" id="sec-autorevoke-toggle"
                         data-i18n="popup.sec.autorevokeOptIn">Enable auto-clean</button>
             </div>
-        </div>
+        </section>
 
         <!-- v2.0 SIMULATION PREVIEW -->
-        <div class="sim-section" id="sim-section" hidden>
-            <div class="section-title-row">
-                <span class="section-title" data-i18n="popup.sim.title">Last Simulation</span>
-                <span class="section-subtitle" id="sim-meta"></span>
+        <section class="wg-card wg-card--gradient wg-sim" id="sim-section" hidden aria-label="Last Simulation">
+            <div class="wg-section-header">
+                <span class="wg-section-label" data-i18n="popup.sim.title">Last Simulation</span>
+                <span class="wg-section-sub" id="sim-meta"></span>
             </div>
-            <div class="sim-status" id="sim-status">
-                <div class="sim-status-icon" id="sim-status-icon">?</div>
-                <div class="sim-status-body">
-                    <div class="sim-status-headline" id="sim-status-headline">--</div>
-                    <div class="sim-status-detail" id="sim-status-detail">--</div>
+            <div class="wg-sim__status" id="sim-status">
+                <div class="wg-sim__icon" id="sim-status-icon">?</div>
+                <div class="wg-sim__body">
+                    <div class="wg-sim__headline" id="sim-status-headline">--</div>
+                    <div class="wg-sim__detail" id="sim-status-detail">--</div>
                 </div>
             </div>
-            <div class="sim-assets" id="sim-assets"></div>
-            <div class="sim-risks" id="sim-risks"></div>
-        </div>
+            <div class="wg-sim__assets" id="sim-assets"></div>
+            <div class="wg-sim__risks" id="sim-risks"></div>
+        </section>
 
         <!-- v2.0 ADDRESS BOOK -->
-        <div class="addr-section" id="addr-section">
-            <div class="section-title-row">
-                <span class="section-title" data-i18n="popup.addrbook.title">Address Book</span>
-                <button class="rescan-btn" id="addr-export-btn"
+        <section class="wg-card wg-addr" id="addr-section" aria-label="Address Book">
+            <div class="wg-section-header">
+                <span class="wg-section-label" data-i18n="popup.addrbook.title">Address Book</span>
+                <button class="wg-btn wg-btn--ghost wg-btn--sm" id="addr-export-btn"
                         data-i18n="popup.addrbook.export">Export</button>
             </div>
-            <div class="addr-add-row">
-                <input type="text" id="addr-input" class="addr-input"
+            <div class="wg-addr__add">
+                <input type="text" id="addr-input" class="wg-input wg-input--mono"
                        data-i18n-attr="placeholder:popup.addrbook.placeholder"
                        placeholder="0x… address to label" />
-                <input type="text" id="addr-label" class="addr-input addr-label-input"
+                <input type="text" id="addr-label" class="wg-input"
                        data-i18n-attr="placeholder:popup.addrbook.labelPlaceholder"
                        placeholder="Label" />
-                <select id="addr-trust" class="addr-select">
+                <select id="addr-trust" class="wg-select">
                     <option value="neutral" data-i18n="popup.addrbook.trust.neutral">Neutral</option>
                     <option value="trusted" data-i18n="popup.addrbook.trust.trusted">Trusted</option>
                     <option value="blocked" data-i18n="popup.addrbook.trust.blocked">Blocked</option>
                 </select>
-                <button class="rescan-btn" id="addr-add-btn"
+                <button class="wg-btn wg-btn--primary wg-btn--sm" id="addr-add-btn"
                         data-i18n="popup.addrbook.add">Add</button>
             </div>
-            <div class="addr-list" id="addr-list">
-                <div class="approval-empty" id="addr-empty"
+            <div class="wg-addr__list" id="addr-list">
+                <div class="wg-empty" id="addr-empty"
                      data-i18n="popup.addrbook.empty">
                     No entries yet. Label addresses you've interacted with so future transactions show a warning.
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- STATS GRID -->
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-title" data-i18n="popup.stats.sitesScanned">Sites Scanned</div>
-                <div class="stat-value" id="sites-count">0</div>
+        <section class="wg-stats" aria-label="Statistics">
+            <div class="wg-stat" tabindex="0">
+                <div class="wg-stat__icon" data-icon="scan" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                </div>
+                <div class="wg-stat__body">
+                    <div class="wg-stat__label" data-i18n="popup.stats.sitesScanned">Sites Scanned</div>
+                    <div class="wg-stat__value" id="sites-count">0</div>
+                </div>
             </div>
-            <div class="stat-box">
-                <div class="stat-title" data-i18n="popup.stats.intercepted">Intercepted</div>
-                <div class="stat-value" id="intercepted-count">0</div>
+            <div class="wg-stat" tabindex="0">
+                <div class="wg-stat__icon" data-icon="intercept" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+                </div>
+                <div class="wg-stat__body">
+                    <div class="wg-stat__label" data-i18n="popup.stats.intercepted">Intercepted</div>
+                    <div class="wg-stat__value" id="intercepted-count">0</div>
+                </div>
             </div>
-        </div>
+            <div class="wg-stat wg-stat--warn" tabindex="0">
+                <div class="wg-stat__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                </div>
+                <div class="wg-stat__body">
+                    <div class="wg-stat__label" data-i18n="popup.stats.blocked">Blocked by You</div>
+                    <div class="wg-stat__value" id="blocked-count">0</div>
+                </div>
+            </div>
+            <div class="wg-stat wg-stat--danger" tabindex="0">
+                <div class="wg-stat__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+                </div>
+                <div class="wg-stat__body">
+                    <div class="wg-stat__label" data-i18n="popup.stats.permits">Permits Caught</div>
+                    <div class="wg-stat__value" id="permits-count">0</div>
+                </div>
+            </div>
+        </section>
 
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-title" data-i18n="popup.stats.blocked">Blocked by You</div>
-                <div class="stat-value warn-color" id="blocked-count">0</div>
+        <!-- PHISHING BLOCKED BANNER -->
+        <section class="wg-card wg-card--success wg-banner" aria-label="Phishing Blocked">
+            <div class="wg-banner__body">
+                <div class="wg-banner__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+                </div>
+                <div class="wg-banner__text">
+                    <div class="wg-banner__title" data-i18n="popup.banner.title">PHISHING BLOCKED</div>
+                    <div class="wg-banner__subtitle" data-i18n="popup.banner.subtitle">Malicious sites stopped</div>
+                </div>
             </div>
-            <div class="stat-box">
-                <div class="stat-title" data-i18n="popup.stats.permits">Permits Caught</div>
-                <div class="stat-value danger-color" id="permits-count">0</div>
-            </div>
-        </div>
-
-        <!-- PROTECTED BANNER -->
-        <div class="protected-banner">
-            <div>
-                <div class="banner-title" data-i18n="popup.banner.title">PHISHING BLOCKED</div>
-                <div class="banner-subtitle" data-i18n="popup.banner.subtitle">Malicious sites stopped</div>
-            </div>
-            <div class="banner-value" id="phishing-count">0</div>
-        </div>
+            <div class="wg-banner__value" id="phishing-count">0</div>
+        </section>
 
         <!-- APPROVAL SCANNER -->
-        <div class="approval-section">
-            <div class="section-title-row">
-                <span class="section-title" data-i18n="popup.approvals.title">Active Token Approvals</span>
-                <button class="rescan-btn" id="rescan-btn"
+        <section class="wg-card wg-approvals" aria-label="Active Token Approvals">
+            <div class="wg-section-header">
+                <span class="wg-section-label" data-i18n="popup.approvals.title">Active Token Approvals</span>
+                <button class="wg-btn wg-btn--ghost wg-btn--sm" id="rescan-btn"
                         data-i18n="popup.approvals.rescan"
                         data-i18n-attr="title:popup.approvals.revokeTitle"
                         title="Rescan now">Rescan</button>
             </div>
 
-            <div class="approval-summary" id="approval-summary">
-                <div class="summary-tile">
-                    <div class="summary-num" id="approval-total">--</div>
-                    <div class="summary-label" data-i18n="popup.approvals.total">Total</div>
+            <div class="wg-summary" id="approval-summary">
+                <div class="wg-summary__tile">
+                    <div class="wg-summary__num" id="approval-total">--</div>
+                    <div class="wg-summary__label" data-i18n="popup.approvals.total">Total</div>
                 </div>
-                <div class="summary-tile risky" id="approval-risky-tile">
-                    <div class="summary-num" id="approval-risky">--</div>
-                    <div class="summary-label" data-i18n="popup.approvals.risky">Risky</div>
+                <div class="wg-summary__tile wg-summary__tile--risky" id="approval-risky-tile">
+                    <div class="wg-summary__num" id="approval-risky">--</div>
+                    <div class="wg-summary__label" data-i18n="popup.approvals.risky">Risky</div>
                 </div>
-                <div class="summary-tile">
-                    <div class="summary-num" id="approval-unlimited">--</div>
-                    <div class="summary-label" data-i18n="popup.approvals.unlimited">Unlimited</div>
+                <div class="wg-summary__tile">
+                    <div class="wg-summary__num" id="approval-unlimited">--</div>
+                    <div class="wg-summary__label" data-i18n="popup.approvals.unlimited">Unlimited</div>
                 </div>
             </div>
 
-            <div class="approval-meta" id="approval-meta">
+            <div class="wg-meta-row" id="approval-meta">
                 <span id="approval-wallet"></span>
                 <span id="approval-time"></span>
             </div>
 
-            <div class="approval-list" id="approval-list">
-                <div class="approval-empty" id="approval-empty"
+            <div class="wg-approvals__list" id="approval-list">
+                <div class="wg-empty" id="approval-empty"
                      data-i18n="popup.approvals.empty.noWallet">
                     No wallet detected yet. Make any transaction through WalletGuard and your active approvals will be scanned across 9 chains.
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- NFT APPROVAL SCANNER -->
-        <div class="approval-section nft-section">
-            <div class="section-title-row">
-                <span class="section-title" data-i18n="popup.nft.title">NFT Collection Access</span>
-                <span class="section-subtitle" id="nft-meta"></span>
+        <section class="wg-card wg-approvals wg-approvals--nft" aria-label="NFT Collection Access">
+            <div class="wg-section-header">
+                <span class="wg-section-label" data-i18n="popup.nft.title">NFT Collection Access</span>
+                <span class="wg-section-sub" id="nft-meta"></span>
             </div>
 
-            <div class="nft-summary" id="nft-summary">
-                <div class="summary-tile">
-                    <div class="summary-num" id="nft-total">--</div>
-                    <div class="summary-label" data-i18n="popup.nft.total">NFT Approvals</div>
+            <div class="wg-summary wg-summary--two" id="nft-summary">
+                <div class="wg-summary__tile">
+                    <div class="wg-summary__num" id="nft-total">--</div>
+                    <div class="wg-summary__label" data-i18n="popup.nft.total">NFT Approvals</div>
                 </div>
-                <div class="summary-tile risky" id="nft-risky-tile">
-                    <div class="summary-num" id="nft-risky">--</div>
-                    <div class="summary-label" data-i18n="popup.nft.risky">Risky</div>
+                <div class="wg-summary__tile wg-summary__tile--risky" id="nft-risky-tile">
+                    <div class="wg-summary__num" id="nft-risky">--</div>
+                    <div class="wg-summary__label" data-i18n="popup.nft.risky">Risky</div>
                 </div>
             </div>
 
-            <div class="nft-list" id="nft-list">
-                <div class="approval-empty" id="nft-empty"
+            <div class="wg-approvals__list" id="nft-list">
+                <div class="wg-empty" id="nft-empty"
                      data-i18n="popup.nft.empty.scanned">
                     No active NFT collection approvals. Your NFTs are safe from custody-takeover.
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- LOGS -->
-        <div class="logs-section">
-            <div class="section-title" data-i18n="popup.logs.title">Recent Activity</div>
-            <div class="logs-list" id="logs-list">
-                <div class="log-empty" data-i18n="popup.logs.empty">No activity yet. Browse a dApp to see logs.</div>
+        <section class="wg-card wg-logs" aria-label="Recent Activity">
+            <div class="wg-section-header">
+                <span class="wg-section-label" data-i18n="popup.logs.title">Recent Activity</span>
             </div>
-        </div>
+            <div class="wg-logs__list" id="logs-list">
+                <div class="wg-empty" data-i18n="popup.logs.empty">No activity yet. Browse a dApp to see logs.</div>
+            </div>
+        </section>
 
-        <hr class="divider">
+        <hr class="wg-divider" aria-hidden="true">
 
         <!-- ACTIONS -->
-        <div class="actions-row">
-            <button class="footer-link" id="reset-btn" data-i18n="popup.actions.reset">Reset stats</button>
-            <button class="support-btn" id="settings-btn">
+        <div class="wg-actions">
+            <button class="wg-link" id="reset-btn" data-i18n="popup.actions.reset">Reset stats</button>
+            <button class="wg-btn wg-btn--ghost wg-btn--sm" id="settings-btn">
                 <span data-i18n="popup.actions.settings">Settings</span>
-                <span class="arrow">&rarr;</span>
+                <svg class="wg-btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
             </button>
         </div>
 
     </div>
 
     <!-- REVOKE MODAL -->
-    <div class="revoke-modal" id="revoke-modal" hidden>
-      <div class="revoke-modal__backdrop" data-revoke-close></div>
-      <div class="revoke-modal__panel" role="dialog" aria-modal="true" aria-labelledby="revoke-modal-title">
-        <header class="revoke-modal__header">
-          <h2 id="revoke-modal-title" class="revoke-modal__title" data-i18n="popup.revoke.title">Revoke approval</h2>
-          <button class="revoke-modal__close" data-revoke-close
+    <div class="wg-modal" id="revoke-modal" hidden role="dialog" aria-modal="true" aria-labelledby="revoke-modal-title">
+      <div class="wg-modal__backdrop" data-revoke-close></div>
+      <div class="wg-modal__panel">
+        <header class="wg-modal__header">
+          <h2 id="revoke-modal-title" class="wg-modal__title" data-i18n="popup.revoke.title">Revoke approval</h2>
+          <button class="wg-modal__close" data-revoke-close
                   data-i18n-attr="aria-label:common.close"
-                  aria-label="Close">&times;</button>
+                  aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
         </header>
-        <div class="revoke-modal__body">
-          <p class="revoke-modal__lead" id="revoke-modal-lead"></p>
+        <div class="wg-modal__body">
+          <p class="wg-modal__lead" id="revoke-modal-lead"></p>
 
-          <details class="revoke-modal__details">
+          <details class="wg-modal__details">
             <summary data-i18n="popup.revoke.transactionData">Transaction data</summary>
-            <dl class="revoke-modal__tx">
+            <dl class="wg-modal__tx">
               <dt data-i18n="popup.revoke.chainLabel">Chain</dt>
               <dd id="revoke-modal-chain">\u2014</dd>
               <dt data-i18n="popup.revoke.toLabel">To (token / collection)</dt>
@@ -262,37 +315,40 @@
             </dl>
           </details>
 
-          <p class="revoke-modal__note" id="revoke-modal-note"
+          <p class="wg-modal__note" id="revoke-modal-note"
              data-i18n="popup.revoke.note">
             WalletGuard Pro does <strong>not</strong> sign transactions. Copy the calldata
             and broadcast it through your wallet or a tool like
             <a href="#" id="revoke-modal-revoke-cash" target="_blank" rel="noopener noreferrer">revoke.cash</a>.
           </p>
         </div>
-        <footer class="revoke-modal__footer">
-          <button class="revoke-modal__btn revoke-modal__btn--ghost" data-revoke-close
+        <footer class="wg-modal__footer">
+          <button class="wg-btn wg-btn--ghost" data-revoke-close
                   data-i18n="common.close">Close</button>
-          <button class="revoke-modal__btn" id="revoke-modal-copy"
+          <button class="wg-btn wg-btn--primary" id="revoke-modal-copy"
                   data-i18n="popup.revoke.copy">Copy calldata</button>
         </footer>
       </div>
     </div>
 
     <!-- ONBOARDING OVERLAY -->
-    <div class="onboarding" id="onboarding-overlay" hidden>
-      <div class="onboarding__backdrop"></div>
-      <div class="onboarding__panel" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
-        <div class="onboarding__indicator" id="onboarding-indicator"></div>
-        <h2 class="onboarding__title" id="onboarding-title"></h2>
-        <p class="onboarding__body" id="onboarding-body"></p>
-        <div class="onboarding__dots" id="onboarding-dots"></div>
-        <div class="onboarding__actions">
-          <button class="onboarding__btn onboarding__btn--ghost" id="onboarding-skip"
+    <div class="wg-onboarding" id="onboarding-overlay" hidden>
+      <div class="wg-onboarding__backdrop"></div>
+      <div class="wg-onboarding__panel" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <div class="wg-onboarding__indicator" id="onboarding-indicator"></div>
+        <h2 class="wg-onboarding__title" id="onboarding-title"></h2>
+        <p class="wg-onboarding__body" id="onboarding-body"></p>
+        <div class="wg-onboarding__dots" id="onboarding-dots"></div>
+        <div class="wg-onboarding__actions">
+          <button class="wg-btn wg-btn--ghost" id="onboarding-skip"
                   data-i18n="onboarding.skip">Skip tour</button>
-          <button class="onboarding__btn onboarding__btn--primary" id="onboarding-next"></button>
+          <button class="wg-btn wg-btn--primary" id="onboarding-next"></button>
         </div>
       </div>
     </div>
+
+    <!-- TOAST (popup actions) -->
+    <div class="wg-toast" id="toast" aria-live="polite"></div>
 
     <script src="popup-bundle.js"></script>
     <script src="popup.js"></script>

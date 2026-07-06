@@ -44,12 +44,12 @@ contains(popupHtml, 'id="onboarding-dots"',      "popup.html has #onboarding-dot
 contains(popupHtml, 'id="onboarding-skip"',      "popup.html has #onboarding-skip button");
 contains(popupHtml, 'id="onboarding-next"',      "popup.html has #onboarding-next button");
 contains(popupHtml, 'id="onboarding-indicator"', "popup.html has step indicator");
-contains(popupHtml, 'class="onboarding"',        "popup.html has .onboarding class");
+contains(popupHtml, 'class="wg-onboarding"',     "popup.html has .wg-onboarding class");
 contains(popupHtml, 'role="dialog"',             "popup.html uses role=dialog for a11y");
 contains(popupHtml, 'aria-modal="true"',         "popup.html uses aria-modal");
 
 // Hidden by default - must use the hidden attribute (not display:none inline)
-const overlayMatch = popupHtml.match(/<div\s+class="onboarding"[^>]*>/);
+const overlayMatch = popupHtml.match(/<div\s+class="wg-onboarding"[^>]*>/);
 if (overlayMatch && /\bhidden\b/.test(overlayMatch[0])) {
   ok("onboarding overlay is hidden by default");
 } else {
