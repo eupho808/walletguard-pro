@@ -1,0 +1,93 @@
+{
+  "name": "walletguard-core",
+  "version": "1.0.0",
+  "description": "Open-source Web3 transaction security library. Calldata decoder, risk engine, typo/phishing detector. The same code that powers WalletGuard Pro extension, available as a standalone library for any wallet or dApp.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./decoder": {
+      "import": "./dist/decoder.mjs",
+      "require": "./dist/decoder.js",
+      "types": "./dist/decoder.d.ts"
+    },
+    "./risk": {
+      "import": "./dist/risk.mjs",
+      "require": "./dist/risk.js",
+      "types": "./dist/risk.d.ts"
+    },
+    "./typosquat": {
+      "import": "./dist/typosquat.mjs",
+      "require": "./dist/typosquat.js",
+      "types": "./dist/typosquat.d.ts"
+    },
+    "./multicall": {
+      "import": "./dist/multicall-decoder.mjs",
+      "require": "./dist/multicall-decoder.js",
+      "types": "./dist/multicall-decoder.d.ts"
+    },
+    "./universal-router": {
+      "import": "./dist/universal-router.mjs",
+      "require": "./dist/universal-router.js",
+      "types": "./dist/universal-router.d.ts"
+    },
+    "./simulator": {
+      "import": "./dist/simulator.mjs",
+      "require": "./dist/simulator.js",
+      "types": "./dist/simulator.d.ts"
+    },
+    "./revoke": {
+      "import": "./dist/revoke-generator.mjs",
+      "require": "./dist/revoke-generator.js",
+      "types": "./dist/revoke-generator.d.ts"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node build.js",
+    "test": "node test.js",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "web3",
+    "wallet",
+    "security",
+    "phishing",
+    "calldata",
+    "decoder",
+    "ethereum",
+    "evm",
+    "metamask",
+    "rabby",
+    "transaction",
+    "approval",
+    "scam",
+    "drainer",
+    "typosquatting",
+    "blockaid",
+    "blowfish",
+    "pocket-universe"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eupho808/walletguard-pro.git",
+    "directory": "packages/walletguard-core"
+  },
+  "bugs": {
+    "url": "https://github.com/eupho808/walletguard-pro/issues"
+  },
+  "homepage": "https://github.com/eupho808/walletguard-pro#readme",
+  "engines": {
+    "node": ">=16"
+  }
+}

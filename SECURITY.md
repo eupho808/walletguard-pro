@@ -6,6 +6,7 @@
 |---------|--------------------|
 | 1.5.x   | :white_check_mark: |
 | < 1.5   | :x:                |
+| 1.4.x   | :white_check_mark: (critical fixes only) |
 
 Only the latest minor release receives security updates. Please upgrade before reporting.
 
@@ -90,3 +91,55 @@ severity (Critical / High / Medium / Low / Info), fixes applied,
 regression tests, residual risks, and recommendations for v1.6.0 —
 see [`SELF_AUDIT.md`](./SELF_AUDIT.md). This is a **self-audit**;
 a third-party audit is on the roadmap but not yet commissioned.
+
+---
+
+## Bug bounty program
+
+We run a **community-funded bug bounty** via Gitcoin Grants. Bounties
+are paid in USDC on Ethereum mainnet.
+
+| Severity | Example | Bounty |
+|---|---|---|
+| **Critical** | Bypass of risk engine (high-risk tx shown as safe) | $5,000 |
+| **High** | Bypass of phishing detection | $2,000 |
+| **Medium** | Storage tampering, cache poisoning | $500 |
+| **Low** | UX information disclosure | $100 |
+| **Info** | Code quality, defense-in-depth suggestions | $25 + credit |
+
+**Eligibility:** Anyone (except current WalletGuard Pro team members
+and their immediate family). Reports must follow the disclosure
+process above. Duplicates paid to first reporter only.
+
+**Payment:** Within 14 days of fix deployment, on-chain via USDC
+on Ethereum mainnet to a wallet you provide.
+
+**Status:** Pilot program. Funded by Gitcoin Grants matching pool.
+Bounty pool currently: $10,000 (rolling).
+
+To apply to expand the bounty pool or sponsor a specific bounty
+category, contact security@walletguard.pro.
+
+---
+
+## Audit roadmap
+
+| Q3 2026 | Self-audit (DONE) — [SELF_AUDIT.md](./SELF_AUDIT.md) |
+| Q4 2026 | Third-party audit by [Trail of Bits / OpenZeppelin / Code4rena] (TBD) |
+| Q1 2027 | Bug bounty tier-1 launch with $50k pool |
+| Q2 2027 | Continuous audit relationship (re-review every major release) |
+
+Until the third-party audit is complete, treat WalletGuard Pro as
+**defense-in-depth, not primary security**. Always verify critical
+transactions through multiple sources.
+
+---
+
+## Hall of fame
+
+Security researchers who have reported valid issues (current as of v1.5.2):
+
+*None yet — be the first.*
+
+If you report a valid issue, you'll be listed here (or kept anonymous
+on request). We acknowledge every report within 48 hours.

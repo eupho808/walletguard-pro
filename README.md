@@ -21,6 +21,10 @@ Every Web3 wallet trusts you to read raw `0x...` calldata and approve it. Most d
 
 ## Features
 
+### Tier 4 — Always-on Protection (v1.5.2+)
+- **Browser action badge** — the extension toolbar icon now shows color-coded status: red `!` on phishing sites, yellow number for risky approval count, gray `OFF` when disabled. Visible every day, drives organic viral growth.
+- **Real-time OS notifications** — high-severity events (phishing block, critical risk) trigger a system notification even when the popup is closed. Click → opens WalletGuard.
+
 ### Transaction interception (every tx before it hits MetaMask)
 - **ERC-20 / ERC-721 / ERC-1155** transfers and approvals decoded into human-readable form
 - **Multicall V1 / V2 / V3** with per-subcall risk analysis (recursive up to 4 levels deep)
@@ -136,6 +140,26 @@ Every test runs in plain Node — no Chrome required. The scanner module is load
 PRs welcome. Please open an issue first for non-trivial changes. The test suite is the source of truth — if you change behaviour in `lib/`, add a test in the matching `test-*.js`.
 
 ---
+
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [`README.md`](./README.md) | This file — features, installation, architecture |
+| [`THREAT_MODEL.md`](./THREAT_MODEL.md) | What we protect against, what we don't, trust assumptions |
+| [`SELF_AUDIT.md`](./SELF_AUDIT.md) | Our internal security review — methodology, findings, residual risks |
+| [`SECURITY.md`](./SECURITY.md) | How to report vulnerabilities · bug bounty program |
+| [`THREATS.md`](./THREATS.md) | Weekly published threat intelligence — IOCs, scam post-mortems |
+| [`MARKETING.md`](./MARKETING.md) | Launch playbook — Twitter, HN, Product Hunt, grants, press |
+| [`PRIVACY.md`](./PRIVACY.md) | What we collect (nothing), what we don't, GDPR compliance |
+| [`STORE_LISTING.md`](./STORE_LISTING.md) | Chrome Web Store submission copy — paste into dashboard |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | How to contribute code, translations, threat reports |
+| [`CHANGELOG.md`](./CHANGELOG.md) | Version history |
+| `site/index.html` | Landing page |
+| `site/comparison.html` | vs Blockaid / Blowfish comparison |
+| `site/wallets.html` | Wallet compatibility matrix |
+| `site/stats.html` | Public aggregate stats dashboard |
+| `packages/walletguard-core/` | Standalone npm library — use in your own wallet |
 
 ## License
 
