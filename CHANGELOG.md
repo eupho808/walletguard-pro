@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.2] - 2026-07-06 - "ROBUST"
+
+Second bug-fix release on top of 3.2.0. A targeted audit of the
+provider-wrapping layer + storage concurrency surface found two more
+bugs that the v3.2.1 sweep missed.
+
+### 🐛 Fixes
+
+**Medium**
+- **#14 Wallets that inject AFTER the page's DOMContentLoaded were never wrapped.** Brave, OKX, and some Rabby configurations inject their provider via a separate content script that fires later. The injector only had two `installProxy()` triggers (script load + DOMContentLoaded), so a late-injecting wallet slipped through and the RPC bridge permanently returned "no wallet provider available" — every approval scan failed silently. Now a `watchForLateProvider()` IIFE polls every 1s for up to 30s, and the RPC bridge re-attempts `installProxy()` on every call before failing.
+- **#15 `appendLog` and `bumpStat` had read-modify-write races.** Two concurrent writes to the same storage key (e.g. user clicks two buttons quickly, or a tx is intercepted while a settings change is also logging) could interleave their `get` / `set`, losing one update. Added a per-key write mutex (`serialized(key, fn)`) that chains promises so `appendLog`, `bumpStat`, and `setCachedAi` now run their read-modify-write atomically against other writes to the same key.
+
+### 📦 Internal
+- New tests in `test-bugfixes.js`:
+  - Bug #14: 3 tests (polling watcher present, RPC bridge re-attempts, watcher self-stops)
+  - Bug #15: 6 tests (mutex present, all 3 read-modify-write paths wrapped, plus 2 functional race tests: 50 concurrent `++` operations settle to exactly 50, and a failing write doesn't poison the queue for the next one)
+- Test count: 756 → 765.
+- `node --check` clean on every entry point and every lib file.
+
+---
+
 ## [3.2.1] - 2026-07-06 - "HARDENED"
 
 Bug-fix release on top of 3.2.0. A targeted audit found 13 bugs across UI
