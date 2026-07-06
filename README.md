@@ -1,10 +1,10 @@
 # WalletGuard Pro
 
-> The most comprehensive Web3 wallet security extension ever built. **20 protection layers**, **zero dependencies**, **807 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
+> The most comprehensive Web3 wallet security extension ever built. **20 protection layers**, **zero dependencies**, **756 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
 
-[![Version](https://img.shields.io/badge/version-3.0.0-00ffcc?style=flat-square)](./manifest.json)
-[![Design](https://img.shields.io/badge/design-STELLAR-ffb700?style=flat-square)](#v30-stellar)
-[![Tests](https://img.shields.io/badge/tests-807-00ff66?style=flat-square)](./test-build.js)
+[![Version](https://img.shields.io/badge/version-3.2.1-10B981?style=flat-square)](./manifest.json)
+[![Design](https://img.shields.io/badge/design-CALM-10B981?style=flat-square)](#v4-calm-design-language)
+[![Tests](https://img.shields.io/badge/tests-756-10B981?style=flat-square)](./test-bugfixes.js)
 [![Modules](https://img.shields.io/badge/modules-20-ffb700?style=flat-square)](./lib/)
 [![Chains](https://img.shields.io/badge/chains-9-4285F4?style=flat-square)](./lib/constants.js)
 [![Wallets](https://img.shields.io/badge/wallets-12-FF7139?style=flat-square)](./site/wallets.html)
@@ -13,7 +13,7 @@
 [![Build](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml)
 [![Chrome](https://img.shields.io/badge/Chrome-Available-4285F4?style=flat-square&logo=google-chrome)](https://chromewebstore.google.com/detail/walletguard-pro)
 [![Firefox](https://img.shields.io/badge/Coming_soon-FF7139?style=flat-square&logo=firefox)]()
-[![Manifest V3](https://img.shields.io/badge/Manifest-V3-00ffcc?style=flat-square)](./manifest.json)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-10B981?style=flat-square)](./manifest.json)
 
 ---
 
@@ -25,35 +25,34 @@ Every Web3 wallet trusts you to read raw `0x...` calldata and approve it. Most d
 
 ### What makes it the best
 
-| | WalletGuard Pro v3.0 "STELLAR" |
+| | WalletGuard Pro v3.2.1 "HARDENED" |
 |---|---|
 | **Attack surfaces covered** | **20** (EIP-7702, session keys, MEV, drainers, phish clones, Safe multi-sig, hardware wallet rules, wallet DNA, threat feed, ...) |
 | **Modules** | **20** pure ES modules, zero runtime dependencies |
-| **Tests** | **807** automated tests, 19 suites, all green |
+| **Tests** | **756** automated tests, 19 suites, all green |
 | **Chains** | **9** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia) |
 | **Wallets** | **12** (MetaMask, Rabby, Frame, Rainbow, Zerion, Trust, Coinbase, Brave, OKX, Phantom, ...) |
 | **Locales** | **4** (en, ru, es, zh) — every UI string |
-| **Design system** | v3.0 STELLAR — full design tokens, glass cards, spring physics, light/dark themes |
-| **Bundle size** | content 255K + popup 286K (≈ 540K total) — smaller than Blockaid's SW |
+| **Design system** | v4 CALM — minimal premium dark UI, typography-first, single emerald accent, 1px dividers |
+| **Bundle size** | content 246K + popup 307K (≈ 553K total) — smaller than Blockaid's SW |
 | **Privacy** | No backend. No tracking. No user data leaves the device. |
 | **License** | MIT — fork, extend, audit, ship |
 | **CI** | GitHub Actions on Node 18, 20, 22 |
 
-### v3.0 STELLAR design language
+### v4 CALM design language
 
-A premium dark-first design system built from the ground up:
-- **Glass cards** with backdrop-filter blur + radial gradient mesh background
-- **Spring physics** (`cubic-bezier(0.34, 1.56, 0.64, 1)`) on every interactive element
-- **Custom SVG icons** throughout (no emoji) — shield, DNA helix, radar, magnifier, grid, sparkle
-- **Animated counters** for every stat (ease-out cubic, 600ms)
-- **SVG safety-score ring** with circumference animation + tabular-num count-up + dynamic caption
-- **Pulsing status dot** with ripple ring (3-stage CSS animation)
-- **Hover lift** + glow shadow on all tiles (cards translate Y -2px with spring physics)
-- **Shake animation** on invalid input
-- **Spring spinner** for scan-in-progress state
-- **Timeline-style logs** with color-coded dots
-- **Toast notification system** replaces browser alerts
-- **Light theme parity** via `.wg-theme-light` on body
+A premium dark UI inspired by Linear, Stripe, Rabby and MetaMask — minimal, calm, and confident:
+- **Typography-first hierarchy** — Inter / SF Pro, tabular nums on the score counter, restrained type sizes
+- **1px dividers** instead of card borders — `rgba(255,255,255,0.06)` on dark surfaces
+- **Single accent color** — `#10B981` (emerald), used sparingly for primary actions and the score ring
+- **Flat iOS-style toggles** with `role="switch"` semantics in settings
+- **One animation curve** — `cubic-bezier(0.4, 0, 0.2, 1)`, 150-220ms, ease-out (no spring physics, no glow, no blur)
+- **Loading opacity dim** (0.45) instead of a spinner — appears only while data is being fetched
+- **Color-coded activity timeline** — left-border per severity (red / amber / emerald / transparent)
+- **Empty states with one CTA** — no clutter, no tour overlays, no decorative onboarding
+- **Connected wallet line** in the popup topbar (0x6…4 + chain pill, populated from the most recent tx)
+- **Unread alerts badge** — red pill showing BLOCKED / CRITICAL log entries from the last 24h
+- **Notifications + threat-feed toggles** in settings, with `exportSettings` / `importSettings` for backup
 - **Reduced-motion media query** for accessibility
 
 ---
