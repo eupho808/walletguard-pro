@@ -16,6 +16,7 @@
     await refreshData();
     attachListeners();
     initAddressBook();
+    initSecurityCenter();
     initOnboarding();
   });
 
@@ -91,6 +92,14 @@
       renderAddressBook(addrData || {});
     } catch (e) {
       console.error("WalletGuard: failed to fetch address book:", e);
+    }
+
+    // v2.2: security center (independent fetch).
+    try {
+      const sec = await sendMessage({ action: "getSecurityCenter" });
+      renderSecurityCenter(sec || {});
+    } catch (e) {
+      console.error("WalletGuard: failed to fetch security center:", e);
     }
   }
 
@@ -488,6 +497,94 @@
   function shorten(addr) {
     if (!addr || addr.length < 12) return addr || "";
     return addr.slice(0, 6) + "..." + addr.slice(-4);
+  }
+
+  // ============================================================
+  // v2.2 SECURITY CENTER
+  // ============================================================
+  //
+  // Compact dashboard with 6 tiles summarising every protection layer.
+
+  function renderSecurityCenter(sec) {
+    const setVal = (id, text, cls) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      el.classList.remove("warn", "bad", "good");
+      if (cls) el.classList.add(cls);
+    };
+
+    // 1. Protection status
+    setVal("sec-enabled-value", sec.enabled ? t("popup.sec.on") : t("popup.sec.off"),
+      sec.enabled ? "good" : "bad");
+
+    // 2. Approvals
+    if (sec.totalApprovals > 0) {
+      const risky = sec.riskyApprovals || 0;
+      setVal("sec-approvals-value", `${sec.totalApprovals}${risky > 0 ? ` (${risky}!)` : ""}`,
+        risky > 0 ? "warn" : "good");
+    } else {
+      setVal("sec-approvals-value", "—", "");
+    }
+
+    // 3. Stale approvals
+    const stale = sec.staleApprovalCount || 0;
+    setVal("sec-stale-value", stale > 0 ? String(stale) : "0",
+      stale > 0 ? "warn" : "good");
+
+    // 4. Wallet DNA
+    const dnaCount = sec.dnaWalletCount || 0;
+    setVal("sec-dna-value", dnaCount > 0 ? `${dnaCount}` : "—",
+      dnaCount > 0 ? "good" : "");
+
+    // 5. Threat feed
+    if (sec.threatFeedEnabled) {
+      const n = sec.threatFeedCount || 0;
+      setVal("sec-feed-value", `${n}`, "good");
+    } else {
+      setVal("sec-feed-value", t("popup.sec.off"), "warn");
+    }
+
+    // 6. Auto-clean
+    setVal("sec-autorevoke-value", sec.autoRevokeOptedIn ? t("popup.sec.on") : t("popup.sec.off"),
+      sec.autoRevokeOptedIn ? "good" : "warn");
+
+    // Toggle buttons
+    const feedBtn = document.getElementById("sec-feed-toggle");
+    if (feedBtn) {
+      feedBtn.classList.toggle("is-active", !!sec.threatFeedEnabled);
+      feedBtn.textContent = sec.threatFeedEnabled ? t("popup.sec.feedOptOut") : t("popup.sec.feedOptIn");
+    }
+    const autoBtn = document.getElementById("sec-autorevoke-toggle");
+    if (autoBtn) {
+      autoBtn.classList.toggle("is-active", !!sec.autoRevokeOptedIn);
+      autoBtn.textContent = sec.autoRevokeOptedIn ? t("popup.sec.autorevokeOptOut") : t("popup.sec.autorevokeOptIn");
+    }
+  }
+
+  async function toggleSec(kind) {
+    const res = await sendMessage({ action: "getSecurityCenter" });
+    const sec = res || {};
+    let action, value;
+    if (kind === "feed") {
+      action = "setThreatFeedEnabled";
+      value = !sec.threatFeedEnabled;
+    } else if (kind === "autorevoke") {
+      action = "setAutoRevokeOptIn";
+      value = !sec.autoRevokeOptedIn;
+    } else {
+      return;
+    }
+    await sendMessage({ action, [kind === "feed" ? "enabled" : "optedIn"]: value });
+    const fresh = await sendMessage({ action: "getSecurityCenter" });
+    renderSecurityCenter(fresh || {});
+  }
+
+  function initSecurityCenter() {
+    const feedBtn = document.getElementById("sec-feed-toggle");
+    if (feedBtn) feedBtn.addEventListener("click", () => toggleSec("feed"));
+    const autoBtn = document.getElementById("sec-autorevoke-toggle");
+    if (autoBtn) autoBtn.addEventListener("click", () => toggleSec("autorevoke"));
   }
 
   // ============================================================

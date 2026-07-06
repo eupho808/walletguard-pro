@@ -39,7 +39,7 @@ for (const [label, file] of [["content.js", CONTENT], ["popup-bundle.js", POPUP]
   }
 }
 
-// ---- 2. popup-bundle.js must expose WG_POPUP_LIB with all 15 modules ----
+// ---- 2. popup-bundle.js must expose WG_POPUP_LIB with all 20 modules ----
 {
   const src = fs.readFileSync(POPUP, "utf8");
   const sandbox = { window: undefined, globalThis: {} };
@@ -54,13 +54,14 @@ for (const [label, file] of [["content.js", CONTENT], ["popup-bundle.js", POPUP]
       "constants", "decoder", "typosquatting", "multicallDecoder",
       "universalRouter", "riskEngine", "capabilities", "simulator",
       "mevDetector", "revokeGenerator", "eip7702Detector", "sessionKeyAnalyzer",
-      "threatFeed", "walletDna", "addressBook", "i18n"
+      "threatFeed", "walletDna", "drainerDetector", "visualPhish",
+      "hwWallet", "safeMultisig", "explain", "addressBook", "i18n"
     ];
     const actual = Object.keys(lib).sort();
     const expSorted = [...expected].sort();
 
     if (JSON.stringify(actual) === JSON.stringify(expSorted)) {
-      ok(`WG_POPUP_LIB has all 15 modules: ${actual.join(", ")}`);
+      ok(`WG_POPUP_LIB has all 20 modules: ${actual.join(", ")}`);
     } else {
       fail("WG_POPUP_LIB modules",
         `expected [${expSorted.join(",")}] got [${actual.join(",")}]`);

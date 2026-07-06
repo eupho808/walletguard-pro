@@ -1,88 +1,54 @@
-# GitHub Actions CI for WalletGuard Pro
-#
-# Runs on every push and PR to main/master. Verifies that:
-#   1. node build.js produces a valid bundle (no syntax errors in lib/*)
-#   2. All Node-side test suites pass (typosquat, integration, multichain, nft)
-#
-# No npm install needed — the project has zero runtime dependencies.
-# Tests are plain Node ESM scripts that import directly from lib/.
-
 name: Tests
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
-
-# Allow only one concurrent run per ref; cancel in-progress runs on new pushes.
-concurrency:
-  group: tests-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   test:
-    name: Node ${{ matrix.node-version }}
+    name: Run all tests (Node 18+)
     runs-on: ubuntu-latest
-
     strategy:
-      fail-fast: false
       matrix:
-        node-version: [20.x]
-
+        node: [18, 20, 22]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node ${{ matrix.node-version }}
+      - name: Setup Node ${{ matrix.node }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.node }}
+          cache: npm
 
-      - name: Verify bundle builds
-        # node build.js concatenates lib/* + content.js into a single IIFE.
-        # Catches syntax errors in any lib module before they reach a release.
+      - name: Install
+        run: npm install --omit=optional
+        continue-on-error: true
+
+      - name: Run all tests
+        run: npm test
+
+      - name: Verify bundles are syntactically valid
         run: |
-          node build.js
-          echo "---"
-          echo "Bundle size: $(wc -c < content.js) bytes"
-          echo "Bundle lines: $(wc -l < content.js)"
+          node --check content.js
+          node --check popup-bundle.js
+          node --check background.js
+          node --check popup.js
+          node --check injector.js
+          node --check approval-scanner.js
+          node --check settings.js
 
-      - name: Run test suite
-        # Each test-*.js file is a standalone ESM script. Run them all,
-        # capture pass/fail per file, and exit non-zero if any failed.
+      - name: Verify ZIP packages are present
         run: |
-          set +e
-          total_pass=0
-          total_fail=0
-          failed_files=()
+          test -f walletguard-pro-v2.2.0.zip || (echo "Chrome ZIP missing" && exit 1)
+          test -f walletguard-pro-firefox-v2.2.0.zip || (echo "Firefox ZIP missing" && exit 1)
+          echo "Both ZIPs present"
 
-          for test_file in test-*.js; do
-            echo ""
-            echo "================================================================"
-            echo "  $test_file"
-            echo "================================================================"
-            node "$test_file"
-            rc=$?
-            if [ $rc -eq 0 ]; then
-              echo ">>> $test_file: PASSED"
-            else
-              echo ">>> $test_file: FAILED (exit $rc)"
-              failed_files+=("$test_file")
-            fi
-          done
-
-          echo ""
-          echo "================================================================"
-          echo "  Summary"
-          echo "================================================================"
-          if [ ${#failed_files[@]} -eq 0 ]; then
-            echo "All test files passed."
-            exit 0
-          else
-            echo "Failed test files:"
-            for f in "${failed_files[@]}"; do
-              echo "  - $f"
-            done
-            exit 1
+      - name: Verify ZIPs don't contain dev files
+        run: |
+          if unzip -l walletguard-pro-v2.2.0.zip | grep -E '(test-|\.git/|node_modules/|\.zip$)'; then
+            echo "ZIP contains dev files!" && exit 1
           fi
+          echo "ZIP clean"

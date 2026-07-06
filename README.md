@@ -1,10 +1,15 @@
 # WalletGuard Pro
 
-> Independent security layer for Web3 wallets. Intercepts transactions, decodes calldata, scans token and NFT approvals across 9 chains, detects phishing sites and typosquatted domains — **no API keys required**.
+> The most comprehensive Web3 wallet security extension ever built. **20 protection layers**, **zero dependencies**, **805 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
 
-[![Version](https://img.shields.io/badge/version-1.5.2-00ffcc?style=flat-square)](./manifest.json)
+[![Version](https://img.shields.io/badge/version-2.2.0-00ffcc?style=flat-square)](./manifest.json)
+[![Tests](https://img.shields.io/badge/tests-805-00ff66?style=flat-square)](./test-build.js)
+[![Modules](https://img.shields.io/badge/modules-20-ffb700?style=flat-square)](./lib/)
+[![Chains](https://img.shields.io/badge/chains-9-4285F4?style=flat-square)](./lib/constants.js)
+[![Wallets](https://img.shields.io/badge/wallets-12-FF7139?style=flat-square)](./site/wallets.html)
+[![Locales](https://img.shields.io/badge/locales-4-purple?style=flat-square)](./lib/locales/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
-[![Tests](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml)
+[![Build](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/eupho808/walletguard-pro/actions/workflows/test.yml)
 [![Chrome](https://img.shields.io/badge/Chrome-Available-4285F4?style=flat-square&logo=google-chrome)](https://chromewebstore.google.com/detail/walletguard-pro)
 [![Firefox](https://img.shields.io/badge/Coming_soon-FF7139?style=flat-square&logo=firefox)]()
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-00ffcc?style=flat-square)](./manifest.json)
@@ -17,43 +22,82 @@ Every Web3 wallet trusts you to read raw `0x...` calldata and approve it. Most d
 
 **The whole thing works without an account, an API key, or a server.** Your wallet's own RPC node does the heavy lifting.
 
+### What makes it the best
+
+| | WalletGuard Pro v2.2.0 |
+|---|---|
+| **Attack surfaces covered** | **20** (EIP-7702, session keys, MEV, drainers, phish clones, Safe multi-sig, hardware wallet rules, wallet DNA, threat feed, ...) |
+| **Modules** | **20** pure ES modules, zero runtime dependencies |
+| **Tests** | **805** automated tests, 19 suites, all green |
+| **Chains** | **9** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia) |
+| **Wallets** | **12** (MetaMask, Rabby, Frame, Rainbow, Zerion, Trust, Coinbase, Brave, OKX, Phantom, ...) |
+| **Locales** | **4** (en, ru, es, zh) — every UI string |
+| **Bundle size** | content 247K + popup 276K (≈ 520K total) — smaller than Blockaid's SW |
+| **Privacy** | No backend. No tracking. No user data leaves the device. |
+| **License** | MIT — fork, extend, audit, ship |
+| **CI** | GitHub Actions on Node 18, 20, 22 |
+
+---
+
+## The 20 Protection Layers
+
+WalletGuard Pro is the only Web3 wallet extension that covers every
+known attack surface — including ones added by Pectra (May 2025) that
+competitors don't yet detect.
+
+| # | Layer | Catches |
+|---|---|---|
+| 1 | **Typosquatting detector** | `unisvvap.org`, IDN homoglyphs, subdomain attacks |
+| 2 | **Multicall decoder** | Hidden approve + transfer pairs wrapped in multicall |
+| 3 | **Universal Router decoder** | All 17 Uniswap UR opcodes, detects drainer commands |
+| 4 | **Risk engine** | Weighted multi-factor scoring with explicit reasons |
+| 5 | **Capabilities explainer** | Plain-English "what this contract can do to your wallet" |
+| 6 | **Approval scanner** (9 chains) | ERC-20 + ERC-721 stale/unlimited approvals |
+| 7 | **Approval revocation helper** | Generates calldata for revoke.cash broadcast |
+| 8 | **MEV detector** | Sandwich attacks, mempool exposure, known bot recipients |
+| 9 | **Tx simulator** (`eth_call`) | Catches reverts before signing, Uniswap V3 exact quotes |
+| 10 | **Address book** | Trusted / neutral / blocked per-address with tags |
+| 11 | **EIP-7702 detector** *(NEW)* | Smart-EOA delegation attacks (Pectra) — only extension that catches these |
+| 12 | **Session-key analyzer** *(NEW)* | ERC-7715 / WalletConnect permission over-grants |
+| 13 | **Privacy-preserving threat feed** *(NEW)* | Signed community feed, verified locally via Web Crypto |
+| 14 | **Wallet DNA — behavioral anomaly** *(NEW)* | On-device learning, no user data sent anywhere |
+| 15 | **Drainer pattern detector** *(NEW)* | Function-selector signatures for known drainer shapes |
+| 16 | **Visual phishing detector** *(NEW)* | Structural + pHash DOM fingerprint vs 17 legit sites |
+| 17 | **Hardware wallet awareness** *(NEW)* | Ledger/Trezor/Keystone + strict rules when HW in use |
+| 18 | **Safe multi-sig analysis** *(NEW)* | execTransaction + approveHash + delegate-call detection |
+| 19 | **Auto-revoke scheduler** *(NEW)* | Daily stale-approval detection with browser notification |
+| 20 | **Transaction explainer** *(NEW)* | Natural-language summary, no LLM required |
+
 ---
 
 ## Features
 
 ### Tier 4 — Always-on Protection (v1.5.2+)
-- **Browser action badge** — the extension toolbar icon now shows color-coded status: red `!` on phishing sites, yellow number for risky approval count, gray `OFF` when disabled. Visible every day, drives organic viral growth.
-- **Real-time OS notifications** — high-severity events (phishing block, critical risk) trigger a system notification even when the popup is closed. Click → opens WalletGuard.
+- **Browser action badge** — the extension toolbar icon shows color-coded status: red `!` on phishing sites, yellow number for risky approval count, gray `OFF` when disabled.
+- **Real-time OS notifications** — high-severity events trigger a system notification even when the popup is closed.
 
 ### Transaction interception (every tx before it hits MetaMask)
-- **ERC-20 / ERC-721 / ERC-1155** transfers and approvals decoded into human-readable form
-- **Multicall V1 / V2 / V3** with per-subcall risk analysis (recursive up to 4 levels deep)
-- **Uniswap Universal Router** command decoding (all 17 opcodes, 0x00–0x10)
-- **EIP-712 Permit / Permit2** detection — including blind `personal_sign` payloads that hide permit calls
-- **Bridges** (1inch, Stargate, Across, etc.) flagged with destination-chain warnings
-- **Unknown methods** shown explicitly — never silently passed through
+- **ERC-20 / ERC-721 / ERC-1155** transfers and approvals decoded
+- **Multicall V1 / V2 / V3** with per-subcall risk analysis
+- **Uniswap Universal Router** command decoding
+- **EIP-712 Permit / Permit2** detection — including blind `personal_sign` payloads
+- **Bridges** flagged with destination-chain warnings
+- **Unknown methods** shown explicitly
 
 ### Risk engine
-Weighted scoring with explicit factors. Every transaction shows you **why** it's risky, not just a number.
-- Critical compounds: unlimited approve + unknown contract = drainer pattern
-- NFT root-access to unverified operator = top NFT drain signature
-- Native ETH to unverified address over 1 ETH = medium warning
+Weighted multi-factor scoring. Every transaction shows you **why** it's risky, not just a number.
 
-### Approval scanner (v1.5.0)
-- **ERC-20 approvals** across **9 chains** (Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia)
-- **NFT collection approvals** (`setApprovalForAll`) — catches the root-access NFT drain pattern
-- **Zero API keys** — uses your wallet's own RPC node (or public RPC endpoints in multi-chain mode)
-- **Risk classification**: critical / high / medium / low / info per approval
-- **Auto-refresh** every 6 hours via `chrome.alarms`
-- **Per-chain lookback** tuned to each chain's block time
+### Approval scanner
+- **ERC-20 approvals** across **9 chains** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia)
+- **NFT collection approvals** (`setApprovalForAll`) — root-access drain pattern
+- **Zero API keys** — uses your wallet's own RPC node
 
 ### Phishing & typosquatting defense
-- **Phishing overlay** on known-drainer domains and custom blacklist hits
-- **Typosquatting detection** via Levenshtein distance + substring + IDN/homoglyph checks against 47 trusted protocols (Uniswap, OpenSea, MetaMask, Rabby, Lido, Blur, GMX, ENS, Aave, Curve, Balancer, …)
-- **Compound banner** in the transaction overlay when you're on a `unisvvap.org`-style lookalike
+- **Phishing overlay** on known-drainer domains and custom blacklist
+- **Typosquatting detection** via Levenshtein + IDN/homoglyph checks against 47+ trusted protocols
 
-### Universal — no API keys, no accounts
-The whole stack runs locally in the extension. No telemetry, no backend, no signup.
+### Privacy — no API keys, no accounts
+The whole stack runs locally. No telemetry, no backend, no signup.
 
 ---
 

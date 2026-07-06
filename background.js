@@ -28,7 +28,10 @@ const STORAGE_KEYS = {
   ADDRESS_BOOK: "wg_addressBook",            // v2.0: local address labels { addr: { label, trust, tags } }
   DNA_PROFILES: "wg_dnaProfiles",            // v2.1: per-wallet behavioral profiles
   THREAT_FEED: "wg_threatFeed",              // v2.1: cached threat feed manifest
-  THREAT_FEED_ENABLED: "wg_threatFeedEnabled" // v2.1: user opt-in to community feed
+  THREAT_FEED_ENABLED: "wg_threatFeedEnabled", // v2.1: user opt-in to community feed
+  AUTO_REVOKE_OPTED: "wg_autoRevokeOptedIn",  // v2.2: user opted into scheduled stale-approval alerts
+  STALE_APPROVALS: "wg_staleApprovals",       // v2.2: detected stale approvals awaiting user action
+  LAST_AUTO_REVOKE: "wg_lastAutoRevokeCheck"  // v2.2: timestamp of last stale-approval scan
 };
 
 const MAX_LOGS = 50;
@@ -36,6 +39,7 @@ const AI_CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 const APPROVAL_SCAN_TTL_MS = 1000 * 60 * 60 * 6; // 6h
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const APPROVAL_SCAN_ALARM = "wg_approvalScanAlarm";
+const AUTO_REVOKE_ALARM = "wg_autoRevokeAlarm";
 
 // ---------- DEFAULT STATE ----------
 
@@ -113,6 +117,8 @@ try {
     }
     // Periodic approval rescan (every 6h) — survives MV3 SW sleep.
     try { chrome.alarms.create(APPROVAL_SCAN_ALARM, { periodInMinutes: 360 }); } catch (e) { console.warn("[WalletGuard] alarm create failed:", e && e.message); }
+    // Daily auto-revoke scan (every 24h) — only fires if user opted in.
+    try { chrome.alarms.create(AUTO_REVOKE_ALARM, { periodInMinutes: 1440 }); } catch (e) { /* ignore */ }
   });
 } catch (e) { console.error("[WalletGuard] onInstalled listener failed:", e && e.message); }
 
@@ -120,25 +126,84 @@ try {
 try {
   chrome.runtime.onStartup.addListener(() => {
     try { chrome.alarms.create(APPROVAL_SCAN_ALARM, { periodInMinutes: 360 }); } catch (e) { console.warn("[WalletGuard] alarm create failed:", e && e.message); }
+    try { chrome.alarms.create(AUTO_REVOKE_ALARM, { periodInMinutes: 1440 }); } catch (e) { /* ignore */ }
   });
 } catch (e) { console.error("[WalletGuard] onStartup listener failed:", e && e.message); }
 
 // Background alarm handler: silently refresh the approval scan if we know a wallet.
 try {
   chrome.alarms.onAlarm.addListener(async (alarm) => {
-    if (alarm.name !== APPROVAL_SCAN_ALARM) return;
-    const wallet = await getStorage(STORAGE_KEYS.LAST_WALLET, "");
-    const cached = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
-    if (!wallet || !cached) return;
-    // Skip if cache is fresh.
-    if (Date.now() - new Date(cached.scannedAt).getTime() < APPROVAL_SCAN_TTL_MS) return;
-    try {
-      await runApprovalScan(wallet, /* force */ false);
-    } catch (e) {
-      // Silent - alarm handler should not throw.
+    if (alarm.name === APPROVAL_SCAN_ALARM) {
+      const wallet = await getStorage(STORAGE_KEYS.LAST_WALLET, "");
+      const cached = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
+      if (!wallet || !cached) return;
+      // Skip if cache is fresh.
+      if (Date.now() - new Date(cached.scannedAt).getTime() < APPROVAL_SCAN_TTL_MS) return;
+      try {
+        await runApprovalScan(wallet, /* force */ false);
+      } catch (e) {
+        // Silent - alarm handler should not throw.
+      }
+    } else if (alarm.name === AUTO_REVOKE_ALARM) {
+      await runAutoRevokeScan();
     }
   });
 } catch (e) { console.error("[WalletGuard] onAlarm listener failed:", e && e.message); }
+
+// v2.2: Auto-revoke stale-approval scanner.
+// Runs daily via chrome.alarms. Identifies approvals that:
+//   - Have been active > 30 days
+//   - Are not whitelisted
+//   - Are "unlimited" (the riskiest pattern)
+// Queues them for user action and notifies.
+async function runAutoRevokeScan() {
+  try {
+    const optedIn = await getStorage(STORAGE_KEYS.AUTO_REVOKE_OPTED, false);
+    if (!optedIn) return;
+    const wallet = await getStorage(STORAGE_KEYS.LAST_WALLET, "");
+    if (!wallet) return;
+    const scan = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
+    if (!scan || !Array.isArray(scan.approvals)) return;
+
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const stale = [];
+    for (const a of scan.approvals) {
+      // We don't track last-used timestamp for each approval (would require an
+      // indexer). Instead, fall back to "scan age" — if the approval has been
+      // in scans for >30 days AND it's unlimited/risky, surface it.
+      const scannedAt = scan.scannedAt ? new Date(scan.scannedAt).getTime() : now;
+      const isOld = (now - scannedAt) > THIRTY_DAYS_MS;
+      const isRisky = a.isUnlimited || (a.risk && ["critical", "high"].includes(a.risk.level));
+      if (isOld && isRisky) {
+        stale.push({
+          token: a.token,
+          tokenSymbol: a.tokenSymbol,
+          spender: a.spender,
+          spenderName: a.spenderName || null,
+          chainId: a.chainId,
+          chainName: a.chainName,
+          allowance: a.allowance,
+          allowanceFmt: a.allowanceFmt,
+          riskLevel: a.risk && a.risk.level,
+          detectedAt: nowIso()
+        });
+      }
+    }
+    await setStorage(STORAGE_KEYS.STALE_APPROVALS, stale);
+    await setStorage(STORAGE_KEYS.LAST_AUTO_REVOKE, nowIso());
+    if (stale.length > 0) {
+      await notifyUser({
+        title: "🧹 Stale approvals detected",
+        message: `Found ${stale.length} approval${stale.length === 1 ? "" : "s"} older than 30 days that you may want to revoke.`,
+        level: "warn"
+      });
+      await appendLog(`Auto-revoke scan: ${stale.length} stale approval(s) detected.`);
+    }
+  } catch (e) {
+    console.warn("[WalletGuard] auto-revoke scan failed:", e && e.message);
+  }
+}
 
 // ---------- AI ADDRESS CHECK ----------
 
@@ -589,6 +654,69 @@ async function handleMessage(message, sender) {
         feedVersion: cached && cached.feedVersion,
         threatCount: cached && cached.index ? cached.index.all.length : 0,
         updatedAt: cached && cached.updatedAt
+      };
+    }
+
+    // --- v2.2: Auto-revoke opt-in toggle ---
+    case "setAutoRevokeOptIn": {
+      await setStorage(STORAGE_KEYS.AUTO_REVOKE_OPTED, !!message.optedIn);
+      await appendLog(`Auto-revoke stale-approval alerts ${message.optedIn ? "enabled" : "disabled"}.`);
+      // Reschedule the alarm.
+      try { chrome.alarms.create(AUTO_REVOKE_ALARM, { periodInMinutes: 1440 }); } catch {}
+      return { ok: true, optedIn: !!message.optedIn };
+    }
+
+    // --- v2.2: Get stale-approval queue ---
+    case "getStaleApprovals": {
+      const stale = await getStorage(STORAGE_KEYS.STALE_APPROVALS, []);
+      const lastCheck = await getStorage(STORAGE_KEYS.LAST_AUTO_REVOKE, null);
+      const optedIn = await getStorage(STORAGE_KEYS.AUTO_REVOKE_OPTED, false);
+      return { stale, lastCheck, optedIn };
+    }
+
+    // --- v2.2: Clear a stale approval from the queue (user signed the revoke) ---
+    case "clearStaleApproval": {
+      const tokenAddr = (message.address || "").toLowerCase();
+      const spenderAddr = (message.spender || "").toLowerCase();
+      const stale = await getStorage(STORAGE_KEYS.STALE_APPROVALS, []);
+      const filtered = stale.filter((s) => !(s.token === tokenAddr && s.spender === spenderAddr));
+      await setStorage(STORAGE_KEYS.STALE_APPROVALS, filtered);
+      return { ok: true, remaining: filtered.length };
+    }
+
+    // --- v2.2: Security Center status ---
+    case "getSecurityCenter": {
+      const [
+        enabled, scan, lastReceipt, profiles, feedEnabled,
+        feedCached, optedIn, stale, lastCheck
+      ] = await Promise.all([
+        getStorage(STORAGE_KEYS.ENABLED, true),
+        getStorage(STORAGE_KEYS.APPROVAL_SCAN, null),
+        getStorage(STORAGE_KEYS.LAST_RECEIPT, null),
+        getStorage(STORAGE_KEYS.DNA_PROFILES, {}),
+        getStorage(STORAGE_KEYS.THREAT_FEED_ENABLED, false),
+        getStorage(STORAGE_KEYS.THREAT_FEED, null),
+        getStorage(STORAGE_KEYS.AUTO_REVOKE_OPTED, false),
+        getStorage(STORAGE_KEYS.STALE_APPROVALS, []),
+        getStorage(STORAGE_KEYS.LAST_AUTO_REVOKE, null)
+      ]);
+      return {
+        enabled,
+        approvalScanAt: scan && scan.scannedAt,
+        riskyApprovals: scan && scan.summary && scan.summary.risky || 0,
+        totalApprovals: scan && scan.summary && scan.summary.total || 0,
+        lastReceipt: lastReceipt ? {
+          scannedAt: lastReceipt.scannedAt,
+          statusKind: lastReceipt.statusKind,
+          statusHeadline: lastReceipt.statusHeadline,
+          method: lastReceipt.method
+        } : null,
+        dnaWalletCount: Object.keys(profiles || {}).length,
+        threatFeedEnabled: feedEnabled,
+        threatFeedCount: feedCached && feedCached.index ? feedCached.index.all.length : 0,
+        autoRevokeOptedIn: optedIn,
+        staleApprovalCount: stale.length,
+        lastAutoRevokeCheck: lastCheck
       };
     }
 

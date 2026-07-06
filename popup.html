@@ -28,6 +28,49 @@
             </div>
         </div>
 
+        <!-- v2.2 SECURITY CENTER -->
+        <div class="security-center">
+            <div class="section-title" data-i18n="popup.sec.title">Security Center</div>
+            <div class="sec-grid">
+                <div class="sec-tile" id="sec-enabled">
+                    <div class="sec-tile-icon">●</div>
+                    <div class="sec-tile-label" data-i18n="popup.sec.enabled">Protection</div>
+                    <div class="sec-tile-value" id="sec-enabled-value">—</div>
+                </div>
+                <div class="sec-tile" id="sec-approvals">
+                    <div class="sec-tile-icon">◇</div>
+                    <div class="sec-tile-label" data-i18n="popup.sec.approvals">Approvals</div>
+                    <div class="sec-tile-value" id="sec-approvals-value">—</div>
+                </div>
+                <div class="sec-tile" id="sec-stale">
+                    <div class="sec-tile-icon">⏱</div>
+                    <div class="sec-tile-label" data-i18n="popup.sec.stale">Stale</div>
+                    <div class="sec-tile-value" id="sec-stale-value">—</div>
+                </div>
+                <div class="sec-tile" id="sec-dna">
+                    <div class="sec-tile-icon">🧬</div>
+                    <div class="sec-tile-label" data-i18n="popup.sec.dna">DNA</div>
+                    <div class="sec-tile-value" id="sec-dna-value">—</div>
+                </div>
+                <div class="sec-tile" id="sec-feed">
+                    <div class="sec-tile-icon">🛡</div>
+                    <div class="sec-tile-label" data-i18n="popup.sec.feed">Threats</div>
+                    <div class="sec-tile-value" id="sec-feed-value">—</div>
+                </div>
+                <div class="sec-tile" id="sec-autorevoke">
+                    <div class="sec-tile-icon">🧹</div>
+                    <div class="sec-tile-label" data-i18n="popup.sec.autorevoke">Auto-clean</div>
+                    <div class="sec-tile-value" id="sec-autorevoke-value">—</div>
+                </div>
+            </div>
+            <div class="sec-actions">
+                <button class="sec-toggle" id="sec-feed-toggle"
+                        data-i18n="popup.sec.feedOptIn">Enable threat feed</button>
+                <button class="sec-toggle" id="sec-autorevoke-toggle"
+                        data-i18n="popup.sec.autorevokeOptIn">Enable auto-clean</button>
+            </div>
+        </div>
+
         <!-- v2.0 SIMULATION PREVIEW -->
         <div class="sim-section" id="sim-section" hidden>
             <div class="section-title-row">

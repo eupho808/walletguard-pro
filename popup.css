@@ -235,6 +235,85 @@ body {
     color: #ffb700;
 }
 
+/* ---------- SECURITY CENTER (v2.2) ---------- */
+
+.security-center {
+    background: linear-gradient(135deg, rgba(0,255,204,0.06), rgba(0,255,102,0.03));
+    border: 1px solid rgba(0,255,204,0.18);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.sec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.sec-tile {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+}
+
+.sec-tile-icon {
+    font-size: 16px;
+    color: #00ffcc;
+    margin-bottom: 4px;
+}
+
+.sec-tile-label {
+    font-size: 9px;
+    color: #8a92a3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.sec-tile-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.sec-tile-value.warn { color: #ffb700; }
+.sec-tile-value.bad  { color: #ff6b6b; }
+.sec-tile-value.good { color: #00ff66; }
+
+.sec-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.sec-toggle {
+    flex: 1;
+    background: rgba(0,255,204,0.1);
+    color: #00ffcc;
+    border: 1px solid rgba(0,255,204,0.25);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.sec-toggle:hover {
+    background: rgba(0,255,204,0.18);
+}
+
+.sec-toggle.is-active {
+    background: rgba(0,255,102,0.15);
+    color: #00ff66;
+    border-color: rgba(0,255,102,0.4);
+}
+
 /* ---------- SIMULATION PREVIEW (v2.0) ---------- */
 
 .sim-section {

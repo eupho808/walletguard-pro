@@ -30,7 +30,12 @@ const ORDER = [
   "eip7702-detector.js",
   "session-key-analyzer.js",
   "threat-feed.js",
-  "wallet-dna.js"
+  "wallet-dna.js",
+  "drainer-detector.js",
+  "visual-phish.js",
+  "hw-wallet.js",
+  "safe-multisig.js",
+  "explain.js"
 ];
 
 // Popup bundle gets all the modules PLUS the i18n system AND popup-only
