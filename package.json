@@ -1,6 +1,6 @@
 {
   "name": "walletguard-pro",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Open-source Web3 wallet security suite. Real transaction simulation, MEV detection, calldata decoding, approval scanner (ERC-20+NFT), phishing detection, address book. 9 chains. Zero API keys. MIT licensed.",
   "private": true,
   "type": "module",

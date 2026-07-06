@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.0] - 2026-07-06
+
+### ✨ UX additions (all v4 CALM compliant)
+
+**Popup**
+- **Connected wallet line** — shows shortened address (0x6...4) + chain pill below the topbar, populated from the most recent intercepted transaction. Hidden until a tx has been seen.
+- **Unread alerts badge** — red pill in the topbar showing count of BLOCKED / CRITICAL / Phishing log entries from the last 24h. Capped at 9+. Click scrolls to the activity section.
+- **Loading state** — hero score dims to 0.45 opacity while data is being fetched.
+- **Activity timeline colour coding** — each row gets a left-border coloured by severity (red / amber / emerald / transparent) via the new `classifyLog()` helper.
+
+**Settings**
+- **Notifications section** with two toggles:
+  - *Desktop alerts* — master switch for `chrome.notifications.create()` calls (new `wg_notificationsEnabled` storage key).
+  - *Threat intelligence feed* — controls `wg_threatFeedEnabled` (previously only visible in the popup).
+- **Export Settings** — downloads a JSON file containing every storage key (`wg_apiKey`, `wg_whitelist`, `wg_addressBook`, etc.) with timestamp + version. Uses the same clipboard-or-download fallback as address-book export.
+- **Import Settings** — file picker → confirmation prompt → overwrite all matching storage keys. Toast shows count of imported keys; calls `refreshDynamicUI()` to re-render the page.
+
+**Background service worker**
+- `getPopupData` now returns `{ wallet, chainId, chainName }` alongside the existing stats/logs/enabled.
+- New handlers: `exportSettings`, `importSettings`.
+- `notifyUser()` honors the new master notifications toggle (silently returns when off).
+
+**Code quality**
+- 31 JSDoc blocks added to public top-level functions in `popup.js` (18) and `settings.js` (13).
+
+**i18n**
+- 16 new keys balanced across all 4 locales (en / ru / es / zh) under `popup.wallet.*`, `settings.section.notifications.*`, `settings.toggle.{desktopNotifications,threatFeed}.*`, `settings.data.{exportSettings,importSettings}`, `settings.toast.{notifications,threatFeed,settings,export,import}.*`, and `settings.confirm.importSettings`.
+
+### 📦 Internal
+- 727 tests still pass across 18 suites.
+- popup-bundle.js: 305.6 KB (up from 299 KB due to +16 locale keys)
+- settings.css: 9.7 KB (up from 7.5 KB due to new notifications section + buttons)
+- popup.css: 15.6 KB (up from 14 KB due to wallet line + alerts badge + timeline colors)
+
+---
+
 ## [3.1.0] - 2026-07-06 — "CALM"
 
 ### 🎨 Minimal UI redesign (all three surfaces)
