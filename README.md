@@ -1,10 +1,10 @@
 # WalletGuard Pro
 
-> The most comprehensive Web3 wallet security extension ever built. **20 protection layers**, **zero dependencies**, **756 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
+> The most comprehensive Web3 wallet security extension ever built. **29 protection layers**, **zero dependencies**, **1,225 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
 
 [![Version](https://img.shields.io/badge/version-3.2.1-10B981?style=flat-square)](./manifest.json)
 [![Design](https://img.shields.io/badge/design-CALM-10B981?style=flat-square)](#v4-calm-design-language)
-[![Tests](https://img.shields.io/badge/tests-756-10B981?style=flat-square)](./test-bugfixes.js)
+[![Tests](https://img.shields.io/badge/tests-1,225-10B981?style=flat-square)](./test-portfolio-view.js)
 [![Modules](https://img.shields.io/badge/modules-20-ffb700?style=flat-square)](./lib/)
 [![Chains](https://img.shields.io/badge/chains-9-4285F4?style=flat-square)](./lib/constants.js)
 [![Wallets](https://img.shields.io/badge/wallets-12-FF7139?style=flat-square)](./site/wallets.html)
@@ -29,7 +29,7 @@ Every Web3 wallet trusts you to read raw `0x...` calldata and approve it. Most d
 |---|---|
 | **Attack surfaces covered** | **20** (EIP-7702, session keys, MEV, drainers, phish clones, Safe multi-sig, hardware wallet rules, wallet DNA, threat feed, ...) |
 | **Modules** | **20** pure ES modules, zero runtime dependencies |
-| **Tests** | **756** automated tests, 19 suites, all green |
+| **Tests** | **1,225** automated tests, 30 suites, all green |
 | **Chains** | **9** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia) |
 | **Wallets** | **12** (MetaMask, Rabby, Frame, Rainbow, Zerion, Trust, Coinbase, Brave, OKX, Phantom, ...) |
 | **Locales** | **4** (en, ru, es, zh) — every UI string |
@@ -57,7 +57,7 @@ A premium dark UI inspired by Linear, Stripe, Rabby and MetaMask — minimal, ca
 
 ---
 
-## The 20 Protection Layers
+## The 29 Protection Layers
 
 WalletGuard Pro is the only Web3 wallet extension that covers every
 known attack surface — including ones added by Pectra (May 2025) that
@@ -85,6 +85,15 @@ competitors don't yet detect.
 | 18 | **Safe multi-sig analysis** *(NEW)* | execTransaction + approveHash + delegate-call detection |
 | 19 | **Auto-revoke scheduler** *(NEW)* | Daily stale-approval detection with browser notification |
 | 20 | **Transaction explainer** *(NEW)* | Natural-language summary, no LLM required |
+| 21 | **USD blast radius** *(v3.4)* | Real-time per-approval USD value at risk via Uniswap V3 QuoterV2 |
+| 22 | **Pattern DNA** *(v3.4)* | Structural fingerprint of any tx, cosine similarity vs 8 drainer archetypes |
+| 23 | **Correlation engine** *(v3.4)* | Same-deployer clustering, approval stacking, multi-chain flow convergence |
+| 24 | **Price oracle** *(v3.5)* | Real-time USD via V3 → V2 router → static fallback; 60s in-memory cache |
+| 25 | **Native ENS resolver** *(v3.5)* | Pure-JS Keccak-256 + on-chain Registry/Resolver, zero external APIs |
+| 26 | **Stale approval tracker** *(v3.5)* | 5-level age classification, waste-score ranking, auto-revoke candidates |
+| 27 | **Wallet classifier** *(v3.5)* | 8 wallet types with adaptive rules (cold, whale, exchange, DeFi, …) |
+| 28 | **Exportable audit log** *(v3.5)* | 9 event types, 5000-entry FIFO cap, CSV/JSON export with field mapping |
+| 29 | **Bulk multicall revoke** *(v3.5 + v3.6 UI)* | N approvals → K Multicall3 transactions (K = unique chain/token pairs) |
 
 ---
 
@@ -179,8 +188,15 @@ node test-revoke.js         # 76 tests — revoke calldata generation
 node test-build.js          # 33 tests — bundle integrity + manifest validation
 node test-i18n.js           # 54 tests — locale normalization, fallback, interpolation
 node test-onboarding.js     # 80 tests — 4-step overlay + ARIA + storage
-                            # ─────
-                            # 478 tests total
+node test-price-oracle.js   # 16 tests — USD valuation
+node test-ens-resolver.js   # 25 tests — Keccak-256 + ENS namehash
+node test-stale-tracker.js  # 69 tests — approval age + waste scoring
+node test-wallet-classifier.js # 51 tests — 8 wallet types + adaptive rules
+node test-audit-log.js      # 75 tests — log shape + CSV/JSON export
+node test-bulk-multicall.js # 58 tests — multicall aggregation + gas
+node test-portfolio-view.js # 48 tests — portfolio aggregation + USD totals
+
+                            # 1,225 tests total
 ```
 
 Every test runs in plain Node — no Chrome required. The scanner module is loaded via `vm.runInContext()` with mocked `chrome.*` and `fetch()` APIs.
