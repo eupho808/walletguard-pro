@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.6.0] - 2026-07-07 - "PORTFOLIO"
+
+Portfolio view + bulk multicall revoke UI. Turns the approval scanner
+into something actionable: see what you own, see what's exposed, and
+clear all stale risk in one transaction instead of N.
+
+### Added
+
+- **`lib/portfolio-view.js`** — Aggregate token + NFT + approval exposure into a single portfolio view.
+  - `computePortfolio()` — totals across all scanned chains: token count, NFT count, exposed count, exposed USD, wallet value USD, total portfolio USD, top tokens (up to 10), chain breakdown, exposure ratio.
+  - `estimateApprovalUsd()` — per-approval USD estimate using price oracle, NFT-collection floor-price fallback, native ETH passthrough.
+  - `formatUsd()` — compact formatter (`$1.23M`, `$4.5k`, `$0`, `$< 0.01`).
+  - Pure helpers — testable in Node without browser globals. 48 tests pass.
+
+- **`background.js` inline SW helpers** — `computePortfolioInline()`, `buildBulkRevokePlanInline()`, `padAddressInline()`, `buildBatchDataInline()`, `estimateApprovalUsdInline()`. Keeps the SW independent from popup-bundle ES module imports (no separate bundle build required for SW).
+
+- **New background handlers**:
+  - `getPortfolioView({tokens, nfts, approvals, prices, chainInfo})` → returns full portfolio structure.
+  - `getBulkRevokePlan({approvals, chainInfo, dryRun})` → returns Multicall3 plan with gas estimate.
+
+- **Popup UI**:
+  - New **Portfolio** section (after Security Center, before Activity): total value, token/NFT counts, exposed USD, exposure ratio bar with severity color.
+  - New **Bulk Revoke** section: shows count of auto-revoke candidates (stale unlimited approvals), primary button "Revoke all stale (N tx)" + secondary "Preview plan".
+  - New **Bulk Revoke Modal**: full plan with per-call chain/token/spender/value, gas estimate, "Copy calldata" + "Open in explorer" buttons. **WORLD-FIRST for an open-source extension** — Pocket Universe never shipped multicall batching in the UI; competitor retail tools either charge for it or limit to single-token revoke.
+
+- **Locale keys** — `popup.portfolio.*` (10 keys), `popup.bulkRevoke.*` (12 keys), `popup.bulkRevokeModal.*` (8 keys) balanced across en/ru/es/zh/ja/ko (30 keys × 6 locales).
+
+- **`build.js` ORDER extended** — `portfolio-view.js` added (30 modules total in popup bundle).
+
+- **`test-build.js` updated** — verifies 30 modules present (was 24).
+
+### Tests
+
+- **1225 tests across 30 suites pass** (was 1177 across 29 in v3.5.0).
+- New: `test-portfolio-view.js` (48).
+- Net delta: +48 new tests, 0 regressions.
+
+### Bundle Size
+
+- `content.js`: 360 KB → ~363 KB (+3 KB for inline SW helpers).
+- `popup-bundle.js`: 445 KB → ~450 KB (+5 KB for portfolio module + 30 locale keys).
+- ZIP: 2078 KB.
+
+### Why "PORTFOLIO"
+
+WalletGuard Pro now answers the three questions every wallet user asks:
+
+1. **"What do I own?"** — Portfolio view with USD totals across all chains.
+2. **"What's exposed?"** — Existing approval scanner + blast radius.
+3. **"How do I fix it cheaply?"** — Bulk multicall revoke in N→K transactions.
+
+No other open-source extension offers all three in a single MIT-licensed package.
+
+---
+
 ## [3.5.0] - 2026-07-07 - "FORTRESS"
 
 Six new modules that close the gap between "show me what's exposed" and

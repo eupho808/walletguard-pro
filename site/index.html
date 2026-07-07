@@ -7,7 +7,7 @@
 <meta name="description" content="WalletGuard Pro is the security layer every Web3 wallet needs. Intercepts transactions, detects drainers, phishing, MEV, and EIP-7702 attacks before they reach your wallet. Free. MIT licensed.">
 <meta name="keywords" content="web3 security, wallet protection, phishing detection, drainer detector, EIP-7702, MEV protection, ethereum security, crypto extension">
 <meta property="og:title" content="WalletGuard Pro — The Security Layer Every Web3 Wallet Needs">
-<meta property="og:description" content="23 protection layers. 13 chains. 6 languages. Free. MIT licensed.">
+<meta property="og:description" content="Portfolio view + bulk multicall revoke. 29 protection layers. 13 chains. 6 languages. Free. MIT licensed.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="../assets/og-image.svg">
 <meta name="twitter:card" content="summary_large_image">
@@ -88,7 +88,7 @@
     <div class="hero__content">
       <div class="hero__eyebrow" data-reveal>
         <span class="hero__eyebrow-dot"></span>
-        <span>v3.3.0 · 794 tests · 13 chains</span>
+        <span>v3.6.0 · 1,225 tests · 13 chains</span>
       </div>
       <h1 class="hero__title" data-reveal>
         The security layer<br>
@@ -111,7 +111,7 @@
       </div>
       <div class="hero__trust" data-reveal>
         <div class="hero__trust-item">
-          <span class="hero__trust-num">23</span>
+          <span class="hero__trust-num">29</span>
           <span class="hero__trust-label">protection<br>layers</span>
         </div>
         <div class="hero__trust-divider"></div>
@@ -454,6 +454,14 @@
         <h3 class="feature-card__title">Exportable audit log</h3>
         <p class="feature-card__desc">Privacy-first local log of every block / warn / approval scan. One-click CSV or JSON export. No telemetry, ever.</p>
       </article>
+
+      <article class="feature-card" data-reveal>
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+        </div>
+        <h3 class="feature-card__title">Portfolio view</h3>
+        <p class="feature-card__desc">Total value across all scanned chains. Tokens, NFTs, and approvals in one view. Exposure ratio at a glance — see what's at risk vs what's safe.</p>
+      </article>
     </div>
   </div>
 </section>
@@ -465,7 +473,7 @@
       <div class="section__header" data-reveal>
         <span class="section__eyebrow">The engine</span>
         <h2 class="section__title">Local-first.<br>Open architecture.</h2>
-        <p class="section__sub">29 protection layers run in your browser. No data leaves your machine. Every heuristic is documented in source.</p>
+        <p class="section__sub">Portfolio view + bulk multicall revoke. 29 protection layers run in your browser. No data leaves your machine. Every heuristic is documented in source.</p>
       </div>
 
       <div class="engine__layers" data-reveal>
@@ -655,7 +663,7 @@
     <div class="opensource__left" data-reveal>
       <span class="section__eyebrow">Open source</span>
       <h2 class="section__title">Every line of code<br>is public.</h2>
-      <p class="section__sub">MIT licensed. 794 tests pass on every commit. Audit-ready. No obfuscation, no closed-source binaries.</p>
+      <p class="section__sub">MIT licensed. 1,225 tests pass on every commit. Audit-ready. No obfuscation, no closed-source binaries.</p>
       <div class="opensource__actions">
         <a href="https://github.com/eupho808/walletguard-pro" class="btn btn--primary">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
@@ -666,15 +674,15 @@
     </div>
     <div class="opensource__right" data-reveal>
       <div class="opensource__stat">
-        <span class="opensource__stat-num">794</span>
+        <span class="opensource__stat-num">1,225</span>
         <span class="opensource__stat-label">tests passing</span>
       </div>
       <div class="opensource__stat">
-        <span class="opensource__stat-num">21</span>
+        <span class="opensource__stat-num">30</span>
         <span class="opensource__stat-label">test suites</span>
       </div>
       <div class="opensource__stat">
-        <span class="opensource__stat-num">23</span>
+        <span class="opensource__stat-num">30</span>
         <span class="opensource__stat-label">lib modules</span>
       </div>
       <div class="opensource__stat">
@@ -734,6 +742,10 @@
         <p>Pocket Universe was excellent and was acquired by MetaMask in 2023 for an estimated $5-15M. After acquisition, the standalone extension was deprecated. WalletGuard Pro is the open-source successor — same simulation engine, but 29 layers, 13 chains, EIP-7702 detection, blast radius, drainer DNA, correlation, price oracle, ENS resolution, and threat feed.</p>
       </details>
       <details class="faq__item">
+        <summary>What's new in v3.6 "PORTFOLIO"?</summary>
+        <p>WalletGuard now answers the three questions every wallet user asks: <strong>"What do I own?"</strong> — portfolio view with USD totals across all chains (real-time Uniswap V3 prices). <strong>"What's exposed?"</strong> — existing approval scanner + blast radius. <strong>"How do I fix it cheaply?"</strong> — bulk multicall revoke UI that turns N stale approvals into K transactions (K = unique chain/token pairs) using Multicall3 <code>aggregate()</code>. <strong>1,225 tests across 30 suites pass.</strong> No other open-source extension ships all three in one MIT-licensed package.</p>
+      </details>
+      <details class="faq__item">
         <summary>What's new in v3.5 "FORTRESS"?</summary>
         <p>Six new modules: <strong>USD blast radius</strong> (real-time prices via Uniswap V3), <strong>native ENS resolution</strong> (pure-JS Keccak-256, no APIs), <strong>stale approval tracker</strong> (180d threshold, waste-score ranking), <strong>wallet classifier</strong> (8 types with adaptive rules), <strong>exportable audit log</strong> (CSV/JSON, privacy-first), and <strong>bulk multicall revoke</strong> (N approvals → 1 tx). Plus 3 world-first detection systems from v3.4: drainer DNA matching, correlation engine, and real-time blast radius.</p>
       </details>
@@ -751,7 +763,7 @@
         Stop signing blind.<br>
         <span class="hero__title-accent">Start signing safe.</span>
       </h2>
-      <p class="final-cta__sub" data-reveal>Free. MIT licensed. Zero configuration. 23 protection layers active the moment you install.</p>
+      <p class="final-cta__sub" data-reveal>Free. MIT licensed. Zero configuration. 29 protection layers active the moment you install.</p>
       <div class="final-cta__actions" data-reveal>
         <a href="https://chromewebstore.google.com/category/extensions" class="btn btn--primary btn--lg">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
@@ -766,7 +778,7 @@
         <span class="final-cta__meta-dot"></span>
         <span>Zero telemetry</span>
         <span class="final-cta__meta-dot"></span>
-        <span>794 tests</span>
+        <span>1,225 tests</span>
       </div>
     </div>
   </div>

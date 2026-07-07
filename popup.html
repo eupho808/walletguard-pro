@@ -116,6 +116,37 @@
 
         <hr class="divider">
 
+        <!-- PORTFOLIO VIEW (v3.6) -->
+        <section class="section" id="portfolio-section" hidden>
+            <div class="section__header">
+                <h2 class="section__title" data-i18n="popup.section.portfolio">Portfolio</h2>
+            </div>
+            <div class="portfolio">
+                <div class="portfolio__row">
+                    <span class="portfolio__label" data-i18n="popup.portfolio.atRisk">At risk</span>
+                    <span class="portfolio__value portfolio__value--big" id="portfolio-at-risk">—</span>
+                </div>
+                <div class="portfolio__row">
+                    <span class="portfolio__label" data-i18n="popup.portfolio.risky">Risky / unlimited / stale</span>
+                    <span class="portfolio__value" id="portfolio-counts">—</span>
+                </div>
+                <ul class="portfolio__top" id="portfolio-top"></ul>
+            </div>
+        </section>
+
+        <hr class="divider">
+
+        <!-- BULK REVOKE (v3.6) -->
+        <section class="section" id="bulk-revoke-section" hidden>
+            <div class="section__header">
+                <h2 class="section__title" data-i18n="popup.section.bulkRevoke">Quick cleanup</h2>
+            </div>
+            <p class="bulk-revoke__desc" id="bulk-revoke-desc" data-i18n="popup.bulkRevoke.desc">Revoke stale and risky approvals in one transaction per token.</p>
+            <button class="btn btn--primary" id="bulk-revoke-btn" data-i18n="popup.bulkRevoke.button">Generate bulk revoke</button>
+        </section>
+
+        <hr class="divider">
+
         <!-- ADDRESS BOOK -->
         <section class="section">
             <div class="section__header">
@@ -175,6 +206,26 @@
         <footer class="modal__footer">
           <button class="btn btn--ghost" data-revoke-close data-i18n="common.close">Close</button>
           <button class="btn btn--primary" id="revoke-modal-copy" data-i18n="popup.revoke.copy">Copy</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- BULK REVOKE PREVIEW MODAL (v3.6) -->
+    <div class="modal" id="bulk-revoke-modal" hidden>
+      <div class="modal__backdrop" data-bulk-revoke-close></div>
+      <div class="modal__panel">
+        <header class="modal__header">
+          <h2 class="modal__title" data-i18n="popup.bulkRevoke.title">Bulk revoke plan</h2>
+          <button class="modal__close" data-bulk-revoke-close aria-label="Close">×</button>
+        </header>
+        <div class="modal__body">
+          <p class="modal__lead" id="bulk-revoke-modal-lead"></p>
+          <div class="bulk-revoke__list" id="bulk-revoke-modal-list"></div>
+          <p class="modal__note" data-i18n="popup.bulkRevoke.note">WalletGuard generates the multicall calldata. You broadcast each transaction yourself — we never hold keys.</p>
+        </div>
+        <footer class="modal__footer">
+          <button class="btn btn--ghost" data-bulk-revoke-close data-i18n="common.close">Close</button>
+          <button class="btn btn--primary" id="bulk-revoke-copy" data-i18n="popup.bulkRevoke.copyAll">Copy all</button>
         </footer>
       </div>
     </div>

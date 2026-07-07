@@ -596,6 +596,38 @@ async function handleMessage(message, sender) {
       return { status: "ok" };
     }
 
+    // --- Portfolio view: aggregated USD + at-risk summary (v3.6) ---
+    case "getPortfolioView": {
+      try {
+        const scan = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
+        if (!scan) {
+          return { portfolio: null, reason: "No scan data. Run an approval scan first." };
+        }
+        const portfolio = computePortfolioInline(scan);
+        return { portfolio };
+      } catch (e) {
+        return { portfolio: null, error: e.message };
+      }
+    }
+
+    // --- Bulk revoke plan: generate multicall calldata for stale/risky approvals (v3.6) ---
+    case "getBulkRevokePlan": {
+      try {
+        const scan = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
+        if (!scan) {
+          return { plan: null, reason: "No scan data. Run an approval scan first." };
+        }
+        const plan = buildBulkRevokePlanInline(scan);
+        if (!plan || !plan.batches || plan.batches.length === 0) {
+          return { plan: null, reason: plan && plan.reason || "No stale or risky approvals to bulk-revoke." };
+        }
+        await appendLog(`Bulk revoke plan generated: ${plan.candidateCount} candidates → ${plan.batches.length} batches.`);
+        return { plan, candidateCount: plan.candidateCount };
+      } catch (e) {
+        return { plan: null, error: e.message };
+      }
+    }
+
     // --- Set wallet address manually (e.g. from popup) ---
     case "setWalletAddress": {
       const addr = (message.address || "").trim();
@@ -987,6 +1019,212 @@ async function setBadgeState(level, text) {
   } catch (e) {
     console.warn("[WalletGuard] setBadgeState failed:", e && e.message);
   }
+}
+
+// =====================================================================
+// v3.6: PORTFOLIO VIEW + BULK REVOKE PLAN (inline SW helpers)
+// =====================================================================
+// These are classic-script versions of the lib modules so the service worker
+// can call them directly without ES-module import overhead. Logic mirrors
+// lib/portfolio-view.js and lib/revoke-generator.js buildBulkRevokeMulticall.
+
+const MULTICALL3_ADDRESS = "0xcA11bde05977b3631167028862bE2a173976CA11";
+const MULTICALL_AGGREGATE_SELECTOR = "0x252dba42";
+const ERC20_APPROVE_SELECTOR = "0x095ea7b3";
+const NFT_SET_APPROVAL_FOR_ALL_SELECTOR = "0xa22cb465";
+const ZERO_WORD = "0x" + "0".repeat(64);
+
+function padAddressInline(addr) {
+  if (typeof addr !== "string") return null;
+  const clean = addr.toLowerCase().replace(/^0x/, "");
+  if (clean.length !== 40 || !/^[0-9a-f]{40}$/.test(clean)) return null;
+  return "0x" + clean.padStart(64, "0");
+}
+
+function buildBatchDataInline(calls) {
+  if (!Array.isArray(calls) || calls.length === 0) return null;
+  const callDataChunks = [];
+  const tuples = [];
+  for (const c of calls) {
+    const data = (c.data || "").startsWith("0x") ? c.data.slice(2) : (c.data || "");
+    const dataLen = data.length / 2;
+    tuples.push({ to: c.to, data, dataLen });
+  }
+  let dataOffset = tuples.length * 32 * 3;
+  const tupleHex = [];
+  for (const t of tuples) {
+    const addr = t.to.toLowerCase().replace("0x", "").padStart(64, "0");
+    const off = (dataOffset).toString(16).padStart(64, "0");
+    const len = t.dataLen.toString(16).padStart(64, "0");
+    tupleHex.push(addr + off + len);
+    const paddedData = t.data.length % 64 === 0 ? t.data : t.data + "0".repeat(64 - t.data.length % 64);
+    dataOffset += paddedData.length / 2 / 32 * 32;
+    callDataChunks.push(paddedData);
+  }
+  const arrayOffset = "20".padStart(64, "0");
+  const arrayLength = tuples.length.toString(16).padStart(64, "0");
+  return MULTICALL_AGGREGATE_SELECTOR + arrayOffset + arrayLength + tupleHex.join("") + callDataChunks.join("");
+}
+
+function computePortfolioInline(scanData) {
+  if (!scanData) return null;
+  // Flatten approvals (handle multi-chain shape).
+  let allApprovals = [];
+  if (Array.isArray(scanData.chains)) {
+    for (const chain of scanData.chains) {
+      if (Array.isArray(chain.approvals)) {
+        for (const a of chain.approvals) allApprovals.push(a);
+      }
+    }
+  }
+  if (Array.isArray(scanData.approvals)) allApprovals = allApprovals.concat(scanData.approvals);
+  if (Array.isArray(scanData.nftApprovals)) allApprovals = allApprovals.concat(scanData.nftApprovals);
+
+  let totalAtRiskUsd = 0;
+  let riskyCount = 0;
+  let unlimitedCount = 0;
+  let staleCount = 0;
+  const chainBreakdown = {};
+  const top = [];
+
+  for (const a of allApprovals) {
+    const usd = estimateApprovalUsdInline(a);
+    const severity = usd === null ? "unknown" : (usd === 0 ? "none" : (usd < 100 ? "low" : (usd < 1000 ? "medium" : (usd < 10000 ? "high" : "critical"))));
+    if (usd !== null && usd > 0) totalAtRiskUsd += usd;
+    if (severity === "high" || severity === "critical") riskyCount++;
+    if (a.isUnlimited) unlimitedCount++;
+    if (a.isStale) staleCount++;
+    const chainId = a.chainId || 0;
+    if (!chainBreakdown[chainId]) {
+      chainBreakdown[chainId] = { chainId, chainName: a.chainName || ("Chain " + chainId), count: 0, atRiskUsd: 0, riskyCount: 0 };
+    }
+    chainBreakdown[chainId].count++;
+    if (usd !== null && usd > 0) chainBreakdown[chainId].atRiskUsd += usd;
+    if (severity === "high" || severity === "critical") chainBreakdown[chainId].riskyCount++;
+    top.push({
+      tokenSymbol: a.tokenSymbol || a.tokenName || "Unknown",
+      tokenAddress: (a.token || a.tokenAddress || a.collection || "").toLowerCase(),
+      spender: (a.spender || a.operator || "").toLowerCase(),
+      spenderName: a.spenderName || a.operatorName || null,
+      chainId,
+      chainName: a.chainName || ("Chain " + chainId),
+      usd,
+      severity,
+      isUnlimited: !!a.isUnlimited,
+      isStale: !!a.isStale
+    });
+  }
+  top.sort((x, y) => {
+    const ux = x.usd === null ? -1 : x.usd;
+    const uy = y.usd === null ? -1 : y.usd;
+    return uy - ux;
+  });
+  return {
+    totalApprovals: allApprovals.length,
+    totalAtRiskUsd: Math.round(totalAtRiskUsd * 100) / 100,
+    riskyCount,
+    unlimitedCount,
+    staleCount,
+    chainsScanned: (scanData.summary && scanData.summary.chainsScanned) || 1,
+    chainsFailed: (scanData.summary && scanData.summary.chainsFailed) || 0,
+    chains: Object.values(chainBreakdown),
+    topRisks: top.slice(0, 5),
+    severityCounts: {
+      critical: top.filter((r) => r.severity === "critical").length,
+      high: top.filter((r) => r.severity === "high").length,
+      medium: top.filter((r) => r.severity === "medium").length,
+      low: top.filter((r) => r.severity === "low").length,
+      unknown: top.filter((r) => r.severity === "unknown").length
+    }
+  };
+}
+
+function estimateApprovalUsdInline(a) {
+  if (!a) return null;
+  const symbol = (a.tokenSymbol || "").toUpperCase();
+  const prices = { USDC: 1, USDT: 1, DAI: 1, WETH: 3000, ETH: 3000, WBTC: 60000, BTC: 60000, LINK: 15, UNI: 8, AAVE: 100, MKR: 1500, MATIC: 0.8, ARB: 1.2, OP: 2.5 };
+  const price = prices[symbol];
+  if (!price) return null;
+  const fmt = String(a.allowanceFmt || "");
+  if (/unlimited/i.test(fmt)) return null;
+  const m = fmt.match(/^([\d.]+)/);
+  if (!m) return null;
+  const amount = parseFloat(m[1]);
+  if (isNaN(amount)) return null;
+  return amount * price;
+}
+
+function buildBulkRevokePlanInline(scanData) {
+  if (!scanData) return null;
+  // Flatten approvals.
+  let allApprovals = [];
+  if (Array.isArray(scanData.chains)) {
+    for (const chain of scanData.chains) {
+      if (Array.isArray(chain.approvals)) for (const a of chain.approvals) allApprovals.push(a);
+    }
+  }
+  if (Array.isArray(scanData.approvals)) allApprovals = allApprovals.concat(scanData.approvals);
+  if (Array.isArray(scanData.nftApprovals)) allApprovals = allApprovals.concat(scanData.nftApprovals);
+
+  if (allApprovals.length === 0) return { batches: [], candidateCount: 0, reason: "No active approvals to revoke." };
+
+  // Filter to candidates.
+  const candidates = allApprovals.filter((a) => {
+    if (a.whitelisted) return false;
+    if (a.isUnlimited) return true;
+    if (a.risk === "high" || a.risk === "critical") return true;
+    if (a.spendCount === 0) return true;
+    if (a.isStale) return true;
+    return false;
+  });
+
+  if (candidates.length === 0) return { batches: [], candidateCount: 0, reason: "No stale or risky approvals to bulk-revoke." };
+
+  // Group by (chainId, tokenAddress).
+  const groups = new Map();
+  for (const a of candidates) {
+    const token = (a.token || a.tokenAddress || a.collection || "").toLowerCase();
+    const chain = a.chainId || 0;
+    if (!token) continue;
+    const key = chain + "-" + token;
+    if (!groups.has(key)) {
+      groups.set(key, { chainId: chain, chainName: a.chainName || ("Chain " + chain), tokenAddress: token, tokenSymbol: a.tokenSymbol || a.collectionName || token.slice(0, 8), calls: [] });
+    }
+    groups.get(key).calls.push(a);
+  }
+
+  const batches = [];
+  for (const group of groups.values()) {
+    const calls = [];
+    const planRefs = [];
+    for (const a of group.calls) {
+      const target = a.token || a.tokenAddress || a.collection;
+      const spender = a.spender || a.operator;
+      if (!target || !spender) continue;
+      const isNft = !!(a.collection || a.tokenType === "ERC-721" || a.tokenType === "ERC-1155");
+      const paddedSpender = padAddressInline(spender);
+      if (!paddedSpender) continue;
+      const calldata = (isNft ? NFT_SET_APPROVAL_FOR_ALL_SELECTOR : ERC20_APPROVE_SELECTOR) + paddedSpender.slice(2) + (isNft ? ZERO_WORD.slice(2) : ZERO_WORD.slice(2));
+      calls.push({ to: target, data: calldata });
+      planRefs.push({ tokenSymbol: group.tokenSymbol, spender, isNft });
+    }
+    if (calls.length === 0) continue;
+    const data = buildBatchDataInline(calls);
+    batches.push({
+      chainId: group.chainId,
+      chainName: group.chainName,
+      tokenAddress: group.tokenAddress,
+      tokenSymbol: group.tokenSymbol,
+      to: MULTICALL3_ADDRESS,
+      value: "0x0",
+      data,
+      approvalCount: calls.length,
+      planRefs,
+      description: `Bulk revoke ${calls.length} ${calls[0] && planRefs[0] && planRefs[0].isNft ? "NFT" : "ERC-20"} approval${calls.length > 1 ? "s" : ""} on ${group.tokenSymbol}`,
+      gasEstimate: 30000 + 50000 * calls.length + 10000
+    });
+  }
+  return { batches, candidateCount: candidates.length };
 }
 
 async function notifyUser(opts) {

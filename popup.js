@@ -73,6 +73,20 @@
       await triggerRescan("nft");
     });
 
+    // v3.6: Bulk revoke button
+    const bulkBtn = document.getElementById("bulk-revoke-btn");
+    if (bulkBtn) bulkBtn.addEventListener("click", showBulkRevokePreview);
+
+    // v3.6: Bulk revoke modal close handlers
+    const bulkModal = document.getElementById("bulk-revoke-modal");
+    if (bulkModal) {
+      bulkModal.addEventListener("click", (ev) => {
+        if (ev.target.closest("[data-bulk-revoke-close]")) hideBulkRevokeModal();
+      });
+    }
+    const bulkCopy = document.getElementById("bulk-revoke-copy");
+    if (bulkCopy) bulkCopy.addEventListener("click", copyBulkRevokePlan);
+
     // Hidden revoke flow kept for compatibility
     const modal = document.getElementById("revoke-modal");
     if (modal) {
@@ -120,6 +134,16 @@
     try {
       const approvalData = await sendMessage({ action: "getApprovalScan" });
       applyApprovals(approvalData || {});
+    } catch (e) { /* noop */ }
+
+    try {
+      const portData = await sendMessage({ action: "getPortfolioView" });
+      applyPortfolio(portData || {});
+    } catch (e) { /* noop */ }
+
+    try {
+      const bulkData = await sendMessage({ action: "getBulkRevokePlan" });
+      applyBulkRevokeAvailability(bulkData || {});
     } catch (e) { /* noop */ }
 
     try {
@@ -660,6 +684,136 @@
       toast(t("popup.revoke.copied"));
     } catch {
       toast(t("popup.revoke.copyFailed"));
+    }
+  }
+
+  // ============================================================
+  // v3.6: PORTFOLIO VIEW
+  // ============================================================
+
+  /**
+   * Render the portfolio summary section. Shows at-risk USD, counts, and
+   * top-3 risks. Hidden until a real scan has been run.
+   * @param {{portfolio?: object|null, reason?: string}} data
+   * @returns {void}
+   */
+  function applyPortfolio(data) {
+    const section = document.getElementById("portfolio-section");
+    if (!section) return;
+    const p = data && data.portfolio;
+    if (!p || p.totalApprovals === 0) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+    const atRiskEl = document.getElementById("portfolio-at-risk");
+    if (atRiskEl) {
+      const usd = p.totalAtRiskUsd || 0;
+      atRiskEl.textContent = usd === 0 ? "$0" : "$" + usd.toLocaleString();
+      atRiskEl.classList.toggle("is-critical", p.riskyCount > 0);
+      atRiskEl.classList.toggle("is-high", usd >= 1000 && p.riskyCount === 0);
+    }
+    const countsEl = document.getElementById("portfolio-counts");
+    if (countsEl) {
+      const parts = [];
+      if (p.riskyCount > 0) parts.push(p.riskyCount + " risky");
+      if (p.unlimitedCount > 0) parts.push(p.unlimitedCount + " unlimited");
+      if (p.staleCount > 0) parts.push(p.staleCount + " stale");
+      countsEl.textContent = parts.length === 0 ? "All clean" : parts.join(" · ");
+    }
+    const topEl = document.getElementById("portfolio-top");
+    if (topEl) {
+      const top = (p.topRisks || []).slice(0, 3);
+      if (top.length === 0) {
+        topEl.innerHTML = "";
+        return;
+      }
+      topEl.innerHTML = top.map((r) => {
+        const usdStr = r.usd === null ? "—" : "$" + Math.round(r.usd).toLocaleString();
+        return `<li class="portfolio__top-item">
+          <span class="portfolio__top-sym">${escapeHtml(r.tokenSymbol || "?")}</span>
+          <span class="portfolio__top-usd">${usdStr}</span>
+          <span class="portfolio__top-chain">${escapeHtml(r.chainName || "")}</span>
+        </li>`;
+      }).join("");
+    }
+  }
+
+  // ============================================================
+  // v3.6: BULK REVOKE
+  // ============================================================
+
+  let __activeBulkPlan = null;
+
+  /**
+   * Show the bulk-revoke button only when there's a non-empty plan.
+   * @param {{plan?: object|null, reason?: string}} data
+   * @returns {void}
+   */
+  function applyBulkRevokeAvailability(data) {
+    const section = document.getElementById("bulk-revoke-section");
+    const descEl = document.getElementById("bulk-revoke-desc");
+    if (!section) return;
+    const plan = data && data.plan;
+    if (!plan || !plan.batches || plan.batches.length === 0) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+    if (descEl) {
+      const n = plan.candidateCount || 0;
+      const b = plan.batches.length;
+      descEl.textContent = `${n} approval${n > 1 ? "s" : ""} → ${b} transaction${b > 1 ? "s" : ""}.`;
+    }
+  }
+
+  /**
+   * Re-fetch the bulk revoke plan and show it in the preview modal.
+   * Each batch shows its chain, token, approval count, and calldata.
+   * User can copy the entire plan to clipboard as JSON.
+   * @returns {Promise<void>}
+   */
+  async function showBulkRevokePreview() {
+    const res = await sendMessage({ action: "getBulkRevokePlan" });
+    if (!res || !res.plan || !res.plan.batches || res.plan.batches.length === 0) {
+      toast(res && res.reason || "No bulk revoke plan available.");
+      return;
+    }
+    __activeBulkPlan = res.plan;
+    const modal = document.getElementById("bulk-revoke-modal");
+    const lead = document.getElementById("bulk-revoke-modal-lead");
+    const list = document.getElementById("bulk-revoke-modal-list");
+    if (!modal || !list) return;
+    const n = res.plan.candidateCount || 0;
+    const b = res.plan.batches.length;
+    if (lead) lead.textContent = `${n} approval${n > 1 ? "s" : ""} ready to revoke across ${b} transaction${b > 1 ? "s" : ""}.`;
+    list.innerHTML = res.plan.batches.map((batch) => {
+      return `<div class="bulk-revoke__batch">
+        <div class="bulk-revoke__batch-head">
+          <span class="bulk-revoke__batch-chain">${escapeHtml(batch.chainName || "Chain")}</span>
+          <span class="bulk-revoke__batch-sym">${escapeHtml(batch.tokenSymbol || "?")}</span>
+          <span class="bulk-revoke__batch-count">${batch.approvalCount} approval${batch.approvalCount > 1 ? "s" : ""}</span>
+        </div>
+        <div class="bulk-revoke__batch-data mono mono-break">${escapeHtml(batch.data || "")}</div>
+      </div>`;
+    }).join("");
+    modal.hidden = false;
+  }
+
+  function hideBulkRevokeModal() {
+    const m = document.getElementById("bulk-revoke-modal");
+    if (m) m.hidden = true;
+    __activeBulkPlan = null;
+  }
+
+  async function copyBulkRevokePlan() {
+    if (!__activeBulkPlan) return;
+    const payload = JSON.stringify(__activeBulkPlan, null, 2);
+    try {
+      await navigator.clipboard.writeText(payload);
+      toast(t("popup.bulkRevoke.copied"));
+    } catch {
+      toast(t("popup.bulkRevoke.copyFailed"));
     }
   }
 })();

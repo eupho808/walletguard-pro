@@ -43,6 +43,7 @@ const ORDER = [
   "stale-tracker.js",
   "wallet-classifier.js",
   "audit-log.js",
+  "portfolio-view.js",
   "explain.js"
 ];
 

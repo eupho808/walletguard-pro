@@ -38,6 +38,17 @@
   "popup.section.tokenPermissions": "Token permissions",
   "popup.section.nftPermissions": "NFT permissions",
   "popup.section.addressBook": "Address book",
+  "popup.section.portfolio": "Portfolio",
+  "popup.section.bulkRevoke": "Quick cleanup",
+  "popup.portfolio.atRisk": "At risk",
+  "popup.portfolio.risky": "Risky / unlimited / stale",
+  "popup.bulkRevoke.desc": "Revoke stale and risky approvals in one transaction per token.",
+  "popup.bulkRevoke.button": "Generate bulk revoke",
+  "popup.bulkRevoke.title": "Bulk revoke plan",
+  "popup.bulkRevoke.note": "WalletGuard generates the multicall calldata. You broadcast each transaction yourself — we never hold keys.",
+  "popup.bulkRevoke.copyAll": "Copy all",
+  "popup.bulkRevoke.copied": "Plan copied to clipboard.",
+  "popup.bulkRevoke.copyFailed": "Copy failed.",
 
   // ---- Popup: protection checks ----
   "popup.check.protection": "Protection enabled",
@@ -362,6 +373,17 @@
   "popup.section.tokenPermissions": "Permisos de tokens",
   "popup.section.nftPermissions": "Permisos de NFT",
   "popup.section.addressBook": "Libreta de direcciones",
+  "popup.section.portfolio": "Portafolio",
+  "popup.section.bulkRevoke": "Limpieza rápida",
+  "popup.portfolio.atRisk": "En riesgo",
+  "popup.portfolio.risky": "Riesgosos / ilimitados / vencidos",
+  "popup.bulkRevoke.desc": "Revoca aprobaciones vencidas y riesgosas en una transacción por token.",
+  "popup.bulkRevoke.button": "Generar revocación masiva",
+  "popup.bulkRevoke.title": "Plan de revocación masiva",
+  "popup.bulkRevoke.note": "WalletGuard genera los datos de multicall. Tú envías cada transacción — nunca tenemos tus claves.",
+  "popup.bulkRevoke.copyAll": "Copiar todo",
+  "popup.bulkRevoke.copied": "Plan copiado al portapapeles.",
+  "popup.bulkRevoke.copyFailed": "Error al copiar.",
   "popup.check.protection": "Protecci\u00f3n activada",
   "popup.check.threats": "Inteligencia de amenazas",
   "popup.check.cleanup": "Limpieza autom\u00e1tica",
@@ -634,6 +656,17 @@
   "popup.section.tokenPermissions": "トークン権限",
   "popup.section.nftPermissions": "NFT 権限",
   "popup.section.addressBook": "アドレス帳",
+  "popup.section.portfolio": "ポートフォリオ",
+  "popup.section.bulkRevoke": "クイッククリーンアップ",
+  "popup.portfolio.atRisk": "リスク額",
+  "popup.portfolio.risky": "危険 / 無制限 / 期限切れ",
+  "popup.bulkRevoke.desc": "期限切れと危険な承認をトークンごとに1トランザクションで取り消します。",
+  "popup.bulkRevoke.button": "一括取り消しを生成",
+  "popup.bulkRevoke.title": "一括取り消しプラン",
+  "popup.bulkRevoke.note": "WalletGuardはマルチコールデータを生成します。各トランザクションはあなたが送信します — 鍵は保持しません。",
+  "popup.bulkRevoke.copyAll": "すべてコピー",
+  "popup.bulkRevoke.copied": "プランをクリップボードにコピーしました。",
+  "popup.bulkRevoke.copyFailed": "コピーに失敗しました。",
   "popup.check.protection": "保護が有効です",
   "popup.check.threats": "脅威インテリジェンス",
   "popup.check.cleanup": "自動クリーンアップ",
@@ -888,6 +921,17 @@
   "popup.section.tokenPermissions": "토큰 권한",
   "popup.section.nftPermissions": "NFT 권한",
   "popup.section.addressBook": "주소록",
+  "popup.section.portfolio": "포트폴리오",
+  "popup.section.bulkRevoke": "빠른 정리",
+  "popup.portfolio.atRisk": "위험 금액",
+  "popup.portfolio.risky": "위험 / 무제한 / 오래된",
+  "popup.bulkRevoke.desc": "오래되고 위험한 승인을 토큰당 한 번의 트랜잭션으로 취소합니다.",
+  "popup.bulkRevoke.button": "일괄 취소 생성",
+  "popup.bulkRevoke.title": "일괄 취소 계획",
+  "popup.bulkRevoke.note": "WalletGuard가 멀티콜 데이터를 생성합니다. 각 트랜잭션은 본인이 전송합니다 — 키를 보관하지 않습니다.",
+  "popup.bulkRevoke.copyAll": "모두 복사",
+  "popup.bulkRevoke.copied": "계획이 클립보드에 복사되었습니다.",
+  "popup.bulkRevoke.copyFailed": "복사 실패.",
   "popup.check.protection": "보호 활성화됨",
   "popup.check.threats": "위협 인텔리전스",
   "popup.check.cleanup": "자동 정리",
@@ -1145,6 +1189,17 @@
   "popup.section.tokenPermissions": "\u0422\u043e\u043a\u0435\u043d-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f",
   "popup.section.nftPermissions": "NFT-\u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f",
   "popup.section.addressBook": "\u0410\u0434\u0440\u0435\u0441\u043d\u0430\u044f \u043a\u043d\u0438\u0433\u0430",
+  "popup.section.portfolio": "\u041f\u043e\u0440\u0442\u0444\u043e\u043b\u0438\u043e",
+  "popup.section.bulkRevoke": "\u0411\u044b\u0441\u0442\u0440\u0430\u044f \u043e\u0447\u0438\u0441\u0442\u043a\u0430",
+  "popup.portfolio.atRisk": "\u041f\u043e\u0434 \u0443\u0433\u0440\u043e\u0437\u043e\u0439",
+  "popup.portfolio.risky": "\u041e\u043f\u0430\u0441\u043d\u044b\u0445 / \u0431\u0435\u0437\u043b\u0438\u043c\u0438\u0442\u043d\u044b\u0445 / \u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0438\u0445",
+  "popup.bulkRevoke.desc": "\u041e\u0442\u0437\u043e\u0432\u0438\u0442\u0435 \u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0438\u0435 \u0438 \u043e\u043f\u0430\u0441\u043d\u044b\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u043e\u0434\u043d\u043e\u0439 \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u0435\u0439 \u043d\u0430 \u0442\u043e\u043a\u0435\u043d.",
+  "popup.bulkRevoke.button": "\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u043c\u0430\u0441\u0441\u043e\u0432\u044b\u0439 \u043e\u0442\u0437\u044b\u0432",
+  "popup.bulkRevoke.title": "\u041f\u043b\u0430\u043d \u043c\u0430\u0441\u0441\u043e\u0432\u043e\u0433\u043e \u043e\u0442\u0437\u044b\u0432\u0430",
+  "popup.bulkRevoke.note": "WalletGuard \u0433\u0435\u043d\u0435\u0440\u0438\u0440\u0443\u0435\u0442 multicall-\u0434\u0430\u043d\u043d\u044b\u0435. \u0412\u044b \u0441\u0430\u043c\u0438 \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u044f\u0435\u0442\u0435 \u043a\u0430\u0436\u0434\u0443\u044e \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u044e — \u043c\u044b \u043d\u0435 \u0434\u0435\u0440\u0436\u0438\u043c \u043a\u043b\u044e\u0447\u0438.",
+  "popup.bulkRevoke.copyAll": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432\u0441\u0451",
+  "popup.bulkRevoke.copied": "\u041f\u043b\u0430\u043d \u0441\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d \u0432 \u0431\u0443\u0444\u0435\u0440 \u043e\u0431\u043c\u0435\u043d\u0430.",
+  "popup.bulkRevoke.copyFailed": "\u041e\u0448\u0438\u0431\u043a\u0430 \u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f.",
   "popup.check.protection": "\u0417\u0430\u0449\u0438\u0442\u0430 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u0430",
   "popup.check.threats": "\u041b\u0435\u043d\u0442\u0430 \u0443\u0433\u0440\u043e\u0437",
   "popup.check.cleanup": "\u0410\u0432\u0442\u043e-\u043e\u0447\u0438\u0441\u0442\u043a\u0430",
@@ -1420,6 +1475,17 @@
   "popup.section.tokenPermissions": "Token \u6388\u6743",
   "popup.section.nftPermissions": "NFT \u6388\u6743",
   "popup.section.addressBook": "\u901a\u8baf\u5f55",
+  "popup.section.portfolio": "\u8d44\u4ea7",
+  "popup.section.bulkRevoke": "\u5feb\u901f\u6e05\u7406",
+  "popup.portfolio.atRisk": "\u98ce\u9669\u4ef7\u503c",
+  "popup.portfolio.risky": "\u5371\u9669 / \u65e0\u9650 / \u8fc7\u671f",
+  "popup.bulkRevoke.desc": "\u4e00\u7b14\u4ea4\u6613\u64a4\u9500\u8fc7\u671f\u548c\u5371\u9669\u7684\u6388\u6743\u3002",
+  "popup.bulkRevoke.button": "\u751f\u6210\u6279\u91cf\u64a4\u9500",
+  "popup.bulkRevoke.title": "\u6279\u91cf\u64a4\u9500\u8ba1\u5212",
+  "popup.bulkRevoke.note": "WalletGuard \u751f\u6210 multicall \u6570\u636e\u3002\u7531\u60a8\u81ea\u5df1\u53d1\u9001\u6bcf\u7b14\u4ea4\u6613 \u2014 \u6211\u4eec\u4ece\u4e0d\u4fdd\u7559\u5bc6\u94a5\u3002",
+  "popup.bulkRevoke.copyAll": "\u5168\u90e8\u590d\u5236",
+  "popup.bulkRevoke.copied": "\u8ba1\u5212\u5df2\u590d\u5236\u5230\u526a\u8d34\u677f\u3002",
+  "popup.bulkRevoke.copyFailed": "\u590d\u5236\u5931\u8d25\u3002",
   "popup.check.protection": "\u4fdd\u62a4\u5df2\u542f\u7528",
   "popup.check.threats": "\u5a01\u80c1\u60c5\u62a5",
   "popup.check.cleanup": "\u81ea\u52a8\u6e05\u7406",
@@ -9245,6 +9311,246 @@ function logApprovalScan(summary) {
 return { setPersistence, logEvent, getLog, getLogByType, getLogInRange, clearLog, loadLog, getLogStats, exportAsCsv, exportAsJson, buildDownload, logBlock, logPhishingBlock, logDrainerDetection, logApprovalScan, ENTRY_TYPES };
     })(),
     // ============================================================
+    // portfolio-view.js
+    // ============================================================
+    "portfolioView": (function() {
+// lib/portfolio-view.js - Aggregate approval data into a portfolio summary.
+//
+// Computes:
+//   - Total USD value at risk (using blast-radius data if available, else naive count)
+//   - Top-3 risks by severity
+//   - Per-chain breakdown
+//   - Stale approval count + total at-risk USD
+//
+// Used by the popup to show "Portfolio" summary. World-first feature —
+// no other wallet extension shows real-time USD blast-radius at this level.
+
+// Static fallback prices for common tokens (USD). Used when blast-radius
+// isn't available or hasn't computed a price yet.
+const STATIC_PRICES = {
+  USDC: 1, USDT: 1, DAI: 1, FRAX: 1, BUSD: 1, TUSD: 1,
+  WETH: 3000, ETH: 3000, WBTC: 60000, BTC: 60000,
+  LINK: 15, UNI: 8, AAVE: 100, MKR: 1500, CRV: 0.5,
+  MATIC: 0.8, ARB: 1.2, OP: 2.5
+};
+
+/**
+ * Estimate USD value of a single approval.
+ * Uses blast-radius data if available; falls back to static price × format.
+ *
+ * @param {Object} approval - { tokenSymbol, allowanceFmt, isUnlimited, blastRadius? }
+ * @returns {number|null} USD value, or null if unknown
+ */
+function estimateApprovalUsd(approval) {
+  if (!approval) return null;
+
+  // Prefer blast-radius data if available (already includes price + balance).
+  if (approval.blastRadius && typeof approval.blastRadius.usdValue === "number") {
+    return approval.blastRadius.usdValue;
+  }
+
+  // Fallback: static price × parsed allowance.
+  const symbol = (approval.tokenSymbol || "").toUpperCase();
+  const price = STATIC_PRICES[symbol];
+  if (!price) return null;
+
+  // Parse allowanceFmt like "1000.5 USDC" or "Unlimited" or "0".
+  const fmt = String(approval.allowanceFmt || "");
+  if (/unlimited/i.test(fmt)) return null; // can't estimate without balance
+  const match = fmt.match(/^([\d.]+)/);
+  if (!match) return null;
+  const amount = parseFloat(match[1]);
+  if (isNaN(amount)) return null;
+  return amount * price;
+}
+
+/**
+ * Compute at-risk severity bucket for a USD value.
+ */
+function severityFromUsd(usd) {
+  if (usd === null || usd === undefined) return "unknown";
+  if (usd === 0) return "none";
+  if (usd < 100) return "low";
+  if (usd < 1000) return "medium";
+  if (usd < 10000) return "high";
+  return "critical";
+}
+
+/**
+ * Compute the portfolio summary from approval scan data.
+ *
+ * @param {Object} scanData - The scan object from wg_approvalScan storage.
+ *                            Shape: { summary, approvals, nftApprovals, chains?, byChain }
+ * @param {Object} [options] - { blastRadiusReport?, staleApprovals? }
+ * @returns {Object} Portfolio summary
+ */
+function computePortfolio(scanData, options = {}) {
+  if (!scanData) return null;
+
+  // Flatten all approvals across chains. Multi-chain scans nest by `chains`;
+  // single-chain scans put them directly under `approvals`.
+  let allApprovals = [];
+  if (Array.isArray(scanData.chains)) {
+    for (const chain of scanData.chains) {
+      if (Array.isArray(chain.approvals)) {
+        for (const a of chain.approvals) allApprovals.push(a);
+      }
+    }
+  }
+  if (Array.isArray(scanData.approvals)) {
+    allApprovals = allApprovals.concat(scanData.approvals);
+  }
+  if (Array.isArray(scanData.nftApprovals)) {
+    allApprovals = allApprovals.concat(scanData.nftApprovals);
+  }
+
+  // Enrich with blast-radius data if provided.
+  const blastByKey = new Map();
+  if (options.blastRadiusReport && Array.isArray(options.blastRadiusReport.perApproval)) {
+    for (const r of options.blastRadiusReport.perApproval) {
+      const key = (r.tokenAddress || "").toLowerCase() + "|" + (r.spender || "").toLowerCase() + "|" + (r.chainId || 0);
+      blastByKey.set(key, r);
+    }
+  }
+  // Enrich with stale tracker data if provided.
+  const staleByKey = new Map();
+  if (Array.isArray(options.staleApprovals)) {
+    for (const s of options.staleApprovals) {
+      const key = (s.tokenAddress || s.token || "").toLowerCase() + "|" + (s.spender || "").toLowerCase() + "|" + (s.chainId || 0);
+      staleByKey.set(key, s);
+    }
+  }
+
+  let totalAtRiskUsd = 0;
+  let riskyCount = 0;
+  let unlimitedCount = 0;
+  let staleCount = 0;
+  const chainBreakdown = {};
+  const top = [];
+
+  for (const a of allApprovals) {
+    const token = (a.token || a.tokenAddress || a.collection || "").toLowerCase();
+    const spender = (a.spender || a.operator || "").toLowerCase();
+    const chainId = a.chainId || 0;
+    const key = token + "|" + spender + "|" + chainId;
+
+    // Attach blast-radius if available.
+    const blast = blastByKey.get(key);
+    if (blast) a.blastRadius = blast;
+
+    // Attach stale info if available.
+    const stale = staleByKey.get(key);
+    if (stale) {
+      a.staleLevel = stale.staleLevel;
+      a.staleLabel = stale.staleLabel;
+      a.isStale = stale.isStale;
+      a.ageDays = stale.ageDays;
+    }
+
+    const usd = estimateApprovalUsd(a);
+    const severity = severityFromUsd(usd);
+
+    if (usd !== null && usd > 0) totalAtRiskUsd += usd;
+    if (severity === "high" || severity === "critical") riskyCount++;
+    if (a.isUnlimited) unlimitedCount++;
+    if (a.isStale || (a.staleLevel !== undefined && a.staleLevel >= STALE_LEVELS.stale)) staleCount++;
+
+    // Per-chain aggregation.
+    if (!chainBreakdown[chainId]) {
+      chainBreakdown[chainId] = {
+        chainId,
+        chainName: a.chainName || ("Chain " + chainId),
+        count: 0,
+        atRiskUsd: 0,
+        riskyCount: 0
+      };
+    }
+    chainBreakdown[chainId].count++;
+    if (usd !== null && usd > 0) chainBreakdown[chainId].atRiskUsd += usd;
+    if (severity === "high" || severity === "critical") chainBreakdown[chainId].riskyCount++;
+
+    // Track for top-3 ranking.
+    top.push({
+      tokenSymbol: a.tokenSymbol || a.tokenName || "Unknown",
+      tokenAddress: token,
+      spender: spender,
+      spenderName: a.spenderName || a.operatorName || null,
+      chainId,
+      chainName: a.chainName || ("Chain " + chainId),
+      usd,
+      severity,
+      isUnlimited: !!a.isUnlimited,
+      isStale: !!a.isStale,
+      ageDays: a.ageDays || null
+    });
+  }
+
+  // Sort top by USD descending; nulls at end.
+  top.sort((a, b) => {
+    const ua = a.usd === null ? -1 : a.usd;
+    const ub = b.usd === null ? -1 : b.usd;
+    return ub - ua;
+  });
+
+  const totalApprovals = allApprovals.length;
+  const summary = scanData.summary || {};
+
+  return {
+    totalApprovals,
+    totalAtRiskUsd: Math.round(totalAtRiskUsd * 100) / 100,
+    riskyCount,
+    unlimitedCount,
+    staleCount,
+    chainsScanned: summary.chainsScanned || 1,
+    chainsFailed: summary.chainsFailed || 0,
+    chains: Object.values(chainBreakdown),
+    topRisks: top.slice(0, 5),
+    severityCounts: {
+      critical: top.filter((r) => r.severity === "critical").length,
+      high: top.filter((r) => r.severity === "high").length,
+      medium: top.filter((r) => r.severity === "medium").length,
+      low: top.filter((r) => r.severity === "low").length,
+      unknown: top.filter((r) => r.severity === "unknown").length
+    },
+    message: buildPortfolioMessage({
+      totalAtRiskUsd,
+      riskyCount,
+      totalApprovals,
+      unlimitedCount,
+      staleCount
+    })
+  };
+}
+
+function buildPortfolioMessage({ totalAtRiskUsd, riskyCount, totalApprovals, unlimitedCount, staleCount }) {
+  if (totalApprovals === 0) return "No active approvals.";
+  if (riskyCount === 0 && staleCount === 0) {
+    return `${totalApprovals} active approval${totalApprovals > 1 ? "s" : ""}. All safe.`;
+  }
+  const parts = [];
+  parts.push(`${totalApprovals} active approval${totalApprovals > 1 ? "s" : ""}.`);
+  if (totalAtRiskUsd > 0) parts.push(`$${totalAtRiskUsd.toLocaleString()} at risk.`);
+  if (riskyCount > 0) parts.push(`${riskyCount} risky.`);
+  if (unlimitedCount > 0) parts.push(`${unlimitedCount} unlimited.`);
+  if (staleCount > 0) parts.push(`${staleCount} stale.`);
+  return parts.join(" ");
+}
+
+/**
+ * Format a USD value for display.
+ */
+function formatUsd(usd) {
+  if (usd === null || usd === undefined) return "—";
+  if (usd === 0) return "$0";
+  if (usd < 1) return "<$1";
+  if (usd < 1000) return `$${Math.round(usd)}`;
+  if (usd < 1000000) return `$${(usd / 1000).toFixed(1)}k`;
+  return `$${(usd / 1000000).toFixed(2)}M`;
+}
+
+return { estimateApprovalUsd, computePortfolio, formatUsd };
+    })(),
+    // ============================================================
     // explain.js
     // ============================================================
     "explain": (function() {
@@ -9822,5 +10128,5 @@ function availableLocales() {
 return { setMessages, setLocaleMessages, normalizeLocale, detectLocale, setLocale, getLocale, initI18n, saveLocale, t, applyTranslations, availableLocales, SUPPORTED_LOCALES, DEFAULT_LOCALE, LOCALE_DISPLAY };
     })(),
   };
-  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "mevDetector": mods.mevDetector, "revokeGenerator": mods.revokeGenerator, "eip7702Detector": mods.eip7702Detector, "sessionKeyAnalyzer": mods.sessionKeyAnalyzer, "threatFeed": mods.threatFeed, "walletDna": mods.walletDna, "drainerDetector": mods.drainerDetector, "visualPhish": mods.visualPhish, "hwWallet": mods.hwWallet, "safeMultisig": mods.safeMultisig, "blastRadius": mods.blastRadius, "patternDna": mods.patternDna, "correlation": mods.correlation, "priceOracle": mods.priceOracle, "ensResolver": mods.ensResolver, "staleTracker": mods.staleTracker, "walletClassifier": mods.walletClassifier, "auditLog": mods.auditLog, "explain": mods.explain, "addressBook": mods.addressBook, "i18n": mods.i18n };
+  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "mevDetector": mods.mevDetector, "revokeGenerator": mods.revokeGenerator, "eip7702Detector": mods.eip7702Detector, "sessionKeyAnalyzer": mods.sessionKeyAnalyzer, "threatFeed": mods.threatFeed, "walletDna": mods.walletDna, "drainerDetector": mods.drainerDetector, "visualPhish": mods.visualPhish, "hwWallet": mods.hwWallet, "safeMultisig": mods.safeMultisig, "blastRadius": mods.blastRadius, "patternDna": mods.patternDna, "correlation": mods.correlation, "priceOracle": mods.priceOracle, "ensResolver": mods.ensResolver, "staleTracker": mods.staleTracker, "walletClassifier": mods.walletClassifier, "auditLog": mods.auditLog, "portfolioView": mods.portfolioView, "explain": mods.explain, "addressBook": mods.addressBook, "i18n": mods.i18n };
 })(typeof window !== "undefined" ? window : globalThis);

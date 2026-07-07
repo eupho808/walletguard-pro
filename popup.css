@@ -628,6 +628,120 @@ button { font: inherit; cursor: pointer; }
  * MODAL
  * ============================================================= */
 
+/* ----- Portfolio (v3.6) ----- */
+.portfolio {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.portfolio__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.portfolio__label {
+  font-size: 12px;
+  color: var(--text-2);
+}
+.portfolio__value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.portfolio__value--big {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.portfolio__value.is-critical { color: var(--danger); }
+.portfolio__value.is-high { color: var(--warn); }
+
+.portfolio__top {
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.portfolio__top-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  font-size: 13px;
+}
+.portfolio__top-sym {
+  font-weight: 500;
+  color: var(--text);
+}
+.portfolio__top-usd {
+  color: var(--warn);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.portfolio__top-chain {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* ----- Bulk revoke (v3.6) ----- */
+.bulk-revoke__desc {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.bulk-revoke__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.bulk-revoke__batch {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.bulk-revoke__batch-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.bulk-revoke__batch-chain {
+  color: var(--text-3);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bulk-revoke__batch-sym {
+  color: var(--text);
+  font-weight: 500;
+}
+.bulk-revoke__batch-count {
+  color: var(--text-2);
+  font-size: 11px;
+}
+.bulk-revoke__batch-data {
+  font-size: 11px;
+  color: var(--text-3);
+  word-break: break-all;
+  font-family: var(--mono);
+  line-height: 1.4;
+  max-height: 60px;
+  overflow: hidden;
+}
+
 .modal {
   position: fixed;
   inset: 0;
