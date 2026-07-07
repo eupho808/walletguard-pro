@@ -58,7 +58,7 @@ WHAT IT CATCHES
 APPROVAL SCANNER (NEW IN v1.5)
 ────────────────────────────────────────────────────────────
 
-Finds every active approval — ERC-20 AND NFT — across 9 chains in
+Finds every active approval — ERC-20 AND NFT — across 13 chains in
   parallel:
   • Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum,
     Avalanche, Sepolia
@@ -93,7 +93,7 @@ KEY FEATURES
 • Typosquatting detection via Levenshtein + homoglyph checks
 • Phishing overlay on known-drainer domains
 • Multicall V1/V2/V3 + Universal Router command decoding
-• 478 automated tests, MIT licensed, open source
+• 1,225 automated tests across 30 suites, MIT licensed, open source
 
 ────────────────────────────────────────────────────────────
 PRIVACY
@@ -110,7 +110,7 @@ Full privacy policy: [GitHub link]
 OPEN SOURCE
 ────────────────────────────────────────────────────────────
 
-MIT licensed. 478 tests passing. Contributions welcome.
+MIT licensed. 1,225 tests passing. Contributions welcome.
 [GitHub link]
 ```
 
@@ -269,7 +269,7 @@ free to maximize adoption.)
 
 ## 5. Pre-submission checklist
 
-- [ ] All 478 tests pass: `npm test`
+- [ ] All 1,225 tests pass: `npm test`
 - [ ] `npm run build` produces a clean bundle
 - [ ] Icons exist at `icons/icon16.png`, `icons/icon48.png`, `icons/icon128.png`
 - [ ] `PRIVACY.md` is hosted on a publicly accessible URL (GitHub Pages, raw GitHub, or your site)
