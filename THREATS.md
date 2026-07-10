@@ -125,8 +125,9 @@ We collect IOCs from:
    Chainabuse, Etherscan comments
 3. **On-chain analysis** — we trace stolen funds to cluster
    attacker wallets
-4. **Our own telemetry** — anonymized domain-visit aggregates from
-   opted-in users (opt-in only, opt-out default, see [PRIVACY.md](./PRIVACY.md))
+4. **Public feeds and community channels** — we do not collect any
+   telemetry from users. Domain-visit and IOC discovery comes from
+   community sources only. See [PRIVACY.md](./PRIVACY.md).
 
 We **never** publish PII (victim addresses, names, identifying info).
 We **always** publish IOCs and the heuristic that catches them so

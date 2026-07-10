@@ -104,7 +104,8 @@ your data. We don't sell, share, or rent data to third parties.
 The optional OpenRouter AI check (off by default) only sends the
 contract address you explicitly choose to check.
 
-Full privacy policy: [GitHub link]
+Full privacy policy:
+https://github.com/eupho808/walletguard-pro/blob/main/PRIVACY.md
 
 ────────────────────────────────────────────────────────────
 OPEN SOURCE
@@ -222,7 +223,7 @@ wallet provider processes the transaction.
 | `storage` | Save user settings (whitelist, blacklist, scan cache, optional OpenRouter API key) in `chrome.storage.local`. |
 | `alarms` | Schedule the approval scan to auto-refresh every 6 hours. Without this the scan only runs on manual trigger. |
 | `https://openrouter.ai/*` | Optional AI check on contract addresses — only used when the user explicitly adds an OpenRouter API key and triggers a check. Off by default. |
-| `https://*.llamarpc.com/*`, `https://bsc-dataseed.bnbchain.org/*`, `https://polygon-rpc.com/*`, `https://fantom.publicnode.com/*`, `https://mainnet.base.org/*`, `https://arb1.arbitrum.io/*`, `https://api.avax.network/*`, `https://ethereum-sepolia-rpc.publicnode.com/*` | Multi-chain approval scanner (opt-in toggle). Read-only JSON-RPC calls (`eth_blockNumber`, `eth_getLogs`, `eth_call`). No other endpoints are contacted. |
+| `https://eth.llamarpc.com/*`, `https://optimism.llamarpc.com/*`, `https://bsc-dataseed.bnbchain.org/*`, `https://polygon-rpc.com/*`, `https://fantom.publicnode.com/*`, `https://mainnet.base.org/*`, `https://arb1.arbitrum.io/*`, `https://api.avax.network/*`, `https://ethereum-sepolia-rpc.publicnode.com/*` | Multi-chain approval scanner (opt-in toggle, `wg_multiChain=false` by default). Read-only JSON-RPC calls (`eth_blockNumber`, `eth_getLogs`, `eth_call`) sent to public community-run RPC nodes. |
 
 ### Host permission for remote code
 ```
@@ -235,13 +236,24 @@ All code is bundled into the extension package at build time.
 The extension does not collect, transmit, or sell user data.
 All processing is local. The only network requests made are:
   1. To the user's own wallet provider (read-only RPC), via the
-     standard Web3 provider interface.
-  2. To public RPC endpoints (LlamaRPC, publicnode, official chain
-     RPCs from Base/Arbitrum/Polygon, Binance's BSC RPC, Avalanche's
-     official RPC) when the user has opted into multi-chain scanning.
-  3. To openrouter.ai (contract address only) when the user has
-     explicitly configured an OpenRouter API key and triggered a
-     check.
+     standard Web3 provider interface (window.ethereum.request).
+  2. To public community-run JSON-RPC endpoints (LlamaRPC for
+     Ethereum/Optimism, Binance's BSC RPC, polygon-rpc.com, Fantom
+     publicnode, Base/Arbitrum/Avalanche official RPCs, Sepolia
+     testnet RPC) when the user has explicitly enabled multi-chain
+     scanning via the Settings toggle (wg_multiChain, default OFF).
+  3. To openrouter.ai — only when the user has explicitly added
+     their own OpenRouter API key in Settings AND explicitly triggered
+     an address check. The request contains only the contract address
+     string; no wallet, transaction, or browsing data is included.
+
+There are NO analytics SDKs, NO telemetry, NO crash reporting, NO
+install/upgrade beacons, NO fingerprinting, and NO cookies.
+chrome.storage.local is the only persistent storage. The full list
+of stored keys is documented in PRIVACY.md.
+
+Full privacy policy:
+https://github.com/eupho808/walletguard-pro/blob/main/PRIVACY.md
 ```
 
 ---

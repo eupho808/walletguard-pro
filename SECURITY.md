@@ -88,7 +88,7 @@ We do NOT assume:
 
 - The extension runs at `document_start` so it can wrap `window.ethereum` before any dApp script sees the unwrapped object.
 - The MAIN-world RPC bridge accepts only methods in the `READ_ONLY_METHODS` whitelist in `injector.js`. Adding a new method there requires a security review.
-- `chrome.storage.local` is sandboxed per-extension. We never use `localStorage`, `sessionStorage`, or cookies.
+- `chrome.storage.local` is sandboxed per-extension. We never use `localStorage` or cookies. We use `sessionStorage` in content scripts only for tab-scoped hostname deduplication (hostnames the page itself already knows); this data is scoped to the originating tab's origin and never leaves it.
 - The optional OpenRouter integration is **off by default** and only sends the contract address you explicitly choose to check — never your wallet, transaction, or any other data.
 
 ---

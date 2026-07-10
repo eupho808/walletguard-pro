@@ -141,7 +141,7 @@ The Firefox manifest is in the repo. AMO submission pending.
 
 ### From source
 ```bash
-git clone https://github.com/yourname/walletguard-pro
+git clone https://github.com/eupho808/walletguard-pro
 cd walletguard-pro
 node build.js             # bundles content.js from lib/*
 # Then: chrome://extensions/ → Developer mode → Load unpacked → select this folder
@@ -326,7 +326,7 @@ PRs welcome. Please open an issue first for non-trivial changes. The test suite 
   - Stats row: "2.4M+ Threats blocked, $180M Assets protected, <80ms Analysis" → "176 Tests passing, 6 Chains supported, 0 API keys required"
   - Footer: "© 2026 WalletGuard Labs · Built with care, audited by community" → "© 2026 WalletGuard Pro · Open source · MIT licensed"
 - Replaced placeholder URLs (github.com/, docs.walletguard.io, twitter.com/, discord.gg/) with proper ones:
-  - GitHub → `https://github.com/yourname/walletguard-pro` (to fill on repo init)
+  - GitHub → `https://github.com/eupho808/walletguard-pro`
   - Twitter/Discord removed (not needed yet)
   - Docs → `#features` (in-page anchor)
   - Chrome Web Store link placeholder
@@ -340,7 +340,7 @@ PRs welcome. Please open an issue first for non-trivial changes. The test suite 
 **Step 6 — Deploy site (TODO: user)**
 - [ ] `git init` + push to GitHub
 - [ ] Enable GitHub Pages on the repo, point at `site/` folder
-- [ ] Site will live at `https://yourname.github.io/walletguard-pro/`
+- [ ] Site will live at `https://eupho808.github.io/walletguard-pro/`
 - [ ] Optional: buy domain `walletguard.pro` (~$12/yr) and point DNS to GitHub Pages
 
 **Step 7 — GitHub Actions CI**
