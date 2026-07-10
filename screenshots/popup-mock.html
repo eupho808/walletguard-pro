@@ -159,17 +159,11 @@
 
         /*
          * Render hints for the popup content. The extension's popup.js
-         * can't run here (no chrome.* APIs), so we pre-fill some sections
-         * via :target / inline data attributes to make the screenshot
-         * look populated without faking whole feature UI.
+         * can't run here (no chrome.* APIs), so we hide elements that
+         * would otherwise show empty placeholders. Wallet info is set
+         * directly in the markup below — no CSS injection needed.
          */
         #wallet-section { display: flex !important; }
-        #wallet-addr::before {
-            content: "vitalik.eth";
-            color: #fff;
-        }
-        #wallet-addr { font-size: 13px; }
-        #wallet-chain::before { content: "Ethereum"; }
 
         /* Hide the address-book inputs and footer links — they are too
            dense for a 1280x800 marketing canvas and not the story we
