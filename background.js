@@ -51,7 +51,8 @@ const STORAGE_KEYS = {
   AUTO_REVOKE_OPTED: "wg_autoRevokeOptedIn",  // v2.2: user opted into scheduled stale-approval alerts
   STALE_APPROVALS: "wg_staleApprovals",       // v2.2: detected stale approvals awaiting user action
   LAST_AUTO_REVOKE: "wg_lastAutoRevokeCheck",  // v2.2: timestamp of last stale-approval scan
-  NOTIFICATIONS_ENABLED: "wg_notificationsEnabled" // v3.1: master toggle for chrome.notifications
+  NOTIFICATIONS_ENABLED: "wg_notificationsEnabled", // v3.1: master toggle for chrome.notifications
+  ONBOARDING_COMPLETED: "wg_onboardingCompleted"    // v3.6: 3-step onboarding tour flag
 };
 
 const MAX_LOGS = 50;
@@ -692,6 +693,22 @@ async function handleMessage(message, sender) {
       return { book };
     }
 
+    // --- v3.6: onboarding tour state ---
+    case "getOnboardingCompleted": {
+      const completed = await getStorage(STORAGE_KEYS.ONBOARDING_COMPLETED, false);
+      return { completed: !!completed };
+    }
+
+    case "setOnboardingCompleted": {
+      await setStorage(STORAGE_KEYS.ONBOARDING_COMPLETED, true);
+      return { status: "ok" };
+    }
+
+    case "resetOnboarding": {
+      await setStorage(STORAGE_KEYS.ONBOARDING_COMPLETED, false);
+      return { status: "ok" };
+    }
+
     // --- v2.0: popup adds entry to address book ---
     case "addAddress": {
       const addr = (message.address || "").trim();
@@ -1168,12 +1185,11 @@ function buildBulkRevokePlanInline(scanData) {
 
   if (allApprovals.length === 0) return { batches: [], candidateCount: 0, reason: "No active approvals to revoke." };
 
-  // Filter to candidates.
+  // Filter to candidates: only stale or risky approvals (not merely unused).
   const candidates = allApprovals.filter((a) => {
     if (a.whitelisted) return false;
     if (a.isUnlimited) return true;
     if (a.risk === "high" || a.risk === "critical") return true;
-    if (a.spendCount === 0) return true;
     if (a.isStale) return true;
     return false;
   });
@@ -1204,7 +1220,7 @@ function buildBulkRevokePlanInline(scanData) {
       const isNft = !!(a.collection || a.tokenType === "ERC-721" || a.tokenType === "ERC-1155");
       const paddedSpender = padAddressInline(spender);
       if (!paddedSpender) continue;
-      const calldata = (isNft ? NFT_SET_APPROVAL_FOR_ALL_SELECTOR : ERC20_APPROVE_SELECTOR) + paddedSpender.slice(2) + (isNft ? ZERO_WORD.slice(2) : ZERO_WORD.slice(2));
+      const calldata = (isNft ? NFT_SET_APPROVAL_FOR_ALL_SELECTOR : ERC20_APPROVE_SELECTOR) + paddedSpender.slice(2) + ZERO_WORD.slice(2);
       calls.push({ to: target, data: calldata });
       planRefs.push({ tokenSymbol: group.tokenSymbol, spender, isNft });
     }
@@ -1224,7 +1240,7 @@ function buildBulkRevokePlanInline(scanData) {
       gasEstimate: 30000 + 50000 * calls.length + 10000
     });
   }
-  return { batches, candidateCount: candidates.length };
+  return { batches, candidateCount: batches.reduce((sum, b) => sum + b.approvalCount, 0) };
 }
 
 async function notifyUser(opts) {

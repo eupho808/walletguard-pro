@@ -76,6 +76,20 @@
   }
 
   /**
+   * Reset the onboarding completion flag so the popup will show the tour
+   * again on next open. Shows a confirmation toast.
+   * @returns {Promise<void>}
+   */
+  async function replayOnboarding() {
+    const res = await sendMessage({ action: "resetOnboarding" });
+    if (res && res.status === "ok") {
+      showToast(t("settings.toast.replayOnboarding"), "info");
+    } else {
+      showToast(t("settings.toast.replayOnboardingFailed"), "error");
+    }
+  }
+
+  /**
    * Fetch all settings from the background service worker and populate the
    * UI. Shows an error toast if the worker fails to respond.
    * @returns {Promise<void>}
@@ -226,6 +240,10 @@
         }
       });
     }
+
+    // ---- Replay onboarding button ----
+    const replayBtn = document.getElementById("replay-onboarding-btn");
+    if (replayBtn) replayBtn.addEventListener("click", replayOnboarding);
 
     // ---- Protection toggle ----
     onToggleClick("enabled-toggle", async (newState) => {

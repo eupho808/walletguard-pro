@@ -29,6 +29,7 @@
     if (i18n && i18n.applyTranslations) i18n.applyTranslations(document);
     attachListeners();
     await refresh();
+    await maybeShowOnboarding();
   });
 
   /**
@@ -117,6 +118,100 @@
       if (e.key === "Enter") handleAddrAdd();
     });
   }
+
+  // ============================================================
+  // v3.6: ONBOARDING TOUR (minimal v4 CALM, 3 steps)
+  // ============================================================
+
+  const ONBOARDING_STEPS = [
+    { titleKey: "onboarding.step1.title", bodyKey: "onboarding.step1.body" },
+    { titleKey: "onboarding.step2.title", bodyKey: "onboarding.step2.body" },
+    { titleKey: "onboarding.step3.title", bodyKey: "onboarding.step3.body" }
+  ];
+  let __onboardingStep = 0;
+
+  /**
+   * Show onboarding overlay on first open (when wg_onboardingCompleted
+   * is not true). Called after refresh() so the popup content is visible
+   * behind the overlay.
+   * @returns {Promise<void>}
+   */
+  async function maybeShowOnboarding() {
+    const skip = await sendMessage({ action: "getOnboardingCompleted" });
+    if (skip && skip.completed) return;
+    showOnboardingStep(0);
+  }
+
+  /**
+   * Render a specific onboarding step.
+   * @param {number} idx - Step index (0-based).
+   * @returns {void}
+   */
+  function showOnboardingStep(idx) {
+    __onboardingStep = idx;
+    const overlay = document.getElementById("onboarding");
+    if (!overlay) return;
+    const step = ONBOARDING_STEPS[idx];
+    if (!step) return;
+
+    const titleEl = document.getElementById("onboarding-title");
+    const bodyEl = document.getElementById("onboarding-body");
+    if (titleEl) titleEl.textContent = t(step.titleKey);
+    if (bodyEl) bodyEl.textContent = t(step.bodyKey);
+
+    // Update dots
+    const dotsEl = document.getElementById("onboarding-dots");
+    if (dotsEl) {
+      const dots = dotsEl.querySelectorAll(".onboarding__dot");
+      dots.forEach((d, i) => d.classList.toggle("is-active", i === idx));
+    }
+
+    // Update next button text on last step
+    const nextBtn = document.getElementById("onboarding-next");
+    if (nextBtn) nextBtn.textContent = idx === ONBOARDING_STEPS.length - 1
+      ? t("onboarding.done")
+      : t("onboarding.next");
+
+    overlay.hidden = false;
+  }
+
+  /** Advance to next step or complete on last step. */
+  function advanceOnboarding() {
+    if (__onboardingStep < ONBOARDING_STEPS.length - 1) {
+      showOnboardingStep(__onboardingStep + 1);
+    } else {
+      completeOnboarding();
+    }
+  }
+
+  /** Mark onboarding as complete and hide overlay. */
+  function completeOnboarding() {
+    const overlay = document.getElementById("onboarding");
+    if (overlay) overlay.hidden = true;
+    sendMessage({ action: "setOnboardingCompleted" });
+  }
+
+  /** Skip onboarding without completing (also marks as completed). */
+  function skipOnboarding() {
+    const overlay = document.getElementById("onboarding");
+    if (overlay) overlay.hidden = true;
+    sendMessage({ action: "setOnboardingCompleted" });
+  }
+
+  // Wire onboarding buttons
+  (function wireOnboarding() {
+    const nextBtn = document.getElementById("onboarding-next");
+    if (nextBtn) nextBtn.addEventListener("click", advanceOnboarding);
+
+    const skipBtn = document.getElementById("onboarding-skip");
+    if (skipBtn) skipBtn.addEventListener("click", skipOnboarding);
+
+    const overlay = document.getElementById("onboarding");
+    if (overlay) overlay.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === "ArrowRight") advanceOnboarding();
+      else if (e.key === "Escape") skipOnboarding();
+    });
+  })();
 
   /**
    * Fetch all popup data in parallel and render it. Each section runs in its
@@ -701,7 +796,7 @@
     const section = document.getElementById("portfolio-section");
     if (!section) return;
     const p = data && data.portfolio;
-    if (!p || p.totalApprovals === 0) {
+    if (!p || !p.totalApprovals) {
       section.hidden = true;
       return;
     }
@@ -709,7 +804,15 @@
     const atRiskEl = document.getElementById("portfolio-at-risk");
     if (atRiskEl) {
       const usd = p.totalAtRiskUsd || 0;
-      atRiskEl.textContent = usd === 0 ? "$0" : "$" + usd.toLocaleString();
+      if (usd === 0) {
+        atRiskEl.textContent = "$0";
+      } else if (usd < 1) {
+        atRiskEl.textContent = "<$1";
+      } else if (usd < 1000) {
+        atRiskEl.textContent = "$" + Math.round(usd);
+      } else {
+        atRiskEl.textContent = "$" + Math.round(usd).toLocaleString();
+      }
       atRiskEl.classList.toggle("is-critical", p.riskyCount > 0);
       atRiskEl.classList.toggle("is-high", usd >= 1000 && p.riskyCount === 0);
     }
@@ -763,7 +866,7 @@
     if (descEl) {
       const n = plan.candidateCount || 0;
       const b = plan.batches.length;
-      descEl.textContent = `${n} approval${n > 1 ? "s" : ""} → ${b} transaction${b > 1 ? "s" : ""}.`;
+      descEl.textContent = `${n} ${t("popup.bulkRevoke.approvals")} → ${b} ${t("popup.bulkRevoke.transactions")}`;
     }
   }
 
@@ -776,7 +879,7 @@
   async function showBulkRevokePreview() {
     const res = await sendMessage({ action: "getBulkRevokePlan" });
     if (!res || !res.plan || !res.plan.batches || res.plan.batches.length === 0) {
-      toast(res && res.reason || "No bulk revoke plan available.");
+      toast(t("popup.bulkRevoke.noCandidates"));
       return;
     }
     __activeBulkPlan = res.plan;
@@ -786,7 +889,7 @@
     if (!modal || !list) return;
     const n = res.plan.candidateCount || 0;
     const b = res.plan.batches.length;
-    if (lead) lead.textContent = `${n} approval${n > 1 ? "s" : ""} ready to revoke across ${b} transaction${b > 1 ? "s" : ""}.`;
+    if (lead) lead.textContent = `${n} ${t("popup.bulkRevoke.approvals")} ${t("popup.bulkRevoke.ready")} ${b} ${t("popup.bulkRevoke.transactions")}.`;
     list.innerHTML = res.plan.batches.map((batch) => {
       return `<div class="bulk-revoke__batch">
         <div class="bulk-revoke__batch-head">

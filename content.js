@@ -7748,7 +7748,9 @@ function computePortfolio(scanData, options = {}) {
   const top = [];
 
   for (const a of allApprovals) {
-    const token = (a.token || a.tokenAddress || a.collection || "").toLowerCase();
+    // Use the contract address (not the symbol) for the blast-radius key, so
+    // the lookup matches `r.tokenAddress` from blast-radius reports.
+    const token = (a.tokenAddress || a.token || a.collection || "").toLowerCase();
     const spender = (a.spender || a.operator || "").toLowerCase();
     const chainId = a.chainId || 0;
     const key = token + "|" + spender + "|" + chainId;
@@ -8193,6 +8195,7 @@ const explainTransaction = explain_js_exports.explainTransaction;
 // ============================================================
 // ORCHESTRATOR (was content.js)
 // ============================================================
+
 
 
 
@@ -9568,6 +9571,7 @@ const explainTransaction = explain_js_exports.explainTransaction;
   }
 
 })();
+
 
 
 

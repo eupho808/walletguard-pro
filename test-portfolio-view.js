@@ -201,6 +201,70 @@ console.log("[computePortfolio — message variations]");
   truthy(risky.message.includes("risky"), "risky message");
 }
 
+// ============================================================
+// BUG FIX REGRESSION TESTS
+// ============================================================
+
+console.log("[bug fix: blast-radius key uses tokenAddress, not symbol]");
+{
+  // Before the fix, lookup used `a.token` (the symbol), which never matched
+  // `r.tokenAddress` (the contract address) in the blast-radius report.
+  // Now the approval is enriched with blast data → estimateApprovalUsd
+  // returns the blast value instead of falling back to static pricing.
+  const scan = {
+    summary: { total: 1 },
+    chainId: 1, chainName: "Ethereum",
+    approvals: [{
+      tokenSymbol: "USDC",           // symbol (was used as key — wrong)
+      tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // contract address
+      spender: "0xb0b",
+      allowanceFmt: "100",
+      chainId: 1,
+      chainName: "Ethereum"
+    }]
+  };
+  const blastReport = {
+    perApproval: [{
+      tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      spender: "0xb0b",
+      chainId: 1,
+      usdValue: 7777.77
+    }]
+  };
+  const p = computePortfolio(scan, { blastRadiusReport: blastReport });
+  eq(p.totalAtRiskUsd, 7777.77, "blast-radius value used (not static price)");
+  eq(p.topRisks[0].usd, 7777.77, "top risk carries blast value");
+}
+
+console.log("[bug fix: null scanData returns null cleanly]");
+{
+  // Bug: computePortfolio(null) must return null (not throw)
+  eq(computePortfolio(null), null, "null scan → null portfolio");
+  eq(computePortfolio(undefined), null, "undefined scan → null portfolio");
+}
+
+console.log("[bug fix: computePortfolio handles symbol-only approvals without crashing]");
+{
+  // Approvals with only tokenSymbol and no tokenAddress should still process
+  // (use static price fallback). The key lookup for blast data should not crash.
+  const scan = {
+    summary: { total: 1 },
+    chainId: 1, chainName: "Ethereum",
+    approvals: [{
+      tokenSymbol: "USDC", // no tokenAddress
+      spender: "0xb0b",
+      allowanceFmt: "100",
+      chainId: 1,
+      chainName: "Ethereum"
+    }]
+  };
+  const p = computePortfolio(scan, {
+    blastRadiusReport: { perApproval: [{ tokenAddress: "0xDIFFERENT", spender: "0xb0b", chainId: 1, usdValue: 999 }] }
+  });
+  // Static price fallback: 100 USDC = $100
+  eq(p.totalAtRiskUsd, 100, "static fallback used when no tokenAddress match");
+}
+
 console.log("\n");
 if (failed === 0) {
   console.log(`${passed} passed, ${failed} failed`);

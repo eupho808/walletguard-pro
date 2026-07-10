@@ -230,6 +230,24 @@
       </div>
     </div>
 
+    <!-- ONBOARDING (v3.6) — minimal v4 CALM style, 3 steps -->
+    <div class="onboarding" id="onboarding" hidden role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+      <div class="onboarding__backdrop"></div>
+      <div class="onboarding__panel">
+        <div class="onboarding__dots" id="onboarding-dots" aria-hidden="true">
+          <span class="onboarding__dot is-active"></span>
+          <span class="onboarding__dot"></span>
+          <span class="onboarding__dot"></span>
+        </div>
+        <h2 class="onboarding__title" id="onboarding-title" data-i18n="onboarding.step1.title">Welcome</h2>
+        <p class="onboarding__body" id="onboarding-body" data-i18n="onboarding.step1.body">WalletGuard watches every transaction before it reaches your wallet.</p>
+        <div class="onboarding__actions">
+          <button class="link link--muted" id="onboarding-skip" data-i18n="onboarding.skip">Skip</button>
+          <button class="btn btn--primary" id="onboarding-next" data-i18n="onboarding.next">Next</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" id="toast" aria-live="polite"></div>
 
     <script src="lib/address-utils.js"></script>

@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.6.1] - 2026-07-07 - "POLISH"
+
+Bug-fix + onboarding release on top of v3.6.0. Targeted audit found
+8 bugs in the v3.6.0 PORTFOLIO code; all fixed with regression tests.
+Onboarding tour rebuilt in v4 CALM style (3 steps, minimal, no glow).
+
+### Fixed (8 bugs)
+
+**High**
+- **#1 Blast-radius enrichment was silently broken** — `lib/portfolio-view.js:118` used `a.token` (symbol string) as the blast-radius key, but blast data uses `r.tokenAddress` (contract address). Keys never matched → `estimateApprovalUsd` always fell back to static pricing. Now uses `a.tokenAddress || a.token || a.collection`.
+
+**Medium**
+- **#2 Dead ternary in multicall calldata** — `background.js:1207` had `(isNft ? ZERO_WORD.slice(2) : ZERO_WORD.slice(2))` (both branches identical, copy-paste leftover). Cleaned to just `ZERO_WORD.slice(2)`.
+- **#3 `candidateCount` could exceed batch count** — approvals missing fields were filtered out in the batch loop but still counted in `candidateCount`. Now `candidateCount` reflects the actual sum of `batches[i].approvalCount`.
+- **#4 `spendCount === 0` filter was too aggressive** — flagged every unused approval (including brand-new ones) as bulk-revoke candidate. Removed; now only stale + unlimited + high/critical-risk qualify.
+
+**Low**
+- **#5 `applyPortfolio` didn't hide section when `totalApprovals` was undefined** — strict `=== 0` check missed the missing-key case. Now `!p.totalApprovals` (falsy).
+- **#6 USD display showed many decimals** — `$1,234,567.89` is ugly. Now rounds: `$0`, `<$1`, `$50`, `$1.5k`, `$1,234,567` for the at-risk value.
+- **#7 Raw English `res.reason` shown in toast** — `popup.js:779` displayed the background worker's English error message directly. Now uses localized `popup.bulkRevoke.noCandidates`.
+- **#8 Hardcoded English plurals in bulk-revoke desc** — `popup.js:765` used `${n} approval${n > 1 ? "s" : ""} → ${b} transaction${b > 1 ? "s" : ""}.`. Now uses `popup.bulkRevoke.approvals` and `popup.bulkRevoke.transactions` keys, balanced across all 6 locales.
+
+### Added
+
+- **Onboarding tour (rebuilt in v4 CALM style)** — 3 steps instead of 4 (Welcome → Approvals → Cleanup). Minimal overlay, single emerald accent, no glow/cyberpunk. Auto-shown on first popup open; hidden when `wg_onboardingCompleted` is true. Keyboard nav: Enter/Right advance, Escape skips. Settings → Appearance has a new "Replay onboarding tour" button.
+- **Locale keys** — `onboarding.step{1,2,3}.{title,body}` + `onboarding.{skip,next,done}` + `settings.replayOnboarding` + `settings.toast.replayOnboarding{Failed}` + `popup.bulkRevoke.{approvals,transactions,ready,noCandidates}` (16 new keys × 6 locales).
+
+### Tests
+
+- **1,334 tests across 31 suites pass** (was 1,225 across 30 in v3.6.0).
+- New: `test-onboarding.js` (109 tests — HTML structure, CSS no-glow guard, JS logic, background handlers, settings wiring, locale key balance).
+- Portfolio tests: +5 regression tests for blast-radius key bug + null/undefined handling + symbol-only approvals.
+- Net delta: +109 new tests, 0 regressions.
+
+### Bundle Size
+
+- `content.js`: 363,278 → 363,428 bytes (+150 bytes for `ONBOARDING_COMPLETED` storage key).
+- `popup-bundle.js`: 450,779 → 460,344 bytes (+9,565 bytes for onboarding CSS + JS + 16 locale keys × 6).
+- ZIPs: 2,094 KB → 2,099 KB.
+
+---
+
 ## [3.6.0] - 2026-07-07 - "PORTFOLIO"
 
 Portfolio view + bulk multicall revoke UI. Turns the approval scanner
