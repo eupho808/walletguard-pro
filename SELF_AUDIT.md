@@ -447,3 +447,40 @@ Full list in [`THREAT_MODEL.md`](./THREAT_MODEL.md).
 - **ENS support** via pure-JS keccak256 (or vendor `@noble/hashes`)
 - **Bulk approval revoke UX** — currently one-at-a-time, could be batched with explicit user confirmation
 - **Hardware wallet rule expansion** — currently 7 vendors, 5 strict rules; add more (Trezor Safe 3, Ledger Stax, Keystone 3 Pro)
+
+---
+
+## v3.6.0 → v3.6.1 Audit Cycle (2026-07-07)
+
+### Scope
+Targeted review of all code added in v3.6.0 PORTFOLIO:
+- `lib/portfolio-view.js` (new, 235 lines)
+- `background.js` inline helpers (`computePortfolioInline`, `buildBulkRevokePlanInline`, `padAddressInline`, `buildBatchDataInline`, `estimateApprovalUsdInline`)
+- New background handlers (`getPortfolioView`, `getBulkRevokePlan`)
+- `popup.js` v3.6 sections (`applyPortfolio`, `applyBulkRevokeAvailability`, `showBulkRevokePreview`, `hideBulkRevokeModal`, `copyBulkRevokePlan`)
+- `popup.html` portfolio + bulk-revoke sections + modal
+- `popup.css` portfolio + bulk-revoke styles
+- 6 locale files × 30 new keys
+
+### Findings (8 bugs, all fixed)
+
+| # | Sev | Area | Finding | Fix |
+|---|---|---|---|---|
+| 1 | **High** | `lib/portfolio-view.js:118` | Blast-radius enrichment silently broken — lookup key used `a.token` (symbol string) but blast data uses `r.tokenAddress` (contract address). Keys never matched → `estimateApprovalUsd` always fell back to static pricing. Users never saw real-time USD valuations. | Changed lookup to `a.tokenAddress || a.token || a.collection` so the key matches `r.tokenAddress`. 2 regression tests added. |
+| 2 | Med | `background.js:1207` | Dead ternary `(isNft ? ZERO_WORD.slice(2) : ZERO_WORD.slice(2))` — both branches identical, copy-paste leftover. | Cleaned to just `ZERO_WORD.slice(2)`. |
+| 3 | Med | `background.js:1227` | `candidateCount: candidates.length` counted all filtered approvals but some were skipped in the batch loop (missing fields) → "X → Y" text could show X > Y. | Changed to `batches.reduce((sum, b) => sum + b.approvalCount, 0)` so count matches actual batches. |
+| 4 | Med | `background.js:1172-1179` | `spendCount === 0` filter was too aggressive — flagged every unused approval (including brand-new ones) as bulk-revoke candidate. | Removed that condition; now only stale + unlimited + high/critical-risk qualify. |
+| 5 | Low | `popup.js:704` | `if (!p || p.totalApprovals === 0)` strict-equality missed the `undefined` case. | Changed to `!p.totalApprovals` (falsy). |
+| 6 | Low | `popup.js:712` | USD display showed many decimals (`$1,234,567.89`). | Rounded: `$0`, `<$1`, `$50`, `$1,234,567`. |
+| 7 | Low | `popup.js:779` | Raw English `res.reason` shown in toast — not localized. | Replaced with localized `popup.bulkRevoke.noCandidates` key (×6 locales). |
+| 8 | Low | `popup.js:765,789` | Hardcoded English plurals in bulk-revoke desc + modal lead. | New locale keys `popup.bulkRevoke.{approvals,transactions,ready}` ×6. |
+
+### Process observations
+
+- **The High bug (#1) is the most important finding.** It was a logic error that silently degraded the product's killer feature (real-time USD blast radius) to a fallback static-pricing view. The cause was an inconsistent key construction — the lookup code used the first field it found (`a.token` which is the symbol), while the indexed data used the contract address. A type-only fix would have been to normalize both sides to the symbol; instead the fix uses the address everywhere because that's what blast-radius reports provide. 2 regression tests now pin the contract.
+- **Bugs #3 and #4 are the same shape** — counting things that don't get included. Different root causes but similar pattern: trust a derived count rather than recompute from the result. The fix in both cases is to compute the count from the final output, not from the input filter.
+- **Bug #2 is cosmetic** but worth keeping — dead code accumulates over time and makes future refactors harder.
+
+### Status
+
+All 8 findings fixed. Regression tests added (5 new portfolio tests + test-onboarding.js covers the rebuilt tour). **1,334 tests across 31 suites pass**, 0 failures. v3.6.1 POLISH shipped.
