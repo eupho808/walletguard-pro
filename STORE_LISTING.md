@@ -55,13 +55,14 @@ WHAT IT CATCHES
 ✓ Unknown contract methods — never silently passed through
 
 ────────────────────────────────────────────────────────────
-APPROVAL SCANNER (NEW IN v1.5)
+APPROVAL SCANNER
 ────────────────────────────────────────────────────────────
 
 Finds every active approval — ERC-20 AND NFT — across 13 chains in
   parallel:
   • Ethereum, Optimism, BNB Chain, Polygon, Fantom, Base, Arbitrum,
-    Avalanche, Sepolia
+    Avalanche, Sepolia (+ zkSync Era, Linea, Blast, Mode defined in
+    scanner registry; full support pending host permission declarations)
 
 Risk-classified per approval: critical / high / medium / low / info.
 Top-5 riskiest shown in the popup with the exact reason flagged
@@ -69,6 +70,31 @@ Top-5 riskiest shown in the popup with the exact reason flagged
 
 Toggle multi-chain on in Settings. Uses public RPC endpoints — no
 account, no API key, no telemetry.
+
+───────────────────────────────────────────────────────────
+APPROVAL EXPIRY REMINDERS (v3.7) — WORLD-FIRST
+───────────────────────────────────────────────────────────
+
+Tracks when each approval was first seen and surfaces ones older than
+the user's chosen window (default 90 days, range 7-365). Status zones:
+fresh (0-30%), aging (30-70%), stale (70-100%), expired (>100%).
+Opt-in, fully local.
+
+───────────────────────────────────────────────────────────
+BULK MULTICALL REVOKE (v3.6)
+───────────────────────────────────────────────────────────
+
+Generate a single multicall transaction that revokes N stale or risky
+approvals at once. The extension produces the calldata; you broadcast
+the transaction yourself. WalletGuard never holds keys.
+
+───────────────────────────────────────────────────────────
+PORTFOLIO VIEW (v3.6)
+───────────────────────────────────────────────────────────
+
+Per-wallet USD exposure summary across all tracked approvals, with
+top-at-risk tokens surfaced first. Pure local computation via
+Uniswap V3 / V2 on-chain quotes — no CoinGecko, no external price APIs.
 
 ────────────────────────────────────────────────────────────
 HOW IT WORKS
@@ -89,10 +115,14 @@ KEY FEATURES
 
 • Calldata decoded — every tx into human-readable form
 • Weighted risk engine — every factor shown explicitly (no black box)
-• 9-chain approval scanner (ERC-20 + NFT, zero API keys)
+• 13-chain approval scanner (ERC-20 + NFT, zero API keys)
 • Typosquatting detection via Levenshtein + homoglyph checks
 • Phishing overlay on known-drainer domains
 • Multicall V1/V2/V3 + Universal Router command decoding
+• Bulk multicall revoke — N approvals → 1 transaction (v3.6)
+• Portfolio view with USD blast radius (v3.6)
+• Approval expiry reminders — world-first feature (v3.7)
+• 30 protection layers across 13 chains
 • 1,429 automated tests across 33 suites, MIT licensed, open source
 
 ────────────────────────────────────────────────────────────
@@ -148,7 +178,7 @@ All 5 are already captured at 1280×800 PNG, ready to upload.
 | 1 | `screenshots/01-phishing-block.png` | "Phishing site blocked" | Full-screen red PHISHING BLOCKED overlay (`fake-metamask-claim.io`) |
 | 2 | `screenshots/02-calldata-decoded.png` | "Calldata decoded" | SAFE 100/100 — verified Uniswap V3 approve with risk factors + Asset Changes |
 | 3 | `screenshots/03-risk-factors-explained.png` | "Risk factors explained" | HIGH RISK 35/100 — unlimited approval + unknown contract + Compound rule (-25) |
-| 4 | `screenshots/04-approval-scanner.png` | "Approval scanner" | Dashboard mock (vitalik.eth, 18 approvals, 3 risky, PEPE critical, NFT section) |
+| 4 | `screenshots/04-approval-scanner.png` | "Extension popup" | Real popup at native size (vitalik.eth connected, 100/100 score, protection checks, recent activity, token + NFT permission rows) + v4 CALM pitch column |
 | 5 | `screenshots/05-nft-access.png` | "NFT collection access" | HIGH RISK 30/100 setApprovalForAll + "NFT Root Access to Unverified Operator" compound |
 
 ### Bonus screenshots (drop-in replacements, all 1280×800)
@@ -188,21 +218,23 @@ Or re-render the mock: open `screenshots/popup-mock.html` in Chrome → DevTools
 `screenshots/reference/` contains 14 extra captures from `test.html` (Universal Router variants, Native ETH transfers, Permit, Multicall, blind signatures, JS error states). Useful for documentation, blog posts, or social media but NOT part of the CWS submission.
 
 ### Promo tile (440×280)
-Use the existing `icons/icon128.png` centered on a dark background with text:
-```
-WalletGuard Pro
-Independent Web3 wallet security.
-```
 
-Or create via Canva / Figma — template:
-- Background: linear gradient #0a0c12 → #12151d
-- Logo: icon128.png centered-left
-- Title text: white, Inter Bold, 28pt
-- Subtitle: #8a92a3, Inter Regular, 14pt
+Use `screenshots/promo-tile.png` (already rendered, v4 CALM design).
+- Background: solid `#0B0B0E` (no gradient)
+- Shield + check icon (emerald `#10B981`) top-left
+- "WalletGuard Pro" wordmark (white + emerald "Pro"), 34pt Inter Bold
+- Tagline: "Independent Web3 wallet security.", 15pt Inter Regular, 60% white
+- Bottom meta: v3.7 · 13 CHAINS · 30 LAYERS · MIT (small caps, emerald for MIT)
+
+To re-render from source: `node screenshots/promo-tile.svg` is the vector
+source. Use `screenshots/_render-promo.html` + Edge/Chrome headless at
+440×280. See `screenshots/promo-tile-render.txt` for the exact command.
 
 ### Marquee promo (1400×560) — optional
-Reuse the landing-page hero design (see `index.html` for the exact CSS).
-Render at 1400×560 in a browser, screenshot.
+
+Not yet created. If you want one for the CWS listing, reuse the
+landing-page hero design from `site/index.html` rendered at 1400×560.
+Defer until after first user feedback.
 
 ---
 
@@ -281,26 +313,23 @@ free to maximize adoption.)
 
 ## 5. Pre-submission checklist
 
-- [ ] All 1,429 tests pass: `npm test`
-- [ ] `npm run build` produces a clean bundle
-- [ ] Icons exist at `icons/icon16.png`, `icons/icon48.png`, `icons/icon128.png`
-- [ ] `PRIVACY.md` is hosted on a publicly accessible URL (GitHub Pages, raw GitHub, or your site)
-- [ ] Screenshots captured at 1280×800 (or 640×400)
-- [ ] Promo tile 440×280 created
-- [ ] No "test" or "TODO" comments in the bundled `content.js`
-- [ ] `manifest.json` version matches `README.md` badge (currently 1.5.1)
-- [ ] GitHub repo is public with LICENSE, README, PRIVACY
+- [x] All 1,429 tests pass: `npm test` (last run: 2026-07-11)
+- [x] Build produces clean bundles: `node build.js` + `node build-chrome-pack.js`
+- [x] Icons exist: `icons/icon16.png`, `icons/icon48.png`, `icons/icon128.png`
+- [x] `PRIVACY.md` hosted at `https://github.com/eupho808/walletguard-pro/blob/main/PRIVACY.md`
+- [x] Screenshots captured at 1280×800 PNG: 5 main + 4 bonus
+- [x] Promo tile 440×280: `screenshots/promo-tile.png`
+- [x] `manifest.json` version: `3.7.0` (matches README badge)
+- [x] GitHub repo is public: `github.com/eupho808/walletguard-pro` (MIT)
+- [x] ZIP packages built: `walletguard-pro-v3.7.0.zip` (2,172,850 bytes), `walletguard-pro-firefox-v3.7.0.zip` (2,172,921 bytes)
+- [x] v4 CALM design across all assets (no cyberpunk, no neon, no glow)
 
 ---
 
 ## 6. After CWS approval
 
-1. Update landing page `index.html` CTA href to the real CWS URL
+1. Update landing page `site/index.html` CTA href to the real CWS URL
 2. Update README Chrome badge from `#` to the real CWS URL
-3. Post on:
-   - Twitter/X with a demo GIF
-   - r/ethereum, r/ethdev, r/metamask
-   - Hacker News (Show HN)
-   - Product Hunt
-   - Web3 security Discords (Wallet Guard community, SEAL, etc.)
-4. Submit Firefox AMO in parallel — Firefox manifest already in repo
+3. Update PRIVACY.md "Contact" section if needed (currently points to GitHub issues)
+4. Add a note in CHANGELOG.md pointing at the CWS URL
+5. Optional: also submit the Firefox build via AMO (`manifest.firefox.json` is already in repo)
