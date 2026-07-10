@@ -115,6 +115,15 @@
     const threatFeedEnabled = data.threatFeedEnabled === true;
     applyToggleUI("threatfeed-toggle", "threatfeed-pill", threatFeedEnabled, "settings.toggle.on", "settings.toggle.off");
 
+    // Approval expiry state lives in its own storage key — fetch and apply.
+    try {
+      const expiryRes = await sendMessage({ action: "getApprovalExpiry" });
+      const expiryState = (expiryRes && expiryRes.state) || { enabled: false, expiryDays: 90 };
+      applyToggleUI("expiry-toggle", "expiry-pill", expiryState.enabled === true, "settings.toggle.on", "settings.toggle.off");
+      const daysInput = document.getElementById("expiry-days-input");
+      if (daysInput) daysInput.value = String(expiryState.expiryDays || 90);
+    } catch (e) { /* non-fatal */ }
+
     renderList("whitelist-list", data.whitelist || [], "whitelist");
     renderList("blacklist-list", data.customBlacklist || [], "blacklist");
   }
@@ -166,6 +175,20 @@
     toggle.setAttribute("aria-checked", on ? "true" : "false");
     pill.textContent = t(on ? onKey : offKey);
     pill.classList.toggle("wg-pill--off", !on);
+  }
+
+  /**
+   * Clamp an expiry-days input value to the safe [7, 365] range.
+   * Used by both the toggle handler and the days-input change handler so
+   * the same bounds apply whether the user enables or just changes the window.
+   * @param {number} days
+   * @returns {number}
+   */
+  function clampExpiryInput(days) {
+    if (!Number.isFinite(days)) return 90;
+    if (days < 7) return 7;
+    if (days > 365) return 365;
+    return Math.floor(days);
   }
 
   /**
@@ -280,6 +303,33 @@
         showToast(newState ? t("settings.toast.threatFeedOn") : t("settings.toast.threatFeedOff"), "success");
       }
     });
+
+    // ---- Approval expiry toggle + days input ----
+    onToggleClick("expiry-toggle", async (newState) => {
+      const daysInput = document.getElementById("expiry-days-input");
+      const days = daysInput ? clampExpiryInput(Number(daysInput.value)) : 90;
+      const res = await sendMessage({ action: "setApprovalExpiry", state: { enabled: newState, expiryDays: days } });
+      if (res && !res.error) {
+        applyToggleUI("expiry-toggle", "expiry-pill", newState, "settings.toggle.on", "settings.toggle.off");
+        showToast(t("settings.toast.expirySaved"), "success");
+      } else {
+        showToast(t("settings.toast.expiryFailed"), "error");
+      }
+    });
+
+    const expiryDaysInput = document.getElementById("expiry-days-input");
+    if (expiryDaysInput) {
+      expiryDaysInput.addEventListener("change", async () => {
+        const days = clampExpiryInput(Number(expiryDaysInput.value));
+        expiryDaysInput.value = String(days);
+        const res = await sendMessage({ action: "setApprovalExpiry", state: { expiryDays: days } });
+        if (res && !res.error) {
+          showToast(t("settings.toast.expirySaved"), "success");
+        } else {
+          showToast(t("settings.toast.expiryFailed"), "error");
+        }
+      });
+    }
 
     // ---- API key visibility toggle ----
     const toggleKeyVis = document.getElementById("toggle-key-vis");

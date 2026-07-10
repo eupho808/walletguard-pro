@@ -1,12 +1,12 @@
 # WalletGuard Pro
 
-> The most comprehensive Web3 wallet security extension ever built. **29 protection layers**, **zero dependencies**, **1,334 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
+> The most comprehensive Web3 wallet security extension ever built. **29 protection layers**, **zero dependencies**, **1,429 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
 
-[![Version](https://img.shields.io/badge/version-3.2.1-10B981?style=flat-square)](./manifest.json)
+[![Version](https://img.shields.io/badge/version-3.7.0-10B981?style=flat-square)](./manifest.json)
 [![Design](https://img.shields.io/badge/design-CALM-10B981?style=flat-square)](#v4-calm-design-language)
-[![Tests](https://img.shields.io/badge/tests-1,334-10B981?style=flat-square)](./test-onboarding.js)
-[![Modules](https://img.shields.io/badge/modules-20-ffb700?style=flat-square)](./lib/)
-[![Chains](https://img.shields.io/badge/chains-9-4285F4?style=flat-square)](./lib/constants.js)
+[![Tests](https://img.shields.io/badge/tests-1,429-10B981?style=flat-square)](./test-approval-expiry.js)
+[![Modules](https://img.shields.io/badge/modules-30-ffb700?style=flat-square)](./lib/)
+[![Chains](https://img.shields.io/badge/chains-13-4285F4?style=flat-square)](./lib/constants.js)
 [![Wallets](https://img.shields.io/badge/wallets-12-FF7139?style=flat-square)](./site/wallets.html)
 [![Locales](https://img.shields.io/badge/locales-4-purple?style=flat-square)](./lib/locales/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
@@ -29,7 +29,7 @@ Every Web3 wallet trusts you to read raw `0x...` calldata and approve it. Most d
 |---|---|
 | **Attack surfaces covered** | **20** (EIP-7702, session keys, MEV, drainers, phish clones, Safe multi-sig, hardware wallet rules, wallet DNA, threat feed, ...) |
 | **Modules** | **20** pure ES modules, zero runtime dependencies |
-| **Tests** | **1,334** automated tests, 31 suites, all green |
+| **Tests** | **1,429** automated tests, 33 suites, all green |
 | **Chains** | **9** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia) |
 | **Wallets** | **12** (MetaMask, Rabby, Frame, Rainbow, Zerion, Trust, Coinbase, Brave, OKX, Phantom, ...) |
 | **Locales** | **4** (en, ru, es, zh) — every UI string |
@@ -94,6 +94,7 @@ competitors don't yet detect.
 | 27 | **Wallet classifier** *(v3.5)* | 8 wallet types with adaptive rules (cold, whale, exchange, DeFi, …) |
 | 28 | **Exportable audit log** *(v3.5)* | 9 event types, 5000-entry FIFO cap, CSV/JSON export with field mapping |
 | 29 | **Bulk multicall revoke** *(v3.5 + v3.6 UI)* | N approvals → K Multicall3 transactions (K = unique chain/token pairs) |
+| 30 | **Approval expiry reminders** *(v3.7)* | Track first-seen per approval, surface ones older than user's window (default 90d). World-first for a wallet extension — prevents future exposure, not just current. |
 
 ---
 
@@ -196,8 +197,11 @@ node test-audit-log.js      # 75 tests — log shape + CSV/JSON export
 node test-bulk-multicall.js # 58 tests — multicall aggregation + gas
 node test-portfolio-view.js # 53 tests — portfolio aggregation + USD totals
 node test-onboarding.js     # 109 tests — 3-step v4 CALM overlay + handlers + locales
+node test-injector.js      # 42 tests — MAIN-world interceptor security invariants
+node test-approval-expiry.js # 77 tests — opt-in time-based expiry tracking
+node test-ci-sast.js       # 64 tests — GitHub Actions + opengrep SAST setup
 
-                            # 1,334 tests total
+                            # 1,429 tests total
 ```
 
 Every test runs in plain Node — no Chrome required. The scanner module is loaded via `vm.runInContext()` with mocked `chrome.*` and `fetch()` APIs.

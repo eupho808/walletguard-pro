@@ -39,7 +39,7 @@ for (const [label, file] of [["content.js", CONTENT], ["popup-bundle.js", POPUP]
   }
 }
 
-// ---- 2. popup-bundle.js must expose WG_POPUP_LIB with all 20 modules ----
+// ---- 2. popup-bundle.js must expose WG_POPUP_LIB with all 31 modules ----
 {
   const src = fs.readFileSync(POPUP, "utf8");
   const sandbox = { window: undefined, globalThis: {} };
@@ -57,7 +57,7 @@ for (const [label, file] of [["content.js", CONTENT], ["popup-bundle.js", POPUP]
       "threatFeed", "walletDna", "drainerDetector", "visualPhish",
       "hwWallet", "safeMultisig", "blastRadius", "patternDna", "correlation",
       "priceOracle", "ensResolver", "staleTracker", "walletClassifier",
-      "auditLog", "portfolioView",
+      "auditLog", "portfolioView", "approvalExpiry",
       "explain", "addressBook", "i18n"
     ];
     const actual = Object.keys(lib).sort();

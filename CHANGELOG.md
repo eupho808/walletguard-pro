@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.7.0] - 2026-07-07 - "EXPIRY"
+
+Approval expiry reminders + CI + opengrep SAST + audit package. Closes
+the gap between "detect stale approvals" and "prevent stale approvals
+in the first place" — and ships the production-grade engineering
+infrastructure (automated tests in CI, static analysis, audit-ready
+docs) needed for an external security review.
+
+### Added
+
+- **Approval expiry reminders** (world-first for a wallet extension) — track when each approval was first seen, surface ones older than the user's chosen window (default 90 days, range 7-365). Pure helpers in `lib/approval-expiry.js` (77 tests): `defaultExpiryState`, `normalizeExpiryState`, `clampExpiryDays`, `buildRecordKey`, `updateRecordsFromScan`, `classifyExpiry`, `computeExpiredApprovals`, `summarizeExpiry`, `pruneRecords`. Status zones: fresh (0-30%), aging (30-70%), stale (70-100%), expired (>100%).
+- **Inline SW helpers** — `summarizeExpiryInline`, `computeExpiredApprovalsInline` (mirrors of `lib/approval-expiry.js` for the service worker, which can't ES-import popup-bundle modules).
+- **Background handlers** — `getApprovalExpiry`, `setApprovalExpiry`, `getExpiredApprovals`, `resetApprovalExpiry`. `runApprovalScan` now hooks into expiry record bookkeeping: every scan adds new approvals to the records map with `Date.now()` (existing records keep their original `firstSeen`).
+- **Popup UI** — new "Expired approvals" section with summary counts and per-approval list (symbol + days overdue + chain). Hidden when feature disabled or no tracked approvals. Color-coded by severity (red/amber/neutral).
+- **Settings UI** — new toggle "Approval expiry reminders" + numeric input "Expiry window (days)" with min/max validation (7-365).
+- **CI workflows** — `.github/workflows/test.yml` (Node 20 + 22 matrix, runs `npm test`, verifies bundle integrity via `node --check`). `.github/workflows/sast.yml` (opengrep 1.0.0 container, scans `.` with custom Web3 rules, uploads SARIF to GitHub Security tab, weekly scheduled re-scan).
+- **opengrep custom rules** (`.opengrep/rules/web3.yml`) — 7 rules catching the Web3-specific attack surface that generic JS rulesets miss:
+  1. `wg-overlay-unescaped-interpolation` — XSS via unescaped `${X}` in overlay HTML
+  2. `wg-injector-bypass-originalRequest` — direct calls to unwrapped `originalRequest()` outside the Proxy handler
+  3. `wg-no-eval` — `eval()` / `new Function()` in extension code
+  4. `wg-rpc-bridge-write-method` — write methods added to `READ_ONLY_METHODS` allowlist
+  5. `wg-storage-without-secret-key` — secret-looking storage keys missing from `SENSITIVE_KEYS`
+  6. `wg-wei-number-arithmetic` — precision loss on wei values (`$A * 1e18`)
+  7. `wg-http-external-call` — HTTP (non-TLS) URLs in extension code
+- **Audit package** — `AUDIT_PACKAGE.md` (300 lines) indexes everything an external auditor needs: quickstart, priority-ordered review targets, security invariants (10 properties that MUST hold), regression-test coverage map, known gaps, engagement logistics, budget tiers ($5-35k for Bronze → Platinum).
+
+### Fixed (1 Critical bug)
+
+- **#1 `awaitUIResponse` timeout fail-open was inverted** — The timeout called `finish(false)` which resolves as `false`, and the interceptor's `if (!approved) throw` check would REJECT the tx on timeout — the opposite of the documented "fail-open" behavior. **Real impact:** if the UI hangs (content-script crash, slow page load, user closes tab before responding), the user's tx gets permanently rejected instead of passing through. Now `finish(true)` so the original call forwards unchanged. **Regression test added** in `test-bugfixes.js` (asserts both `finish(true)` present and `finish(false)` absent). The `test-injector.js` (42 tests) now also pins this invariant.
+
+### Tests
+
+- **1,429 tests across 33 suites pass** (was 1,334 across 31 in v3.6.1).
+- New: `test-approval-expiry.js` (77), `test-injector.js` (42), `test-ci-sast.js` (64).
+- Net delta: +183 new tests, 0 regressions.
+
+### Bundle Size
+
+- `content.js`: 363,428 → 374,095 bytes (+10,667 bytes for `lib/approval-expiry.js` bundled inline).
+- `popup-bundle.js`: 460,344 → 474,841 bytes (+14,497 bytes for expiry module + 22 locale keys × 6 + settings UI bits).
+- ZIPs: 2,099 KB → ~2,118 KB (after rebuild).
+
+### Engineering infrastructure
+
+- **CI** — first time the project has automated test runs on push. Catches regressions before they reach main.
+- **SAST** — first time Web3-specific static analysis runs in CI. 7 custom rules cover the highest-risk patterns (XSS, interceptor bypass, RPC bridge allowlist, eval, secret leakage, wei precision, cleartext URLs).
+- **Audit package** — ready to send to Trail of Bits / OpenZeppelin / Code4rena. Estimated 8-12 days for a focused review.
+
+---
+
 ## [3.6.1] - 2026-07-07 - "POLISH"
 
 Bug-fix + onboarding release on top of v3.6.0. Targeted audit found

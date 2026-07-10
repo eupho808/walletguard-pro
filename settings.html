@@ -113,6 +113,20 @@
                     </div>
                     <button class="wg-toggle" id="threatfeed-toggle" role="switch" aria-checked="false"></button>
                 </div>
+                <div class="wg-toggle-row">
+                    <div class="wg-toggle-info">
+                        <div class="wg-toggle-info__title">
+                            <span data-i18n="settings.toggle.approvalExpiry">Approval expiry reminders</span>
+                            <span class="wg-pill wg-pill--off" id="expiry-pill" data-i18n="settings.toggle.off">OFF</span>
+                        </div>
+                        <div class="wg-toggle-info__desc" data-i18n="settings.toggle.approvalExpiry.desc">Track how long you've held each approval. Surface ones older than your chosen window so you can revoke or renew them.</div>
+                        <div class="wg-field" style="margin-top: 8px;">
+                            <label for="expiry-days-input" data-i18n="settings.toggle.approvalExpiry.days">Expiry window (days)</label>
+                            <input type="number" id="expiry-days-input" class="wg-input" min="7" max="365" step="1" value="90" />
+                        </div>
+                    </div>
+                    <button class="wg-toggle" id="expiry-toggle" role="switch" aria-checked="false"></button>
+                </div>
             </div>
         </section>
 

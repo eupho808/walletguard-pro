@@ -1,0 +1,50 @@
+name: SAST (opengrep)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly scan to catch newly-discovered patterns
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  sast:
+    name: Static analysis (opengrep)
+    runs-on: ubuntu-latest
+    container:
+      # Pinned opengrep image. Update intentionally when upgrading.
+      image: returntocorp/opengrep:1.0.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run opengrep with custom Web3 rules
+        run: |
+          opengrep scan \
+            --config .opengrep/rules/ \
+            --config .opengrep/auto.yml \
+            --json --output opengrep-results.json \
+            --error \
+            --metrics off \
+            --no-git-ignore \
+            .
+
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: opengrep-results.json
+          category: opengrep-web3
+        continue-on-error: true
+
+      - name: Print summary
+        if: failure()
+        run: |
+          echo "::error::opengrep found security issues. See SARIF artifact or job log."
+          cat opengrep-results.json | head -200 || true

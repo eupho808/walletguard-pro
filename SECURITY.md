@@ -4,11 +4,20 @@
 
 | Version | Supported          |
 |---------|--------------------|
-| 1.5.x   | :white_check_mark: |
-| < 1.5   | :x:                |
-| 1.4.x   | :white_check_mark: (critical fixes only) |
+| 3.7.x   | :white_check_mark: |
+| 3.6.x   | :white_check_mark: |
+| 3.5.x   | :white_check_mark: (critical fixes only) |
+| < 3.5   | :x:                |
 
 Only the latest minor release receives security updates. Please upgrade before reporting.
+
+## Audit package
+
+For external auditors and security researchers doing deep dives, see
+[`AUDIT_PACKAGE.md`](./AUDIT_PACKAGE.md). It contains the auditor's
+quickstart, priority-ordered review targets, security invariants,
+regression-test coverage map, known gaps, and engagement logistics.
+Last updated for v3.7.0 (1,429 tests across 33 suites + opengrep SAST).
 
 ---
 
@@ -124,8 +133,10 @@ category, contact security@walletguard.pro.
 
 ## Audit roadmap
 
-| Q3 2026 | Self-audit (DONE) — [SELF_AUDIT.md](./SELF_AUDIT.md) |
-| Q4 2026 | Third-party audit by [Trail of Bits / OpenZeppelin / Code4rena] (TBD) |
+| Q3 2026 | Self-audit (DONE) — [SELF_AUDIT.md](./SELF_AUDIT.md) (v3.2.1, v3.6.1, v3.7.0 cycles) |
+| Q3 2026 | Audit package ready — [AUDIT_PACKAGE.md](./AUDIT_PACKAGE.md) (v3.7.0) |
+| Q3 2026 | CI + opengrep SAST — `.github/workflows/sast.yml` (7 custom Web3 rules) |
+| Q4 2026 | Third-party audit by [Trail of Bits / OpenZeppelin / Code4rena] (TBD, $5-35k) |
 | Q1 2027 | Bug bounty tier-1 launch with $50k pool |
 | Q2 2027 | Continuous audit relationship (re-review every major release) |
 

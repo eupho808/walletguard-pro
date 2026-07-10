@@ -386,9 +386,15 @@ it("injector.js awaitUIResponse uses setTimeout to fail-open", () => {
   const body = fn[0];
   assert(/setTimeout/.test(body), "must use setTimeout");
   assert(/clearTimeout/.test(body), "must clearTimeout on response");
-  // Must fail-open (let the call through) when timing out
-  assert(/finish\(false\)/.test(body),
-    "timeout must resolve with false to pass through the original call");
+  // Must fail-open (let the call through) when timing out. The interceptor's
+  // check is `if (!approved) throw`, so the timeout must resolve as `true`
+  // (approved) for the original call to pass through. v3.7 audit found that
+  // the previous fix was using `finish(false)` which inverted the behavior
+  // — timeout would reject instead of pass through.
+  assert(/finish\(true\)/.test(body),
+    "timeout must resolve with `true` so the interceptor passes the original call through");
+  assert(!/finish\(false\)/.test(body),
+    "timeout must NOT resolve with `false` (that would reject the tx, opposite of fail-open)");
 });
 
 // ============================================================

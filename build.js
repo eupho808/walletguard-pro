@@ -44,6 +44,7 @@ const ORDER = [
   "wallet-classifier.js",
   "audit-log.js",
   "portfolio-view.js",
+  "approval-expiry.js",
   "explain.js"
 ];
 

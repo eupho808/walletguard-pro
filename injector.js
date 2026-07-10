@@ -78,8 +78,10 @@
       window.addEventListener("WalletGuardUIResponse", handler);
       const timer = setTimeout(() => {
         // Fail-open: if the UI didn't answer in time, let the call through.
+        // Resolves as `true` (approved) so the interceptor's `if (!approved)`
+        // check is bypassed and the original request is forwarded unchanged.
         console.warn("WalletGuard Pro: UI response timeout, passing through.");
-        finish(false);
+        finish(true);
       }, UI_RESPONSE_TIMEOUT_MS);
     });
   }

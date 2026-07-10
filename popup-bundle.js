@@ -62,6 +62,10 @@
   "popup.bulkRevoke.transactions": "transactions",
   "popup.bulkRevoke.ready": "ready to revoke across",
   "popup.bulkRevoke.noCandidates": "No stale or risky approvals to bulk-revoke.",
+  "popup.section.expiry": "Expired approvals",
+  "popup.expiry.summary": "Tracked",
+  "popup.expiry.expired": "expired",
+  "popup.expiry.stale": "stale",
 
   // ---- Popup: protection checks ----
   "popup.check.protection": "Protection enabled",
@@ -278,6 +282,11 @@
   "settings.toggle.desktopNotifications.desc": "Show a Chrome notification when phishing is blocked or a critical risk is detected.",
   "settings.toggle.threatFeed": "Threat intelligence feed",
   "settings.toggle.threatFeed.desc": "Pull a community-maintained list of known-malicious addresses (signed, served from GitHub).",
+  "settings.toggle.approvalExpiry": "Approval expiry reminders",
+  "settings.toggle.approvalExpiry.desc": "Track how long you've held each approval. Surface ones older than your chosen window so you can revoke or renew them.",
+  "settings.toggle.approvalExpiry.days": "Expiry window (days)",
+  "settings.toast.expirySaved": "Expiry window saved.",
+  "settings.toast.expiryFailed": "Failed to save expiry window.",
 
   // ---- Settings: API key ----
   "settings.api.keyLabel": "OpenRouter API Key",
@@ -413,6 +422,10 @@
   "popup.bulkRevoke.transactions": "transacciones",
   "popup.bulkRevoke.ready": "listas para revocar en",
   "popup.bulkRevoke.noCandidates": "No hay aprobaciones vencidas o riesgosas para revocar en masa.",
+  "popup.section.expiry": "Aprobaciones vencidas",
+  "popup.expiry.summary": "Rastreadas",
+  "popup.expiry.expired": "vencidas",
+  "popup.expiry.stale": "antiguas",
   "popup.check.protection": "Protecci\u00f3n activada",
   "popup.check.threats": "Inteligencia de amenazas",
   "popup.check.cleanup": "Limpieza autom\u00e1tica",
@@ -591,6 +604,11 @@
   "settings.toggle.desktopNotifications.desc": "Mostrar una notificaci\u00f3n de Chrome cuando se bloquee phishing o se detecte un riesgo cr\u00edtico.",
   "settings.toggle.threatFeed": "Fuente de inteligencia de amenazas",
   "settings.toggle.threatFeed.desc": "Descargar lista comunitaria de direcciones maliciosas conocidas (firmada, servida desde GitHub).",
+  "settings.toggle.approvalExpiry": "Recordatorios de vencimiento",
+  "settings.toggle.approvalExpiry.desc": "Rastrea cuánto tiempo has mantenido cada aprobación. Muestra las que superan tu ventana para revocarlas o renovarlas.",
+  "settings.toggle.approvalExpiry.days": "Ventana de vencimiento (días)",
+  "settings.toast.expirySaved": "Ventana de vencimiento guardada.",
+  "settings.toast.expiryFailed": "Error al guardar la ventana.",
   "settings.api.keyLabel": "Clave API de OpenRouter",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
   "settings.api.show": "Mostrar",
@@ -712,6 +730,10 @@
   "popup.bulkRevoke.transactions": "トランザクション",
   "popup.bulkRevoke.ready": "取り消し準備済み",
   "popup.bulkRevoke.noCandidates": "一括取り消しできる期限切れまたは危険な承認はありません。",
+  "popup.section.expiry": "期限切れの承認",
+  "popup.expiry.summary": "追跡中",
+  "popup.expiry.expired": "期限切れ",
+  "popup.expiry.stale": "古い",
   "popup.check.protection": "保護が有効です",
   "popup.check.threats": "脅威インテリジェンス",
   "popup.check.cleanup": "自動クリーンアップ",
@@ -872,6 +894,11 @@
   "settings.toggle.desktopNotifications.desc": "フィッシングがブロックされたとき、または重大なリスクが検出されたときに Chrome 通知を表示します。",
   "settings.toggle.threatFeed": "脅威インテリジェンス フィード",
   "settings.toggle.threatFeed.desc": "コミュニティが管理する既知の悪意のあるアドレスのリストを取得します (署名済み、GitHub から提供)。",
+  "settings.toggle.approvalExpiry": "承認の期限切れ通知",
+  "settings.toggle.approvalExpiry.desc": "各承認を保持している期間を追跡します。設定したウィンドウを超えた承認を表示して、取り消しまたは更新できるようにします。",
+  "settings.toggle.approvalExpiry.days": "期限切れウィンドウ (日)",
+  "settings.toast.expirySaved": "期限切れウィンドウを保存しました。",
+  "settings.toast.expiryFailed": "期限切れウィンドウの保存に失敗しました。",
   "settings.api.keyLabel": "OpenRouter API キー",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
   "settings.api.show": "表示",
@@ -993,6 +1020,10 @@
   "popup.bulkRevoke.transactions": "트랜잭션",
   "popup.bulkRevoke.ready": "취소 준비됨",
   "popup.bulkRevoke.noCandidates": "일괄 취소할 오래되거나 위험한 승인이 없습니다.",
+  "popup.section.expiry": "만료된 승인",
+  "popup.expiry.summary": "추적 중",
+  "popup.expiry.expired": "만료됨",
+  "popup.expiry.stale": "오래됨",
   "popup.check.protection": "보호 활성화됨",
   "popup.check.threats": "위협 인텔리전스",
   "popup.check.cleanup": "자동 정리",
@@ -1153,6 +1184,11 @@
   "settings.toggle.desktopNotifications.desc": "피싱이 차단되거나 심각한 위험이 감지되면 Chrome 알림을 표시합니다.",
   "settings.toggle.threatFeed": "위협 인텔리전스 피드",
   "settings.toggle.threatFeed.desc": "커뮤니티가 관리하는 알려진 악성 주소 목록을 가져옵니다 (서명됨, GitHub에서 제공).",
+  "settings.toggle.approvalExpiry": "승인 만료 알림",
+  "settings.toggle.approvalExpiry.desc": "각 승인을 보유한 기간을 추적합니다. 설정한 기간을 초과한 승인을 표시하여 취소하거나 갱신할 수 있습니다.",
+  "settings.toggle.approvalExpiry.days": "만료 기간 (일)",
+  "settings.toast.expirySaved": "만료 기간이 저장되었습니다.",
+  "settings.toast.expiryFailed": "만료 기간 저장 실패.",
   "settings.api.keyLabel": "OpenRouter API 키",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
   "settings.api.show": "표시",
@@ -1277,6 +1313,10 @@
   "popup.bulkRevoke.transactions": "\u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u0438",
   "popup.bulkRevoke.ready": "\u0433\u043e\u0442\u043e\u0432\u043e \u043a \u043e\u0442\u0437\u044b\u0432\u0443 \u0432",
   "popup.bulkRevoke.noCandidates": "\u041d\u0435\u0442 \u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0438\u0445 \u0438\u043b\u0438 \u043e\u043f\u0430\u0441\u043d\u044b\u0445 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439 \u0434\u043b\u044f \u043c\u0430\u0441\u0441\u043e\u0432\u043e\u0433\u043e \u043e\u0442\u0437\u044b\u0432\u0430.",
+  "popup.section.expiry": "\u041f\u0440\u043e\u0441\u0440\u043e\u0447\u0435\u043d\u043d\u044b\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u044f",
+  "popup.expiry.summary": "\u041e\u0442\u0441\u043b\u0435\u0436\u0438\u0432\u0430\u0435\u0442\u0441\u044f",
+  "popup.expiry.expired": "\u043f\u0440\u043e\u0441\u0440\u043e\u0447\u0435\u043d\u043e",
+  "popup.expiry.stale": "\u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0438\u0445",
   "popup.check.protection": "\u0417\u0430\u0449\u0438\u0442\u0430 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u0430",
   "popup.check.threats": "\u041b\u0435\u043d\u0442\u0430 \u0443\u0433\u0440\u043e\u0437",
   "popup.check.cleanup": "\u0410\u0432\u0442\u043e-\u043e\u0447\u0438\u0441\u0442\u043a\u0430",
@@ -1456,6 +1496,11 @@
   "settings.toggle.desktopNotifications.desc": "\u041f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0442\u044c \u0443\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u0435 Chrome \u043f\u0440\u0438 \u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u043a\u0435 \u0444\u0438\u0448\u0438\u043d\u0433\u0430 \u0438\u043b\u0438 \u043a\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u043c \u0440\u0438\u0441\u043a\u0435.",
   "settings.toggle.threatFeed": "\u041b\u0435\u043d\u0442\u0430 \u0443\u0433\u0440\u043e\u0437",
   "settings.toggle.threatFeed.desc": "\u041f\u043e\u043b\u0443\u0447\u0430\u0442\u044c \u043e\u0431\u043d\u043e\u0432\u043b\u044f\u0435\u043c\u044b\u0439 \u0441\u043f\u0438\u0441\u043e\u043a \u0438\u0437\u0432\u0435\u0441\u0442\u043d\u044b\u0445 \u0432\u0440\u0435\u0434\u043e\u043d\u043e\u0441\u043d\u044b\u0445 \u0430\u0434\u0440\u0435\u0441\u043e\u0432 (\u043f\u043e\u0434\u043f\u0438\u0441\u0430\u043d, \u0445\u0440\u0430\u043d\u0438\u0442\u0441\u044f \u043d\u0430 GitHub).",
+  "settings.toggle.approvalExpiry": "\u041d\u0430\u043f\u043e\u043c\u0438\u043d\u0430\u043d\u0438\u044f \u043e \u0441\u0440\u043e\u043a\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0439",
+  "settings.toggle.approvalExpiry.desc": "\u041e\u0442\u0441\u043b\u0435\u0436\u0438\u0432\u0430\u0442\u044c \u043a\u0430\u043a \u0434\u043e\u043b\u0433\u043e \u0432\u044b \u0434\u0435\u0440\u0436\u0438\u0442\u0435 \u043a\u0430\u0436\u0434\u043e\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0435. \u041f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0442\u044c \u0442\u0435, \u0447\u0442\u043e \u0441\u0442\u0430\u0440\u0448\u0435 \u0432\u0430\u0448\u0435\u0433\u043e \u043e\u043a\u043d\u0430, \u0447\u0442\u043e\u0431\u044b \u0432\u044b \u043c\u043e\u0433\u043b\u0438 \u0438\u0445 \u043e\u0442\u043e\u0437\u0432\u0430\u0442\u044c \u0438\u043b\u0438 \u043e\u0431\u043d\u043e\u0432\u0438\u0442\u044c.",
+  "settings.toggle.approvalExpiry.days": "\u041e\u043a\u043d\u043e \u0438\u0441\u0442\u0435\u0447\u0435\u043d\u0438\u044f (\u0434\u043d\u0435\u0439)",
+  "settings.toast.expirySaved": "\u041e\u043a\u043d\u043e \u0438\u0441\u0442\u0435\u0447\u0435\u043d\u0438\u044f \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e.",
+  "settings.toast.expiryFailed": "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043e\u043a\u043d\u043e.",
   "settings.api.keyLabel": "OpenRouter API-\u043a\u043b\u044e\u0447",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
   "settings.api.show": "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c",
@@ -1579,6 +1624,10 @@
   "popup.bulkRevoke.transactions": "\u7b14\u4ea4\u6613",
   "popup.bulkRevoke.ready": "\u51c6\u5907\u5728",
   "popup.bulkRevoke.noCandidates": "\u6ca1\u6709\u8fc7\u671f\u6216\u5371\u9669\u7684\u6388\u6743\u53ef\u4ee5\u6279\u91cf\u64a4\u9500\u3002",
+  "popup.section.expiry": "\u5df2\u8fc7\u671f\u6388\u6743",
+  "popup.expiry.summary": "\u8ddf\u8e2a\u4e2d",
+  "popup.expiry.expired": "\u5df2\u8fc7\u671f",
+  "popup.expiry.stale": "\u8001\u5316",
   "popup.check.protection": "\u4fdd\u62a4\u5df2\u542f\u7528",
   "popup.check.threats": "\u5a01\u80c1\u60c5\u62a5",
   "popup.check.cleanup": "\u81ea\u52a8\u6e05\u7406",
@@ -1757,6 +1806,11 @@
   "settings.toggle.desktopNotifications.desc": "\u5728\u963b\u6b62\u949c\u9c7c\u6216\u68c0\u6d4b\u5230\u4e25\u91cd\u98ce\u9669\u65f6\u663e\u793a Chrome \u901a\u77e5\u3002",
   "settings.toggle.threatFeed": "\u5a01\u80c1\u60c5\u62a5\u6e90",
   "settings.toggle.threatFeed.desc": "\u83b7\u53d6\u793e\u533a\u7ef4\u62a4\u7684\u5df2\u77e5\u6076\u610f\u5730\u5740\u6e05\u5355\uff08\u5df2\u7b7e\u540d\uff0c\u7531 GitHub \u63d0\u4f9b\uff09\u3002",
+  "settings.toggle.approvalExpiry": "\u6388\u6743\u8fc7\u671f\u63d0\u9192",
+  "settings.toggle.approvalExpiry.desc": "\u8ddf\u8e2a\u60a8\u6301\u6709\u6bcf\u9879\u6388\u6743\u7684\u65f6\u95f4\u3002\u5217\u51fa\u8d85\u8fc7\u60a8\u8bbe\u5b9a\u7a97\u53e3\u7684\u6388\u6743\uff0c\u4ee5\u4fbf\u64a4\u9500\u6216\u7eed\u671f\u3002",
+  "settings.toggle.approvalExpiry.days": "\u8fc7\u671f\u7a97\u53e3\uff08\u5929\uff09",
+  "settings.toast.expirySaved": "\u8fc7\u671f\u7a97\u53e3\u5df2\u4fdd\u5b58\u3002",
+  "settings.toast.expiryFailed": "\u4fdd\u5b58\u8fc7\u671f\u7a97\u53e3\u5931\u8d25\u3002",
   "settings.api.keyLabel": "OpenRouter API \u5bc6\u94a5",
   "settings.api.keyPlaceholder": "sk-or-v1-...",
   "settings.api.show": "\u663e\u793a",
@@ -9649,6 +9703,250 @@ function formatUsd(usd) {
 return { estimateApprovalUsd, computePortfolio, formatUsd };
     })(),
     // ============================================================
+    // approval-expiry.js
+    // ============================================================
+    "approvalExpiry": (function() {
+// lib/approval-expiry.js - Time-based approval expiry tracking (v3.7)
+//
+// World-first feature: track when each approval was first seen, surface
+// ones older than the user's chosen expiry window, and offer revoke
+// calldata. Defaults: 90 days, opt-in.
+//
+// Design:
+//   - Pure helpers, no browser globals
+//   - Storage shape: { enabled: bool, expiryDays: 90, records: { [key]: firstSeenTs } }
+//   - Key: chainId + tokenAddress + spenderAddress (lowercased, concat)
+//   - On every approval scan, check records; update firstSeen if new, compute age
+//   - On age >= expiryDays, mark as "expired" — surfaces in popup + audit log
+//
+// This module does NOT sign or broadcast transactions. It only computes
+// expiry status and generates revoke calldata via the existing
+// lib/revoke-generator.js functions.
+
+const APPROVAL_EXPIRY_DEFAULT_DAYS = 90;
+const APPROVAL_EXPIRY_MIN_DAYS = 7;
+const APPROVAL_EXPIRY_MAX_DAYS = 365;
+
+// ============================================================
+// Storage helpers
+// ============================================================
+
+/**
+ * Build the storage shape with sane defaults.
+ * @returns {{ enabled: boolean, expiryDays: number, records: Object }}
+ */
+function defaultExpiryState() {
+  return {
+    enabled: false,
+    expiryDays: APPROVAL_EXPIRY_DEFAULT_DAYS,
+    records: {}
+  };
+}
+
+/**
+ * Normalize a stored expiry state, filling in missing fields with defaults.
+ * @param {Object} [state]
+ * @returns {{ enabled: boolean, expiryDays: number, records: Object }}
+ */
+function normalizeExpiryState(state) {
+  const base = defaultExpiryState();
+  if (!state || typeof state !== "object") return base;
+  return {
+    enabled: state.enabled === true,
+    expiryDays: clampExpiryDays(state.expiryDays),
+    records: (state.records && typeof state.records === "object") ? state.records : {}
+  };
+}
+
+/**
+ * Clamp expiryDays into [MIN_DAYS, MAX_DAYS].
+ * @param {number} days
+ * @returns {number}
+ */
+function clampExpiryDays(days) {
+  const n = Number(days);
+  if (!Number.isFinite(n)) return APPROVAL_EXPIRY_DEFAULT_DAYS;
+  if (n < APPROVAL_EXPIRY_MIN_DAYS) return APPROVAL_EXPIRY_MIN_DAYS;
+  if (n > APPROVAL_EXPIRY_MAX_DAYS) return APPROVAL_EXPIRY_MAX_DAYS;
+  return Math.floor(n);
+}
+
+// ============================================================
+// Record key
+// ============================================================
+
+/**
+ * Build a stable record key for a (chain, token, spender) triple.
+ * Uses lowercase addresses. Whitespace-tolerant.
+ * @param {number|string} chainId
+ * @param {string} tokenAddress
+ * @param {string} spenderAddress
+ * @returns {string}
+ */
+function buildRecordKey(chainId, tokenAddress, spenderAddress) {
+  const chain = String(chainId || 0);
+  const token = String(tokenAddress || "").toLowerCase().trim();
+  const spender = String(spenderAddress || "").toLowerCase().trim();
+  return `${chain}:${token}:${spender}`;
+}
+
+// ============================================================
+// Scan integration
+// ============================================================
+
+/**
+ * Update the records map with approvals from the latest scan.
+ * Existing records keep their original firstSeen; new ones get Date.now().
+ * Returns a new state object (does not mutate input).
+ * @param {Object} state - Current expiry state
+ * @param {Array} approvals - Array of approval objects { chainId, tokenAddress|token, spender|operator }
+ * @param {number} [now=Date.now()]
+ * @returns {Object} New state with updated records
+ */
+function updateRecordsFromScan(state, approvals, now = Date.now()) {
+  const base = normalizeExpiryState(state);
+  if (!Array.isArray(approvals)) return base;
+  const records = { ...base.records };
+  for (const a of approvals) {
+    const chain = a.chainId || a.chain || 0;
+    const token = a.tokenAddress || a.token || a.contractAddress || "";
+    const spender = a.spender || a.operator || "";
+    if (!token || !spender) continue;
+    const key = buildRecordKey(chain, token, spender);
+    if (!records[key]) {
+      records[key] = { firstSeen: now, chainId: chain, token: token.toLowerCase(), spender: spender.toLowerCase() };
+    }
+  }
+  return { ...base, records };
+}
+
+// ============================================================
+// Expiry classification
+// ============================================================
+
+/**
+ * Classify an approval against the user's expiry window.
+ * Returns one of: "fresh" (0-30%), "aging" (30-70%), "stale" (70-100%), "expired" (>100%).
+ * @param {Object} record - { firstSeen: number }
+ * @param {number} expiryDays
+ * @param {number} [now=Date.now()]
+ * @returns {{ status: string, ageDays: number, daysUntilExpiry: number, percent: number }}
+ */
+function classifyExpiry(record, expiryDays, now = Date.now()) {
+  const days = clampExpiryDays(expiryDays);
+  if (!record || typeof record.firstSeen !== "number") {
+    return { status: "unknown", ageDays: 0, daysUntilExpiry: days, percent: 0 };
+  }
+  const ageMs = Math.max(0, now - record.firstSeen);
+  const ageDays = ageMs / (24 * 60 * 60 * 1000);
+  const ratio = ageDays / days;
+  const percent = Math.min(100, Math.round(ratio * 100));
+  let status;
+  if (ratio < 0.30) status = "fresh";
+  else if (ratio < 0.70) status = "aging";
+  else if (ratio < 1.0) status = "stale";
+  else status = "expired";
+  const daysUntilExpiry = Math.max(0, Math.round(days - ageDays));
+  return { status, ageDays: Math.round(ageDays * 10) / 10, daysUntilExpiry, percent };
+}
+
+// ============================================================
+// Compute expired list
+// ============================================================
+
+/**
+ * Given an expiry state and an approvals array, produce the list of expired
+ * approvals that need user attention. Each entry includes the original
+ * approval fields plus expiry metadata.
+ * @param {Object} state - Expiry state (with records)
+ * @param {Array} approvals - Latest scan approvals
+ * @param {number} [now=Date.now()]
+ * @returns {Array<{ approval: Object, expiry: Object, key: string }>}
+ */
+function computeExpiredApprovals(state, approvals, now = Date.now()) {
+  const base = normalizeExpiryState(state);
+  if (!base.enabled || !Array.isArray(approvals)) return [];
+  const out = [];
+  for (const a of approvals) {
+    const chain = a.chainId || a.chain || 0;
+    const token = a.tokenAddress || a.token || a.contractAddress || "";
+    const spender = a.spender || a.operator || "";
+    if (!token || !spender) continue;
+    const key = buildRecordKey(chain, token, spender);
+    const record = base.records[key];
+    const expiry = classifyExpiry(record, base.expiryDays, now);
+    if (expiry.status === "expired") {
+      out.push({ approval: a, expiry, key });
+    }
+  }
+  return out;
+}
+
+/**
+ * Compute summary stats for the UI: counts by status across all approvals.
+ * @param {Object} state
+ * @param {Array} approvals
+ * @param {number} [now]
+ * @returns {{ total: number, fresh: number, aging: number, stale: number, expired: number, enabled: boolean }}
+ */
+function summarizeExpiry(state, approvals, now = Date.now()) {
+  const base = normalizeExpiryState(state);
+  const summary = { total: 0, fresh: 0, aging: 0, stale: 0, expired: 0, enabled: base.enabled };
+  if (!base.enabled || !Array.isArray(approvals)) return summary;
+  for (const a of approvals) {
+    const chain = a.chainId || a.chain || 0;
+    const token = a.tokenAddress || a.token || a.contractAddress || "";
+    const spender = a.spender || a.operator || "";
+    if (!token || !spender) continue;
+    const record = base.records[buildRecordKey(chain, token, spender)];
+    const expiry = classifyExpiry(record, base.expiryDays, now);
+    summary.total++;
+    summary[expiry.status] = (summary[expiry.status] || 0) + 1;
+  }
+  return summary;
+}
+
+// ============================================================
+// Records maintenance
+// ============================================================
+
+/**
+ * Garbage-collect records for approvals that no longer exist in the latest
+ * scan. Keeps records under a hard cap so storage doesn't grow unbounded.
+ * @param {Object} state
+ * @param {Array} approvals
+ * @param {number} [maxRecords=10000]
+ * @returns {Object} New state with pruned records
+ */
+function pruneRecords(state, approvals, maxRecords = 10000) {
+  const base = normalizeExpiryState(state);
+  if (!Array.isArray(approvals)) return base;
+  const activeKeys = new Set();
+  for (const a of approvals) {
+    const chain = a.chainId || a.chain || 0;
+    const token = a.tokenAddress || a.token || a.contractAddress || "";
+    const spender = a.spender || a.operator || "";
+    if (!token || !spender) continue;
+    activeKeys.add(buildRecordKey(chain, token, spender));
+  }
+  // Keep all records that match an active approval; drop everything else.
+  const kept = {};
+  for (const k of Object.keys(base.records)) {
+    if (activeKeys.has(k)) kept[k] = base.records[k];
+  }
+  // If still over cap (unlikely), drop oldest entries by firstSeen.
+  const keptKeys = Object.keys(kept);
+  if (keptKeys.length > maxRecords) {
+    keptKeys.sort((a, b) => (kept[a].firstSeen || 0) - (kept[b].firstSeen || 0));
+    const overflow = keptKeys.length - maxRecords;
+    for (let i = 0; i < overflow; i++) delete kept[keptKeys[i]];
+  }
+  return { ...base, records: kept };
+}
+
+return { defaultExpiryState, normalizeExpiryState, clampExpiryDays, buildRecordKey, updateRecordsFromScan, classifyExpiry, computeExpiredApprovals, summarizeExpiry, pruneRecords, APPROVAL_EXPIRY_DEFAULT_DAYS, APPROVAL_EXPIRY_MIN_DAYS, APPROVAL_EXPIRY_MAX_DAYS };
+    })(),
+    // ============================================================
     // explain.js
     // ============================================================
     "explain": (function() {
@@ -10226,5 +10524,5 @@ function availableLocales() {
 return { setMessages, setLocaleMessages, normalizeLocale, detectLocale, setLocale, getLocale, initI18n, saveLocale, t, applyTranslations, availableLocales, SUPPORTED_LOCALES, DEFAULT_LOCALE, LOCALE_DISPLAY };
     })(),
   };
-  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "mevDetector": mods.mevDetector, "revokeGenerator": mods.revokeGenerator, "eip7702Detector": mods.eip7702Detector, "sessionKeyAnalyzer": mods.sessionKeyAnalyzer, "threatFeed": mods.threatFeed, "walletDna": mods.walletDna, "drainerDetector": mods.drainerDetector, "visualPhish": mods.visualPhish, "hwWallet": mods.hwWallet, "safeMultisig": mods.safeMultisig, "blastRadius": mods.blastRadius, "patternDna": mods.patternDna, "correlation": mods.correlation, "priceOracle": mods.priceOracle, "ensResolver": mods.ensResolver, "staleTracker": mods.staleTracker, "walletClassifier": mods.walletClassifier, "auditLog": mods.auditLog, "portfolioView": mods.portfolioView, "explain": mods.explain, "addressBook": mods.addressBook, "i18n": mods.i18n };
+  global.WG_POPUP_LIB = { "constants": mods.constants, "decoder": mods.decoder, "typosquatting": mods.typosquatting, "multicallDecoder": mods.multicallDecoder, "universalRouter": mods.universalRouter, "riskEngine": mods.riskEngine, "capabilities": mods.capabilities, "simulator": mods.simulator, "mevDetector": mods.mevDetector, "revokeGenerator": mods.revokeGenerator, "eip7702Detector": mods.eip7702Detector, "sessionKeyAnalyzer": mods.sessionKeyAnalyzer, "threatFeed": mods.threatFeed, "walletDna": mods.walletDna, "drainerDetector": mods.drainerDetector, "visualPhish": mods.visualPhish, "hwWallet": mods.hwWallet, "safeMultisig": mods.safeMultisig, "blastRadius": mods.blastRadius, "patternDna": mods.patternDna, "correlation": mods.correlation, "priceOracle": mods.priceOracle, "ensResolver": mods.ensResolver, "staleTracker": mods.staleTracker, "walletClassifier": mods.walletClassifier, "auditLog": mods.auditLog, "portfolioView": mods.portfolioView, "approvalExpiry": mods.approvalExpiry, "explain": mods.explain, "addressBook": mods.addressBook, "i18n": mods.i18n };
 })(typeof window !== "undefined" ? window : globalThis);

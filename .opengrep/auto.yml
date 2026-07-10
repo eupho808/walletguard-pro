@@ -1,0 +1,14 @@
+# .opengrep/auto.yml — opengrep configuration for WalletGuard Pro
+#
+# We use the `p/javascript` ruleset as a base (catches generic JS issues:
+# XSS, prototype pollution, code injection, unsafe deserialization) plus
+# our custom Web3-specific rules in rules/.
+#
+# The base ruleset is intentionally limited — WalletGuard runs in MV3
+# extension context, so many Node.js-specific rules don't apply. The
+# custom rules catch the Web3-specific attack surface (unsafe address
+# handling, tx signing bypasses, etc.).
+
+rules:
+  - pack: p/javascript
+  - pattern: .opengrep/rules

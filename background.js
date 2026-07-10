@@ -52,7 +52,8 @@ const STORAGE_KEYS = {
   STALE_APPROVALS: "wg_staleApprovals",       // v2.2: detected stale approvals awaiting user action
   LAST_AUTO_REVOKE: "wg_lastAutoRevokeCheck",  // v2.2: timestamp of last stale-approval scan
   NOTIFICATIONS_ENABLED: "wg_notificationsEnabled", // v3.1: master toggle for chrome.notifications
-  ONBOARDING_COMPLETED: "wg_onboardingCompleted"    // v3.6: 3-step onboarding tour flag
+  ONBOARDING_COMPLETED: "wg_onboardingCompleted",   // v3.6: 3-step onboarding tour flag
+  APPROVAL_EXPIRY: "wg_approvalExpiry"              // v3.7: opt-in expiry tracking
 };
 
 const MAX_LOGS = 50;
@@ -709,6 +710,62 @@ async function handleMessage(message, sender) {
       return { status: "ok" };
     }
 
+    // --- v3.7: approval expiry tracking (opt-in) ---
+    case "getApprovalExpiry": {
+      const state = await getStorage(STORAGE_KEYS.APPROVAL_EXPIRY, null);
+      return {
+        state: state || {
+          enabled: false,
+          expiryDays: 90,
+          records: {}
+        }
+      };
+    }
+
+    case "setApprovalExpiry": {
+      const incoming = (message && message.state) || {};
+      const enabled = incoming.enabled === true;
+      let expiryDays = Number(incoming.expiryDays);
+      if (!Number.isFinite(expiryDays)) expiryDays = 90;
+      if (expiryDays < 7) expiryDays = 7;
+      if (expiryDays > 365) expiryDays = 365;
+      expiryDays = Math.floor(expiryDays);
+      // Preserve existing records unless explicitly overwritten.
+      const existing = await getStorage(STORAGE_KEYS.APPROVAL_EXPIRY, null);
+      const records = (existing && existing.records && typeof existing.records === "object")
+        ? existing.records : {};
+      await setStorage(STORAGE_KEYS.APPROVAL_EXPIRY, { enabled, expiryDays, records });
+      return { status: "ok", state: { enabled, expiryDays, records } };
+    }
+
+    case "getExpiredApprovals": {
+      const expiryState = await getStorage(STORAGE_KEYS.APPROVAL_EXPIRY, null);
+      const scan = await getStorage(STORAGE_KEYS.APPROVAL_SCAN, null);
+      const allApprovals = [];
+      if (scan) {
+        if (Array.isArray(scan.chains)) {
+          for (const chain of scan.chains) {
+            if (Array.isArray(chain.approvals)) allApprovals.push(...chain.approvals);
+          }
+        }
+        if (Array.isArray(scan.approvals)) allApprovals.push(...scan.approvals);
+        if (Array.isArray(scan.nftApprovals)) allApprovals.push(...scan.nftApprovals);
+      }
+      const summary = summarizeExpiryInline(expiryState, allApprovals);
+      const expired = computeExpiredApprovalsInline(expiryState, allApprovals);
+      return {
+        summary,
+        expired: expired.slice(0, 25), // cap for popup rendering
+        enabled: !!(expiryState && expiryState.enabled)
+      };
+    }
+
+    case "resetApprovalExpiry": {
+      // Reset records (forget all history). User must re-enable after reset.
+      await setStorage(STORAGE_KEYS.APPROVAL_EXPIRY, { enabled: false, expiryDays: 90, records: {} });
+      return { status: "ok" };
+    }
+
     // --- v2.0: popup adds entry to address book ---
     case "addAddress": {
       const addr = (message.address || "").trim();
@@ -999,6 +1056,47 @@ async function runApprovalScan(address, forceLog) {
       );
     }
   }
+
+  // v3.7: update approval expiry records (opt-in feature).
+  // Only runs if the user has enabled expiry tracking in settings.
+  try {
+    const expiryState = await getStorage(STORAGE_KEYS.APPROVAL_EXPIRY, null);
+    if (expiryState && expiryState.enabled === true) {
+      const allApprovals = [];
+      if (Array.isArray(result.chains)) {
+        for (const chain of result.chains) {
+          if (Array.isArray(chain.approvals)) {
+            for (const a of chain.approvals) allApprovals.push(a);
+          }
+        }
+      }
+      if (Array.isArray(result.approvals)) allApprovals.push(...result.approvals);
+      if (Array.isArray(result.nftApprovals)) allApprovals.push(...result.nftApprovals);
+      // Inline implementation of updateRecordsFromScan to avoid bundling
+      // lib/approval-expiry.js into the service worker.
+      const records = (expiryState.records && typeof expiryState.records === "object") ? expiryState.records : {};
+      const now = Date.now();
+      for (const a of allApprovals) {
+        const chain = a.chainId || a.chain || 0;
+        const token = (a.tokenAddress || a.token || a.contractAddress || "").toLowerCase();
+        const spender = (a.spender || a.operator || "").toLowerCase();
+        if (!token || !spender) continue;
+        const key = `${chain}:${token}:${spender}`;
+        if (!records[key]) {
+          records[key] = { firstSeen: now, chainId: chain, token, spender };
+        }
+      }
+      await setStorage(STORAGE_KEYS.APPROVAL_EXPIRY, {
+        enabled: expiryState.enabled,
+        expiryDays: expiryState.expiryDays || 90,
+        records
+      });
+    }
+  } catch (e) {
+    // Never fail the scan because of expiry bookkeeping.
+    console.warn("[WalletGuard] expiry record update failed:", e && e.message);
+  }
+
   return result;
 }
 
@@ -1241,6 +1339,64 @@ function buildBulkRevokePlanInline(scanData) {
     });
   }
   return { batches, candidateCount: batches.reduce((sum, b) => sum + b.approvalCount, 0) };
+}
+
+// Inline mirror of lib/approval-expiry.js summarize + computeExpired.
+// The service worker can't ES-import popup-bundle modules, so we keep a
+// minimal copy here. Pure functions, no browser globals.
+function summarizeExpiryInline(expiryState, approvals, now) {
+  const s = { total: 0, fresh: 0, aging: 0, stale: 0, expired: 0, enabled: false };
+  if (!expiryState || expiryState.enabled !== true || !Array.isArray(approvals)) return s;
+  const expiryDays = expiryState.expiryDays || 90;
+  const records = (expiryState.records && typeof expiryState.records === "object") ? expiryState.records : {};
+  const ts = now || Date.now();
+  for (const a of approvals) {
+    const chain = a.chainId || a.chain || 0;
+    const token = (a.tokenAddress || a.token || a.contractAddress || "").toLowerCase();
+    const spender = (a.spender || a.operator || "").toLowerCase();
+    if (!token || !spender) continue;
+    const key = `${chain}:${token}:${spender}`;
+    const rec = records[key];
+    let status = "unknown";
+    if (rec && typeof rec.firstSeen === "number") {
+      const ageDays = Math.max(0, (ts - rec.firstSeen) / (24 * 60 * 60 * 1000));
+      const ratio = ageDays / expiryDays;
+      if (ratio < 0.30) status = "fresh";
+      else if (ratio < 0.70) status = "aging";
+      else if (ratio < 1.0) status = "stale";
+      else status = "expired";
+    }
+    s.total++;
+    if (s[status] !== undefined) s[status]++;
+  }
+  s.enabled = true;
+  return s;
+}
+
+function computeExpiredApprovalsInline(expiryState, approvals, now) {
+  if (!expiryState || expiryState.enabled !== true || !Array.isArray(approvals)) return [];
+  const expiryDays = expiryState.expiryDays || 90;
+  const records = (expiryState.records && typeof expiryState.records === "object") ? expiryState.records : {};
+  const ts = now || Date.now();
+  const out = [];
+  for (const a of approvals) {
+    const chain = a.chainId || a.chain || 0;
+    const token = (a.tokenAddress || a.token || a.contractAddress || "").toLowerCase();
+    const spender = (a.spender || a.operator || "").toLowerCase();
+    if (!token || !spender) continue;
+    const key = `${chain}:${token}:${spender}`;
+    const rec = records[key];
+    if (!rec || typeof rec.firstSeen !== "number") continue;
+    const ageDays = (ts - rec.firstSeen) / (24 * 60 * 60 * 1000);
+    if (ageDays < expiryDays) continue;
+    out.push({
+      approval: a,
+      key,
+      ageDays: Math.round(ageDays),
+      daysOverdue: Math.round(ageDays - expiryDays)
+    });
+  }
+  return out;
 }
 
 async function notifyUser(opts) {

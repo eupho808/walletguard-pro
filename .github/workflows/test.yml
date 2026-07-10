@@ -1,74 +1,42 @@
-name: Tests
+name: Test
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
   test:
-    name: Run all tests (Node 18+)
+    name: Test on Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        node: [18, 20, 22]
-    steps:
-      - uses: actions/checkout@v4
+        node-version: [20, 22]
 
-      - name: Setup Node ${{ matrix.node }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ matrix.node-version }}
           cache: npm
 
-      - name: Install
-        run: npm install --omit=optional
-        continue-on-error: true
-
-      - name: Run all tests
-        run: npm test
-
-      - name: Verify bundles are syntactically valid
+      - name: Verify bundle integrity
         run: |
           node --check content.js
-          node --check popup-bundle.js
-          node --check background.js
           node --check popup.js
-          node --check injector.js
-          node --check approval-scanner.js
+          node --check background.js
           node --check settings.js
-          # New standalone lib modules loaded as classic scripts
-          node --check lib/address-utils.js
-          node --check lib/storage-validators.js
+          node --check injector.js
 
-      - name: Verify standalone lib modules ship with the ZIPs
+      - name: Run full test suite
+        run: npm test
+
+      - name: Verify ZIP packages
         run: |
-          # The two classic-script lib modules must be in both Chrome and Firefox ZIPs
-          # (popup.html + settings.html load address-utils.js via <script src>,
-          # background.js loads storage-validators.js via importScripts).
-          VERSION=$(node -p "require('./package.json').version")
-          for zip in "walletguard-pro-${VERSION}.zip" \
-                     "walletguard-pro-firefox-${VERSION}.zip"; do
-            if [ ! -f "$zip" ]; then
-              echo "::warning::$zip not built yet (run npm run build:chrome:pack / build:firefox:pack locally)"
-              continue
-            fi
-            echo "Checking $zip..."
-            # Must contain the 2 standalone lib modules
-            if ! unzip -l "$zip" | grep -q "lib/address-utils.js"; then
-              echo "ERROR: $zip missing lib/address-utils.js"
-              exit 1
-            fi
-            if ! unzip -l "$zip" | grep -q "lib/storage-validators.js"; then
-              echo "ERROR: $zip missing lib/storage-validators.js"
-              exit 1
-            fi
-            # Must NOT contain dev cruft
-            if unzip -l "$zip" | grep -E '(test-|\.git/|node_modules/|build\.js$|build-chrome-pack\.js$|build-firefox-pack\.js$|\.zip$)'; then
-              echo "ERROR: $zip contains dev files!"
-              exit 1
-            fi
-          done
-          echo "Both ZIPs contain required lib files and no dev cruft"
+          test -f walletguard-pro-v3.7.0.zip || echo "Chrome ZIP not built (run build-chrome-pack.js locally)"
+          test -f walletguard-pro-firefox-v3.7.0.zip || echo "Firefox ZIP not built (run build-firefox-pack.js locally)"

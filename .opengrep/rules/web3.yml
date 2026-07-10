@@ -1,0 +1,259 @@
+# WalletGuard Pro — Web3 security rules for opengrep
+#
+# These rules catch the Web3-specific attack surface that generic JS
+# rulesets miss. Each rule is designed for the MV3 extension context:
+# MAIN-world injector (injector.js), isolated-world content script
+# (content.js), and service worker (background.js).
+#
+# Severity is calibrated to "real exploitability" — a pattern that has
+# no obvious mitigation gets High; patterns that are mitigated by other
+# code get Medium or Low.
+
+rules:
+
+  # ----------------------------------------------------------------
+  # XSS via unescaped overlay content
+  #
+  # The overlay (content.js showOverlay) sets innerHTML from a render
+  # function. The render function MUST escape every user-controlled
+  # string (to address, token symbol, message text, etc.) before
+  # interpolation. Bypassing escapeHtml() is a direct XSS into the
+  # overlay, which has full transaction-signing powers.
+  # ----------------------------------------------------------------
+
+  - id: wg-overlay-unescaped-interpolation
+    message: >-
+      Direct template interpolation of `$X` into an HTML string in
+      content.js risks XSS. All user-controlled fields (to, from, symbol,
+      messageText, spender, etc.) must pass through escapeHtml() before
+      being placed in an overlay template.
+    severity: ERROR
+    languages: [javascript]
+    paths:
+      include:
+        - "*.js"
+    patterns:
+      - pattern: |
+          $HTML = `...${$X}...`
+      - pattern-not: |
+          $HTML = `...${escapeHtml($X)}...`
+      - metavariable-pattern:
+          metavariable: $X
+          pattern: $X
+      - pattern-either:
+          - pattern-inside: |
+              function $F(...) { ... }
+          - pattern-inside: |
+              const $F = (...) => { ... }
+    metadata:
+      category: security
+      cwe: "CWE-79: Improper Neutralization of Input During Web Page Generation"
+      subcategory: [audit]
+      technology: [javascript]
+      references:
+        - https://owasp.org/www-community/attacks/xss/
+
+  # ----------------------------------------------------------------
+  # Bypass of transaction interception
+  #
+  # The interceptor in injector.js wraps window.ethereum.request via
+  # Proxy. Any code path that calls the unwrapped originalRequest
+  # directly bypasses user confirmation, MEV checks, simulation, etc.
+  # The ONLY legitimate use of originalRequest is inside the Proxy
+  # handler (forwarding approved calls) and inside the read-only RPC
+  # bridge (whitelisted methods only).
+  # ----------------------------------------------------------------
+
+  - id: wg-injector-bypass-originalRequest
+    message: >-
+      Direct call to `originalRequest(...)` outside the Proxy handler or
+      the read-only RPC bridge bypasses WalletGuard's interception.
+      All write methods MUST go through the Proxy handler so the user
+      sees the overlay before signing.
+    severity: ERROR
+    languages: [javascript]
+    paths:
+      include:
+        - "injector.js"
+    patterns:
+      - pattern: originalRequest(...)
+      - pattern-not-inside: |
+          if (prop === "request") { ... }
+      - pattern-not-inside: |
+          window.addEventListener("WalletGuardRpcCall", async (...) => { ... })
+    metadata:
+      category: security
+      cwe: "CWE-862: Missing Authorization"
+      subcategory: [audit]
+      technology: [javascript]
+
+  # ----------------------------------------------------------------
+  # eval / Function constructor in MAIN-world or content script
+  #
+  # eval() and new Function() in MAIN world or content script can be
+  # abused if any dynamic string flows in. We don't use them anywhere
+  # — any addition is a red flag.
+  # ----------------------------------------------------------------
+
+  - id: wg-no-eval
+    message: >-
+      eval() or Function() constructor in extension code is a red flag
+      and a likely CSP violation. Refactor to a static dispatch table.
+    severity: ERROR
+    languages: [javascript]
+    paths:
+      include:
+        - "*.js"
+      exclude:
+        - "build.js"
+        - "build-firefox.js"
+        - "build-firefox-pack.js"
+        - "build-chrome-pack.js"
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+    metadata:
+      category: security
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+      subcategory: [audit]
+      technology: [javascript]
+
+  # ----------------------------------------------------------------
+  # RPC bridge allowing write methods
+  #
+  # The content-script → MAIN-world RPC bridge must NEVER forward
+  # write methods. Any addition to READ_ONLY_METHODS that isn't truly
+  # read-only is a critical security bug — the content script could
+  # trick the user's wallet into signing arbitrary txs.
+  # ----------------------------------------------------------------
+
+  - id: wg-rpc-bridge-write-method
+    message: >-
+      `READ_ONLY_METHODS` includes a write method. The RPC bridge
+      forwards calls from the isolated-world content script to the
+      user's wallet. Allowing eth_sendTransaction / eth_sign / etc.
+      here would let a malicious page bypass the overlay entirely.
+    severity: ERROR
+    languages: [javascript]
+    paths:
+      include:
+        - "injector.js"
+    patterns:
+      - pattern: |
+          const READ_ONLY_METHODS = new Set([...])
+      - metavariable-pattern:
+          metavariable: ...
+          patterns:
+            - pattern-either:
+                - pattern: "eth_sendTransaction"
+                - pattern: "eth_sendRawTransaction"
+                - pattern: "eth_sign"
+                - pattern: "eth_signTypedData"
+                - pattern: "eth_signTypedData_v1"
+                - pattern: "eth_signTypedData_v3"
+                - pattern: "eth_signTypedData_v4"
+                - pattern: "personal_sign"
+                - pattern: "wallet_switchEthereumChain"
+                - pattern: "wallet_addEthereumChain"
+                - pattern: "wallet_requestPermissions"
+                - pattern: "wallet_grantPermissions"
+    metadata:
+      category: security
+      cwe: "CWE-862: Missing Authorization"
+      subcategory: [audit]
+      technology: [javascript]
+
+  # ----------------------------------------------------------------
+  # Storage key missing from SENSITIVE_KEYS
+  #
+  # Any storage key that holds secrets (API keys, wallet addresses,
+  # signatures) must be listed in SENSITIVE_KEYS so the export-settings
+  # feature doesn't accidentally include it.
+  # ----------------------------------------------------------------
+
+  - id: wg-storage-without-secret-key
+    message: >-
+      String literal that looks like a secret-storage key but is not
+      declared in SENSITIVE_KEYS. Settings export will leak it.
+    severity: WARNING
+    languages: [javascript]
+    paths:
+      include:
+        - "*.js"
+    patterns:
+      - pattern: "wg_$KEY"
+      - metavariable-pattern:
+          metavariable: $KEY
+          patterns:
+            - pattern-either:
+                - pattern: apiKey
+                - pattern: secret
+                - pattern: privateKey
+                - pattern: mnemonic
+                - pattern: seed
+                - pattern: signature
+                - pattern: token
+                - pattern: auth
+    metadata:
+      category: security
+      cwe: "CWE-200: Exposure of Sensitive Information"
+      subcategory: [audit]
+      technology: [javascript]
+
+  # ----------------------------------------------------------------
+  # BigInt safety in wei handling
+  #
+  # Wei values are BigInt (uint256). Any arithmetic that uses regular
+  # Number loses precision above 2^53. Multiplication, division, and
+  # exponentiation on wei values must use BigInt operators.
+  # ----------------------------------------------------------------
+
+  - id: wg-wei-number-arithmetic
+    message: >-
+      Arithmetic on a wei value (BigInt) with a regular Number loses
+      precision. Use BigInt operators (10n ** 18n) or convert to Number
+      only after dividing by 1e18 explicitly.
+    severity: WARNING
+    languages: [javascript]
+    paths:
+      include:
+        - "*.js"
+    patterns:
+      - pattern: $A * 1e18
+      - metavariable-pattern:
+          metavariable: $A
+          patterns:
+            - pattern-either:
+                - pattern: BigInt(...)
+                - pattern: wei
+                - pattern: value
+                - pattern: amount
+    metadata:
+      category: correctness
+      cwe: "CWE-682: Incorrect Calculation"
+      subcategory: [audit]
+      technology: [javascript]
+
+  # ----------------------------------------------------------------
+  # HTTPS-only for external API calls
+  #
+  # All external network calls (RPCs, APIs, threat feed) must use HTTPS.
+  # HTTP allows MITM tampering of calldata or threat data.
+  # ----------------------------------------------------------------
+
+  - id: wg-http-external-call
+    message: >-
+      HTTP (non-TLS) URL in extension code. Wallet data must only travel
+      over HTTPS to prevent MITM tampering of calldata, prices, or
+      threat feed manifests.
+    severity: WARNING
+    languages: [javascript]
+    paths:
+      include:
+        - "*.js"
+    pattern-regex: 'fetch\s*\(\s*["\']http://'
+    metadata:
+      category: security
+      cwe: "CWE-319: Cleartext Transmission of Sensitive Information"
+      subcategory: [audit]
+      technology: [javascript]

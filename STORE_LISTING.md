@@ -93,7 +93,7 @@ KEY FEATURES
 • Typosquatting detection via Levenshtein + homoglyph checks
 • Phishing overlay on known-drainer domains
 • Multicall V1/V2/V3 + Universal Router command decoding
-• 1,334 automated tests across 31 suites, MIT licensed, open source
+• 1,429 automated tests across 33 suites, MIT licensed, open source
 
 ────────────────────────────────────────────────────────────
 PRIVACY
@@ -110,7 +110,7 @@ Full privacy policy: [GitHub link]
 OPEN SOURCE
 ────────────────────────────────────────────────────────────
 
-MIT licensed. 1,334 tests passing. Contributions welcome.
+MIT licensed. 1,429 tests passing. Contributions welcome.
 [GitHub link]
 ```
 
@@ -269,7 +269,7 @@ free to maximize adoption.)
 
 ## 5. Pre-submission checklist
 
-- [ ] All 1,334 tests pass: `npm test`
+- [ ] All 1,429 tests pass: `npm test`
 - [ ] `npm run build` produces a clean bundle
 - [ ] Icons exist at `icons/icon16.png`, `icons/icon48.png`, `icons/icon128.png`
 - [ ] `PRIVACY.md` is hosted on a publicly accessible URL (GitHub Pages, raw GitHub, or your site)

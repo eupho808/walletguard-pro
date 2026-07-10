@@ -242,6 +242,11 @@
     } catch (e) { /* noop */ }
 
     try {
+      const expiryData = await sendMessage({ action: "getExpiredApprovals" });
+      applyExpiry(expiryData || {});
+    } catch (e) { /* noop */ }
+
+    try {
       const sec = await sendMessage({ action: "getSecurityCenter" });
       applySecurityCenter(sec || {});
     } catch (e) { /* noop */ }
@@ -867,6 +872,55 @@
       const n = plan.candidateCount || 0;
       const b = plan.batches.length;
       descEl.textContent = `${n} ${t("popup.bulkRevoke.approvals")} → ${b} ${t("popup.bulkRevoke.transactions")}`;
+    }
+  }
+
+  /**
+   * Render the approval-expiry section. Shows tracked count by status and
+   * a list of expired approvals (if any). Hidden when the feature is
+   * disabled or there are no expired approvals.
+   * @param {{enabled?: boolean, summary?: object, expired?: Array}} data
+   * @returns {void}
+   */
+  function applyExpiry(data) {
+    const section = document.getElementById("expiry-section");
+    if (!section) return;
+    if (!data || !data.enabled) {
+      section.hidden = true;
+      return;
+    }
+    const summary = data.summary || {};
+    const expired = Array.isArray(data.expired) ? data.expired : [];
+    if (summary.total === 0) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+
+    const summaryEl = document.getElementById("expiry-summary");
+    if (summaryEl) {
+      const exp = summary.expired || 0;
+      const stl = summary.stale || 0;
+      summaryEl.textContent = `${exp} ${t("popup.expiry.expired")} · ${stl} ${t("popup.expiry.stale")}`;
+      summaryEl.classList.toggle("is-expired", exp > 0);
+      summaryEl.classList.toggle("is-stale", exp === 0 && stl > 0);
+    }
+
+    const listEl = document.getElementById("expiry-list");
+    if (listEl) {
+      if (expired.length === 0) {
+        listEl.innerHTML = "";
+      } else {
+        listEl.innerHTML = expired.map((e) => {
+          const sym = escapeHtml(e.approval.tokenSymbol || e.approval.tokenName || "?");
+          const chain = escapeHtml(e.approval.chainName || "");
+          const days = e.daysOverdue || 0;
+          return `<li class="expiry__item">
+            <span class="expiry__item-sym">${sym}</span>
+            <span class="expiry__item-meta">+${days}d · ${chain}</span>
+          </li>`;
+        }).join("");
+      }
     }
   }
 

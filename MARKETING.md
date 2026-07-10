@@ -21,7 +21,7 @@ The account exists but is dormant:
 ```
 🛡️ Free, open-source Web3 wallet security
 🔍 Decodes calldata · blocks phishing · scans approvals
-⛓️ 13 chains · 1,334 tests · MIT licensed
+⛓️ 13 chains · 1,429 tests · MIT licensed
 🆓 Install: chromewebstore.google.com/detail/walletguard-pro
 🔧 github.com/eupho808/walletguard-pro
 ```
@@ -54,7 +54,7 @@ browser extension that catches the stuff your wallet doesn't:
 ✓ Blind personal_sign payloads
 ✓ Bridge-to-wrong-chain transactions
 
-13 chains. Zero API keys. 1,334 tests passing.
+13 chains. Zero API keys. 1,429 tests passing.
 
 → github.com/eupho808/walletguard-pro
 → Chrome Web Store (link in bio)
@@ -248,7 +248,7 @@ Shipped this week:
 - Real-time OS notifications for high-severity blocks
 - Multilingual: en, ru, es, zh (community-translated)
 - 9-chain approval scanner with public RPCs
-- 1,334 tests passing (was 184 at launch)
+- 1,429 tests passing (was 184 at launch)
 
 What's next:
 - walletguard-core npm package (extract decoder + risk
@@ -470,7 +470,7 @@ support as hunter — here's the GH link."
 **Eligibility:** Public goods serving the OP Mainnet ecosystem
 **Size:** $5-50k
 **Pitch angle:** "Open-source security layer protecting every
-OP Mainnet user from drainers. Free, MIT-licensed, 1,334 tests."
+OP Mainnet user from drainers. Free, MIT-licensed, 1,429 tests."
 
 **Application template:**
 
@@ -575,7 +575,7 @@ approvals by default."
 
 **URL:** https://grants.gitcoin.co
 **Size:** Matching pool, varies per round
-**Pitch:** "OSS public good for Web3 security — 1,334 tests,
+**Pitch:** "OSS public good for Web3 security — 1,429 tests,
 9 chains, multilingual."
 
 ---

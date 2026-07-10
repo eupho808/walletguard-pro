@@ -13,7 +13,7 @@ If you change behaviour in `lib/`, add or update a test in the matching `test-*.
 ```bash
 git clone https://github.com/eupho808/walletguard-pro.git
 cd walletguard-pro
-npm test                # runs all 1,334 tests across 31 suites
+npm test                # runs all 1,429 tests across 33 suites
 node build.js           # regenerates content.js from lib/*
 ```
 
