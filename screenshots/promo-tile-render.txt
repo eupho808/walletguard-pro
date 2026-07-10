@@ -1,0 +1,105 @@
+# Re-rendering screenshots — step by step
+
+The popup mock (`popup-mock.html`) and promo tile (`promo-tile.svg`) were
+updated to v4 CALM design (no cyberpunk, no neon glow, no decorative
+gradients). The four overlay screenshots (`01-`, `02-`, `03-`, `05-`) are
+honest captures of the actual extension overlay — they are kept as-is.
+
+You need to re-capture two PNGs:
+
+## 1. `04-approval-scanner.png` (popup view)
+
+1. Open `screenshots/popup-mock.html` in Chrome
+   - Use `file:///C:/Users/bruhz/OneDrive/Документы/Samples/WalletGuard Light/screenshots/popup-mock.html`
+2. Open DevTools (F12) → toggle device toolbar (Ctrl+Shift+M)
+3. Set viewport: **1280 × 800**
+4. From DevTools command palette (Ctrl+Shift+P): "Capture screenshot"
+5. Save as `screenshots/04-approval-scanner.png` (overwrite)
+
+Or in PowerShell (no && chaining, no native browser screenshot needed):
+
+```powershell
+# Option A: use Edge headless via msedge.exe
+$edge = "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe"
+if (Test-Path -LiteralPath $edge) {
+  & $edge --headless --disable-gpu --hide-scrollbars `
+    --window-size=1280,800 `
+    --screenshot="$PWD\screenshots\04-approval-scanner.png" `
+    "file:///$($PWD -replace '\\','/')$( (Resolve-Path 'screenshots\popup-mock.html').Path.Substring( (Get-Location).Path.Length ) -replace '\\','/' )"
+}
+
+# Option B: use Chrome headless via chrome.exe
+$chrome = "${env:ProgramFiles}\Google\Chrome\Application\chrome.exe"
+if (Test-Path -LiteralPath $chrome) {
+  & $chrome --headless --disable-gpu --hide-scrollbars `
+    --window-size=1280,800 `
+    --screenshot="$PWD\screenshots\04-approval-scanner.png" `
+    "file:///$($PWD -replace '\\','/')$( (Resolve-Path 'screenshots\popup-mock.html').Path.Substring( (Get-Location).Path.Length ) -replace '\\','/' )"
+}
+```
+
+If neither browser is found at those paths, just use the manual method.
+
+## 2. `promo-tile.png` (440×280)
+
+`promo-tile.svg` is the source. Convert to PNG at exactly 440×280:
+
+```powershell
+# Option A: Edge headless
+$edge = "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe"
+if (Test-Path -LiteralPath $edge) {
+  & $edge --headless --disable-gpu --hide-scrollbars `
+    --window-size=440,280 `
+    --screenshot="$PWD\screenshots\promo-tile.png" `
+    "file:///$($PWD -replace '\\','/')$( (Resolve-Path 'screenshots\promo-tile.svg').Path.Substring( (Get-Location).Path.Length ) -replace '\\','/' )"
+}
+
+# Option B: manual (Chrome/Firefox)
+# 1. Open screenshots/promo-tile.svg in the browser
+# 2. Right-click the image → "Save image as..." → promo-tile.png
+# 3. Or: DevTools → device toolbar → 440×280 → "Capture screenshot"
+```
+
+If the SVG renders with wrong fonts (browser falls back to default), pre-load
+Inter first by wrapping in an HTML file:
+
+```powershell
+@'
+<!DOCTYPE html><html><head>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0B0B0E}img{display:block;width:440px;height:280px}</style>
+</head><body><img src="promo-tile.svg" alt=""></body></html>
+'@ | Set-Content -LiteralPath "screenshots\_render.html" -Encoding UTF8
+
+# Then capture screenshots\_render.html at 440x280
+```
+
+After both PNGs are re-captured, delete `_render.html` and run:
+
+```powershell
+npm test
+git status
+```
+
+You should see `04-approval-scanner.png` and `promo-tile.png` modified.
+Commit and push:
+
+```powershell
+git add screenshots/04-approval-scanner.png screenshots/promo-tile.png
+git commit -m "screenshots: refresh popup mock + promo tile to v4 CALM (v3.7.0 launch prep)"
+git push origin main
+```
+
+## Verification
+
+After commit, check `git log --oneline -3` to confirm the new commit is in.
+
+Open `screenshots/promo-tile.png` — should be a clean dark 440×280 tile
+with a single emerald shield icon, "WalletGuard Pro" wordmark (white +
+emerald "Pro"), one-line tagline, and three small-caps meta items at
+the bottom. **No glow, no neon, no decorative gradients.**
+
+Open `screenshots/04-approval-scanner.png` — should be 1280×800 with the
+actual popup on the left (showing "100/100" hero, protection checks,
+recent activity, token/NFT permission rows) and the v4 CALM pitch column
+on the right (Inter typography, single emerald accent).

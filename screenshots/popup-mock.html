@@ -3,53 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1280, initial-scale=1.0">
-    <title>WalletGuard Pro — Dashboard Preview</title>
+    <title>WalletGuard Pro — Extension Popup</title>
     <link rel="stylesheet" href="../popup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Two-column showcase: popup on the left at native size,
-           marketing tagline on the right. Both fit comfortably in 1280x800. */
+        /*
+         * popup-mock.html — v4 CALM render canvas for screenshot 04.
+         * Shows the ACTUAL popup (popup.html markup, styled by popup.css)
+         * at native 360px width on a clean dark canvas. The right column
+         * is minimal marketing copy in v4 CALM aesthetic — typography,
+         * whitespace, single emerald accent. No gradients, no glow.
+         */
 
         html, body {
             margin: 0;
             padding: 0;
-            background: #0b0d13;
             width: 1280px;
             height: 800px;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0b0e;
             color: #ffffff;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
             box-sizing: border-box;
         }
 
         body {
-            background:
-                radial-gradient(circle at 25% 30%, rgba(0, 255, 204, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 75% 70%, rgba(120, 80, 220, 0.05) 0%, transparent 45%),
-                #0b0d13;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 80px;
-            padding: 60px;
+            gap: 96px;
+            padding: 60px 80px;
         }
 
-        /* LEFT: popup wrapper, just a visual frame around the existing popup.
-           Render at native 360px width so the layout is honest. */
-        .popup-wrap {
+        /* LEFT: actual popup at native 360px, on a soft dark frame */
+        .popup-frame {
             width: 360px;
             flex-shrink: 0;
-            background: #0b0d13;
-            border-radius: 18px;
-            box-shadow:
-                0 0 0 1px rgba(255, 255, 255, 0.04),
-                0 30px 60px rgba(0, 0, 0, 0.5);
-            /* Clip the popup body so anything overflowing the 800px viewport
-               doesn't leak outside the frame. */
-            max-height: 680px;
+            border-radius: 14px;
             overflow: hidden;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.06),
+                0 30px 80px rgba(0, 0, 0, 0.6);
+            background: #131317;
         }
 
-        /* RIGHT: marketing column */
+        /* The popup.html stylesheet targets `body` and uses some inherited
+           styles. The popup inside the frame is the real extension markup,
+           so we keep popup.css intact. We only override body-level rules
+           that would leak into the canvas. */
+        .popup-frame .popup { padding-bottom: 0; }
+
+        /* RIGHT: minimal v4 CALM pitch column */
         .pitch {
             flex: 1;
             max-width: 540px;
@@ -59,309 +64,296 @@
         }
 
         .pitch-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 600;
             letter-spacing: 1.4px;
             text-transform: uppercase;
-            color: #00ffcc;
-            margin-bottom: 18px;
+            color: rgba(255, 255, 255, 0.45);
+            margin-bottom: 20px;
         }
-        .pitch-eyebrow::before {
-            content: "";
+
+        .pitch-eyebrow .dot {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: #00ff66;
-            box-shadow: 0 0 10px #00ff66;
+            background: #10B981;
+            margin-right: 10px;
+            vertical-align: middle;
         }
 
         .pitch-title {
-            font-size: 48px;
-            font-weight: 800;
+            font-size: 46px;
+            font-weight: 700;
             line-height: 1.1;
-            margin: 0 0 8px 0;
-            letter-spacing: -1.5px;
-        }
-        .pitch-title span {
-            color: #00ffcc;
+            margin: 0 0 20px 0;
+            letter-spacing: -0.02em;
+            color: #ffffff;
         }
 
+        .pitch-title .accent { color: #10B981; }
+
         .pitch-sub {
-            font-size: 18px;
-            color: #8a92a3;
-            line-height: 1.5;
-            margin: 0 0 32px 0;
+            font-size: 17px;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 0 36px 0;
             max-width: 480px;
+            font-weight: 400;
         }
 
         .feature-list {
             list-style: none;
             padding: 0;
-            margin: 0 0 32px 0;
+            margin: 0 0 40px 0;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
+
         .feature-list li {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 14px;
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.78);
+            font-weight: 400;
         }
+
         .feature-list li svg {
             flex-shrink: 0;
-            margin-top: 2px;
+            margin-top: 4px;
         }
 
-        .pitch-meta {
+        .pitch-stats {
             display: flex;
-            gap: 28px;
-            padding-top: 22px;
+            gap: 40px;
+            padding-top: 24px;
             border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
-        .pitch-meta .num {
-            font-size: 22px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.5px;
-        }
-        .pitch-meta .num span { color: #00ffcc; }
-        .pitch-meta .lbl {
-            font-size: 11px;
-            color: #646b7c;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin-top: 2px;
-            font-weight: 700;
+
+        .pitch-stats .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        /* Inside the popup: hide sections we trim for the marketing shot.
-           NFT section is its own screenshot. */
-        .nft-section,
-        .logs-section,
-        .divider,
-        .actions-row {
+        .pitch-stats .stat-num {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pitch-stats .stat-num .accent { color: #10B981; }
+
+        .pitch-stats .stat-lbl {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        /*
+         * Render hints for the popup content. The extension's popup.js
+         * can't run here (no chrome.* APIs), so we pre-fill some sections
+         * via :target / inline data attributes to make the screenshot
+         * look populated without faking whole feature UI.
+         */
+        #wallet-section { display: flex !important; }
+        #wallet-addr::before {
+            content: "vitalik.eth";
+            color: #fff;
+        }
+        #wallet-addr { font-size: 13px; }
+        #wallet-chain::before { content: "Ethereum"; }
+
+        /* Hide the address-book inputs and footer links — they are too
+           dense for a 1280x800 marketing canvas and not the story we
+           want to tell here. */
+        .popup-frame .add-row,
+        .popup-frame .addresses,
+        .popup-frame .footer {
             display: none !important;
         }
 
-        /* Trim the long approval list to top 4 (most risky).
-           The 5th card and beyond we hide. */
-        .approval-list .approval-card:nth-child(n+5) {
+        /* Trim activity log to first 3 entries so the popup fits. */
+        .popup-frame #logs-list .activity__item:nth-child(n+4) {
             display: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- LEFT: the actual popup rendered at native 360px -->
-    <div class="popup-wrap">
-        <div class="container">
+    <!-- LEFT: the actual extension popup markup (no JS — static for screenshot) -->
+    <div class="popup-frame">
+        <main class="popup">
 
-            <!-- HEADER -->
-            <div class="header">
-                <div class="logo-area">
-                    <div class="status-dot"></div>
-                    <h1 class="logo-text">WalletGuard Pro</h1>
+            <header class="topbar">
+                <div class="topbar__brand">
+                    <span class="topbar__name">WalletGuard Pro</span>
                 </div>
-                <div class="radar-badge">ACTIVE</div>
-            </div>
+                <div class="topbar__right">
+                    <span class="topbar__status" id="status-badge">Protected</span>
+                </div>
+            </header>
 
-            <!-- SCORE CARD -->
-            <div class="score-card">
-                <div class="section-title">Wallet Safety Score</div>
-                <div class="score-display">
-                    <span class="score-main warn">62</span>
-                    <span class="score-total">/100</span>
-                </div>
-            </div>
+            <section class="wallet" id="wallet-section">
+                <span class="wallet__label">Connected</span>
+                <span class="wallet__addr mono" id="wallet-addr">vitalik.eth</span>
+                <span class="wallet__chain" id="wallet-chain">Ethereum</span>
+            </section>
 
-            <!-- STATS GRID -->
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-title">Sites Scanned</div>
-                    <div class="stat-value">47</div>
+            <section class="hero">
+                <div class="hero__score">
+                    <span class="hero__score-num" id="wallet-score">100</span>
+                    <span class="hero__score-divider">/</span>
+                    <span class="hero__score-total">100</span>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-title">Intercepted</div>
-                    <div class="stat-value">89</div>
-                </div>
-            </div>
+                <p class="hero__state" id="score-state">Everything looks good.</p>
+            </section>
 
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-title">Blocked by You</div>
-                    <div class="stat-value warn-color">12</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Permits Caught</div>
-                    <div class="stat-value danger-color">3</div>
-                </div>
-            </div>
+            <hr class="divider">
 
-            <!-- PROTECTED BANNER -->
-            <div class="protected-banner">
-                <div>
-                    <div class="banner-title">PHISHING BLOCKED</div>
-                    <div class="banner-subtitle">Malicious sites stopped</div>
-                </div>
-                <div class="banner-value">7</div>
-            </div>
+            <section class="section">
+                <h2 class="section__title">Protection</h2>
+                <ul class="checks">
+                    <li class="check">
+                        <span class="check__dot"></span>
+                        <span class="check__label">Protection enabled</span>
+                        <span class="check__value">Enabled</span>
+                    </li>
+                    <li class="check">
+                        <span class="check__dot"></span>
+                        <span class="check__label">Threat intelligence</span>
+                        <span class="check__value">Enabled</span>
+                    </li>
+                    <li class="check">
+                        <span class="check__dot"></span>
+                        <span class="check__label">Behavioral DNA</span>
+                        <span class="check__value">12 profiles</span>
+                    </li>
+                </ul>
+            </section>
 
-            <!-- APPROVAL SCANNER (trimmed to top 4 cards via CSS) -->
-            <div class="approval-section">
-                <div class="section-title-row">
-                    <span class="section-title">Active Token Approvals</span>
-                    <button class="rescan-btn">Rescan</button>
-                </div>
+            <hr class="divider">
 
-                <div class="approval-summary">
-                    <div class="summary-tile">
-                        <div class="summary-num">18</div>
-                        <div class="summary-label">Total</div>
+            <section class="section">
+                <div class="section__header">
+                    <h2 class="section__title">Recent activity</h2>
+                </div>
+                <ul class="activity" id="logs-list">
+                    <li class="activity__item">
+                        <span class="activity__time">just now</span>
+                        <span class="activity__text">Approved USDC → Uniswap V3</span>
+                    </li>
+                    <li class="activity__item">
+                        <span class="activity__time">2m ago</span>
+                        <span class="activity__text">Blocked phishing site: fake-metamask-claim.io</span>
+                    </li>
+                    <li class="activity__item">
+                        <span class="activity__time">8m ago</span>
+                        <span class="activity__text">Detected typosquat: unlsvvap.org</span>
+                    </li>
+                </ul>
+            </section>
+
+            <hr class="divider">
+
+            <section class="section section--link" id="approval-section">
+                <div class="row">
+                    <div class="row__main">
+                        <h2 class="section__title section__title--inline">Token permissions</h2>
+                        <p class="row__meta">3 risky of 18 total · Ethereum</p>
                     </div>
-                    <div class="summary-tile risky hot">
-                        <div class="summary-num">3</div>
-                        <div class="summary-label">Risky</div>
-                    </div>
-                    <div class="summary-tile">
-                        <div class="summary-num">7</div>
-                        <div class="summary-label">Unlimited</div>
+                    <div class="row__side">
+                        <span class="row__count">18</span>
+                        <span class="row__chevron">→</span>
                     </div>
                 </div>
+            </section>
 
-                <div class="approval-meta">
-                    <span id="approval-wallet">vitalik.eth &middot; 0xd8dA&hellip;6045</span>
-                    <span id="approval-time">ETH &middot; Mainnet</span>
+            <hr class="divider">
+
+            <section class="section section--link" id="nft-section">
+                <div class="row">
+                    <div class="row__main">
+                        <h2 class="section__title section__title--inline">NFT permissions</h2>
+                        <p class="row__meta">1 setApprovalForAll active</p>
+                    </div>
+                    <div class="row__side">
+                        <span class="row__count">2</span>
+                        <span class="row__chevron">→</span>
+                    </div>
                 </div>
+            </section>
 
-                <div class="approval-list">
-
-                    <div class="approval-card r-critical">
-                        <div class="approval-top">
-                            <span class="approval-token">PEPE</span>
-                            <span class="approval-allowance unlimited">UNLIMITED</span>
-                        </div>
-                        <div class="approval-bottom">
-                            <span class="approval-spender">&rarr; 0xBad0&hellip;dead</span>
-                            <span class="approval-chain">ETH</span>
-                        </div>
-                        <div class="approval-reason">Unlimited allowance to UNKNOWN spender. Top NFT/ERC-20 drain signature.</div>
-                    </div>
-
-                    <div class="approval-card r-high">
-                        <div class="approval-top">
-                            <span class="approval-token">SHIB</span>
-                            <span class="approval-allowance unlimited">UNLIMITED</span>
-                        </div>
-                        <div class="approval-bottom">
-                            <span class="approval-spender">&rarr; 0x1111&hellip;hack</span>
-                            <span class="approval-chain">ETH</span>
-                        </div>
-                        <div class="approval-reason">Unlimited to unverified contract. Not in any reputation registry.</div>
-                    </div>
-
-                    <div class="approval-card r-medium">
-                        <div class="approval-top">
-                            <span class="approval-token">USDC.e</span>
-                            <span class="approval-allowance">50,000</span>
-                        </div>
-                        <div class="approval-bottom">
-                            <span class="approval-spender">&rarr; 0xScam&hellip;2222</span>
-                            <span class="approval-chain">ARB</span>
-                        </div>
-                        <div class="approval-reason">Large allowance to contract not in verified registry.</div>
-                    </div>
-
-                    <div class="approval-card r-low">
-                        <div class="approval-top">
-                            <span class="approval-token">USDT</span>
-                            <span class="approval-allowance unlimited">UNLIMITED</span>
-                        </div>
-                        <div class="approval-bottom">
-                            <span class="approval-spender">&rarr; 0x7a25&hellip;488D</span>
-                            <span class="approval-chain">ETH</span>
-                        </div>
-                    </div>
-
-                    <div class="approval-card r-info">
-                        <div class="approval-top">
-                            <span class="approval-token">WETH</span>
-                            <span class="approval-allowance limited">5.0</span>
-                        </div>
-                        <div class="approval-bottom">
-                            <span class="approval-spender">&rarr; 0xE592&hellip;1564</span>
-                            <span class="approval-chain">ETH</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
+        </main>
     </div>
 
-    <!-- RIGHT: marketing pitch -->
+    <!-- RIGHT: minimal v4 CALM pitch column -->
     <div class="pitch">
-        <div class="pitch-eyebrow">Extension Dashboard</div>
-        <h1 class="pitch-title">See every approval<br>your wallet ever <span>granted</span>.</h1>
+        <div class="pitch-eyebrow">
+            <span class="dot"></span>Extension popup
+        </div>
+
+        <h1 class="pitch-title">
+            The security layer<br>
+            your wallet <span class="accent">needs.</span>
+        </h1>
+
         <p class="pitch-sub">
-            WalletGuard Pro scans ERC-20 and NFT approvals across thirteen chains in parallel,
-            flags the ones with no spend cap to unknown contracts, and shows you the exact
-            risk before your wallet does.
+            WalletGuard Pro sits between your dApp and your wallet. It intercepts
+            every transaction, decodes the calldata, flags the risk, and asks you
+            to confirm &mdash; before your wallet does.
         </p>
 
         <ul class="feature-list">
             <li>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <circle cx="9" cy="9" r="9" fill="rgba(0,255,102,0.15)"/>
-                    <path d="M5 9l3 3 5-6" stroke="#00ff66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7l3 3 5-6" stroke="#10B981" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                13 chains scanned in parallel &mdash; Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia, zkSync, Linea, Blast, Mode
+                30 protection layers across 13 chains
             </li>
             <li>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <circle cx="9" cy="9" r="9" fill="rgba(0,255,102,0.15)"/>
-                    <path d="M5 9l3 3 5-6" stroke="#00ff66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7l3 3 5-6" stroke="#10B981" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Catches ERC-20 unlimited AND setApprovalForAll NFT root-access
+                Catches unlimited ERC-20, NFT root-access, Permit, multicall
             </li>
             <li>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <circle cx="9" cy="9" r="9" fill="rgba(0,255,102,0.15)"/>
-                    <path d="M5 9l3 3 5-6" stroke="#00ff66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7l3 3 5-6" stroke="#10B981" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Zero API keys &mdash; uses your wallet&rsquo;s own RPC node
+                Phishing + typosquatting block before any signature request
             </li>
             <li>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <circle cx="9" cy="9" r="9" fill="rgba(0,255,102,0.15)"/>
-                    <path d="M5 9l3 3 5-6" stroke="#00ff66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7l3 3 5-6" stroke="#10B981" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Phishing + typosquatting overlay before any signature request
+                Zero API keys, zero telemetry &mdash; everything runs locally
             </li>
         </ul>
 
-        <div class="pitch-meta">
-            <div>
-                <div class="num"><span>184</span></div>
-                <div class="lbl">Tests</div>
+        <div class="pitch-stats">
+            <div class="stat">
+                <span class="stat-num">1,429</span>
+                <span class="stat-lbl">Tests</span>
             </div>
-            <div>
-                <div class="num"><span>6</span></div>
-                <div class="lbl">Chains</div>
+            <div class="stat">
+                <span class="stat-num">30</span>
+                <span class="stat-lbl">Layers</span>
             </div>
-            <div>
-                <div class="num">MIT</div>
-                <div class="lbl">Licensed</div>
+            <div class="stat">
+                <span class="stat-num">13</span>
+                <span class="stat-lbl">Chains</span>
             </div>
-            <div>
-                <div class="num">0</div>
-                <div class="lbl">API keys</div>
+            <div class="stat">
+                <span class="stat-num">MIT</span>
+                <span class="stat-lbl">Licensed</span>
             </div>
         </div>
     </div>

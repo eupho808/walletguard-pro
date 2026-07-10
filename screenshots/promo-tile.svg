@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" width="440" height="280">
+  <!--
+    WalletGuard Pro — Chrome Web Store promo tile (440×280)
+    v4 CALM design: single emerald accent, dark, typography-led.
+    No glow, no neon, no decorative gradients. Stripe/Linear inspired.
+
+    Conversion to PNG: open in browser → DevTools → 440×280 → capture,
+    or `node -e` with sharp/resvg. See screenshots/promo-tile-render.txt.
+  -->
+  <defs>
+    <!-- Vertical separator only — used once, subtle -->
+    <linearGradient id="rule" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
+      <stop offset="50%" stop-color="rgba(255,255,255,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background: solid dark, no gradient -->
+  <rect width="440" height="280" fill="#0B0B0E"/>
+
+  <!-- Single accent corner mark (top-right) — minimal, no glow -->
+  <rect x="408" y="32" width="8" height="8" rx="2" fill="#10B981"/>
+
+  <!-- Shield icon (logo) — top-left, sized to match identity, no glow -->
+  <g transform="translate(40, 40)">
+    <path d="M28 8L10 16v14c0 11 7.7 20.1 18 21 10.3-.9 18-10 18-21V16L28 8z"
+          fill="none" stroke="#10B981" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M21 28l5 5 9-10"
+          fill="none" stroke="#10B981" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Wordmark + tagline block -->
+  <g transform="translate(40, 138)">
+    <text x="0" y="0"
+          font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          font-size="34"
+          font-weight="700"
+          letter-spacing="-0.02em"
+          fill="#FFFFFF">WalletGuard<tspan fill="#10B981"> Pro</tspan></text>
+
+    <text x="0" y="32"
+          font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          font-size="15"
+          font-weight="400"
+          fill="rgba(255,255,255,0.6)">Independent Web3 wallet security.</text>
+  </g>
+
+  <!-- Thin vertical accent rule, far right — visual rhythm, no glow -->
+  <rect x="408" y="120" width="1" height="80" fill="url(#rule)"/>
+
+  <!-- Bottom meta strip — small caps, three facts, no stat cards -->
+  <g transform="translate(40, 224)">
+    <text x="0" y="0"
+          font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          font-size="10"
+          font-weight="600"
+          letter-spacing="1.2"
+          fill="rgba(255,255,255,0.4)">v3.7</text>
+
+    <text x="44" y="0"
+          font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          font-size="10"
+          font-weight="600"
+          letter-spacing="1.2"
+          fill="rgba(255,255,255,0.4)">13 CHAINS</text>
+
+    <text x="118" y="0"
+          font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          font-size="10"
+          font-weight="600"
+          letter-spacing="1.2"
+          fill="rgba(255,255,255,0.4)">30 LAYERS</text>
+
+    <text x="200" y="0"
+          font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          font-size="10"
+          font-weight="600"
+          letter-spacing="1.2"
+          fill="#10B981">MIT</text>
+  </g>
+</svg>
