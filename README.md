@@ -1,6 +1,6 @@
 # WalletGuard Pro
 
-> The most comprehensive Web3 wallet security extension ever built. **29 protection layers**, **zero dependencies**, **1,429 automated tests**, MIT-licensed. Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
+> The most comprehensive Web3 wallet security extension ever built. **30 protection layers**, **zero dependencies**, **1,429 automated tests**, MIT-licensed (v3.7.0). Intercepts every transaction before it reaches your wallet and explains exactly what's about to happen — including attack vectors nobody else detects.
 
 [![Version](https://img.shields.io/badge/version-3.7.0-10B981?style=flat-square)](./manifest.json)
 [![Design](https://img.shields.io/badge/design-CALM-10B981?style=flat-square)](#v4-calm-design-language)
@@ -17,6 +17,23 @@
 
 ---
 
+## Transfer available
+
+The project is **available for transfer** — see [`TRANSFER.md`](./TRANSFER.md) for terms and what's included. If you're building a Web3 wallet and want a battle-tested security foundation instead of rebuilding it from zero, this might save you 3-6 months.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Phishing block](screenshots/01-phishing-block.png) | ![Calldata decoded (SAFE)](screenshots/02-calldata-decoded.png) |
+| Phishing site blocked at request time | Calldata decoded — every transaction shows what it actually does |
+| ![Risk factors explained (HIGH)](screenshots/03-risk-factors-explained.png) | ![Extension popup](screenshots/04-approval-scanner.png) |
+| HIGH RISK with explicit factor breakdown | Extension popup — v4 CALM, single emerald accent |
+| ![NFT root-access block](screenshots/05-nft-access.png) | ![Promo tile 440×280](screenshots/promo-tile.png) |
+| `setApprovalForAll` flagged before sign | Chrome Web Store promo tile (440×280) |
+
+---
+
 ## Why WalletGuard Pro?
 
 Every Web3 wallet trusts you to read raw `0x...` calldata and approve it. Most drainers, phishers, and exit-scams rely on that. **WalletGuard Pro sits between you and the wallet**, decoding every transaction before it reaches MetaMask and flagging what looks wrong.
@@ -25,19 +42,19 @@ Every Web3 wallet trusts you to read raw `0x...` calldata and approve it. Most d
 
 ### What makes it the best
 
-| | WalletGuard Pro v3.2.1 "HARDENED" |
+| | WalletGuard Pro v3.7.0 "EXPIRY" |
 |---|---|
-| **Attack surfaces covered** | **20** (EIP-7702, session keys, MEV, drainers, phish clones, Safe multi-sig, hardware wallet rules, wallet DNA, threat feed, ...) |
-| **Modules** | **20** pure ES modules, zero runtime dependencies |
+| **Attack surfaces covered** | **30** protection layers (EIP-7702, session keys, MEV, drainers, phish clones, Safe multi-sig, hardware wallet rules, wallet DNA, threat feed, correlation, blast radius, approval expiry, ...) |
+| **Modules** | **31** pure ES modules, zero runtime dependencies |
 | **Tests** | **1,429** automated tests, 33 suites, all green |
-| **Chains** | **9** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia) |
-| **Wallets** | **12** (MetaMask, Rabby, Frame, Rainbow, Zerion, Trust, Coinbase, Brave, OKX, Phantom, ...) |
-| **Locales** | **4** (en, ru, es, zh) — every UI string |
+| **Chains** | **9 active** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia) + 4 in registry (zkSync Era, Linea, Blast, Mode) |
+| **Wallets** | **12+** (MetaMask, Rabby, Frame, Rainbow, Zerion, Trust, Coinbase, Brave, OKX, Phantom, ...) |
+| **Locales** | **6** (en, ru, es, zh, ja, ko) — every UI string |
 | **Design system** | v4 CALM — minimal premium dark UI, typography-first, single emerald accent, 1px dividers |
-| **Bundle size** | content 246K + popup 307K (≈ 553K total) — smaller than Blockaid's SW |
+| **Bundle size** | content 374 KB + popup 475 KB |
 | **Privacy** | No backend. No tracking. No user data leaves the device. |
 | **License** | MIT — fork, extend, audit, ship |
-| **CI** | GitHub Actions on Node 18, 20, 22 |
+| **CI / SAST** | GitHub Actions on Node 20+22, opengrep custom Web3 rules (7 rules) |
 
 ### v4 CALM design language
 
@@ -57,7 +74,7 @@ A premium dark UI inspired by Linear, Stripe, Rabby and MetaMask — minimal, ca
 
 ---
 
-## The 29 Protection Layers
+## The 30 Protection Layers
 
 WalletGuard Pro is the only Web3 wallet extension that covers every
 known attack surface — including ones added by Pectra (May 2025) that
@@ -116,8 +133,10 @@ competitors don't yet detect.
 Weighted multi-factor scoring. Every transaction shows you **why** it's risky, not just a number.
 
 ### Approval scanner
-- **ERC-20 approvals** across **9 chains** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia)
+- **ERC-20 approvals** across **9 active chains** (Ethereum, Optimism, BNB, Polygon, Fantom, Base, Arbitrum, Avalanche, Sepolia) — 4 more (zkSync Era, Linea, Blast, Mode) defined in scanner registry, pending host permission declarations
 - **NFT collection approvals** (`setApprovalForAll`) — root-access drain pattern
+- **Approval expiry tracking** *(v3.7.0)* — world-first for a wallet extension: surface approvals older than the user's chosen window (default 90 days, range 7-365)
+- **Bulk multicall revoke** *(v3.6)* — N stale approvals → K Multicall3 transactions, calldata generated by the extension
 - **Zero API keys** — uses your wallet's own RPC node
 
 ### Phishing & typosquatting defense
@@ -214,7 +233,7 @@ Every test runs in plain Node — no Chrome required. The scanner module is load
 
 ## Security
 
-[Threat Model](./THREAT_MODEL.md) — what we protect against, what we don't, and our trust assumptions. Read this before assuming the extension is a silver bullet — it isn't, but it covers the >90% of Web3 drain patterns that show up in the wild. [Security Policy](./SECURITY.md) covers responsible disclosure. [Self-Audit](./SELF_AUDIT.md) lists every bug found during the v1.5.x security review with severity, fix, and regression test.
+[Threat Model](./THREAT_MODEL.md) — what we protect against, what we don't, and our trust assumptions. Read this before assuming the extension is a silver bullet — it isn't, but it covers the >90% of Web3 drain patterns that show up in the wild. [Security Policy](./SECURITY.md) covers responsible disclosure. [Self-Audit](./SELF_AUDIT.md) lists every bug found across three review cycles (v3.2.1, v3.6.1, v3.7.0) with severity, fix, and regression test. [Audit Package](./AUDIT_PACKAGE.md) — 300-line auditor's quickstart: priority review targets, 10 security invariants, regression-test coverage map, known gaps, engagement logistics.
 
 ---
 
